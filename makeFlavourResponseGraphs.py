@@ -180,9 +180,13 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
 def main(in_args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--inputFits", help="Input ROOT file with response histograms & fits (from jet_response...")
-    parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response...")
+    parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
+    parser.add_argument("--inputFits", help="Input ROOT file with response histograms & fits (from jet_response_fitter_x)")
+    parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     args = parser.parse_args(in_args)
+
+    if not os.path.isdir(args.outputDir):
+        os.makedirs(args.outputDir)
 
     if args.inputGraphs:
 
@@ -215,8 +219,9 @@ def main(in_args):
                 }
                 entries.append(entry)
             title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            do_comparison_graph(entries, title=title, xtitle="p_{T}^{Gen} [GeV]", ytitle="Response",
-                                output_filename="%s_rsp_vs_pt_%s.pdf" % (mydir, eta_bin), logx=True)
+            do_comparison_graph(entries, title=title, 
+                                xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
+                                output_filename=os.path.join(args.outputDir, "%s_rsp_vs_pt_%s.pdf" % (mydir, eta_bin)))
 
         # Do all flavs for given pt bins
         common_pt_bins = get_common_pt_bins(obj_list)
@@ -235,7 +240,7 @@ def main(in_args):
                 entries.append(entry)
             title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
             do_comparison_graph(entries, title=title + " GeV", xtitle="#eta", ytitle="Response",
-                                output_filename="%s_rsp_vs_eta_%s.pdf" % (mydir, pt_bin))
+                                output_filename=os.path.join(args.outputDir, "%s_rsp_vs_eta_%s.pdf" % (mydir, pt_bin)))
 
     return 0
 
