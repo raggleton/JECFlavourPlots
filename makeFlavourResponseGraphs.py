@@ -127,7 +127,7 @@ def get_common_pt_bins(obj_list):
 
 def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", other_elements=None, logx=False, logy=False, do_line=True, y_limit_protection=None, draw_fits=True):
     """Draw several graphs on one canvas and save to file
-    
+
     Parameters
     ----------
     entries : [dict]
@@ -151,7 +151,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         Do horizontal line at 1
     y_limit_protection : (y_min, y_max), optional
         Set minimum and maximum y values in the event of a huge stat error or weird point
-    
+
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join([title, xtitle, ytitle]))
@@ -246,7 +246,7 @@ def main(in_args):
 
             obj_list = get_list_of_objects_in_dir(args.inputGraphs, mydir)
 
-            # Do all flavs for given eta bins
+            # Do all flavs rsp vs pt for given eta bin
             common_eta_bins = get_common_eta_bins(obj_list)
             for eta_bin in common_eta_bins:
                 entries = []
@@ -262,7 +262,7 @@ def main(in_args):
                                     y_limit_protection=(0.8, 1.2),
                                     output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
-            # Do all flavs for given pt bins
+            # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = get_common_pt_bins(obj_list)
             for pt_bin in common_pt_bins:
                 entries = []
@@ -277,6 +277,36 @@ def main(in_args):
                                     xtitle="|#eta|", ytitle="Response",
                                     y_limit_protection=(0.8, 1.2),
                                     output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))# Do all flavs for given pt bins
+
+            # Do all flave resolution vs pt for given eta bin
+            for eta_bin in common_eta_bins:
+                entries = []
+                for fdict in entry_dicts:
+                    entry = deepcopy(fdict)
+                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
+                    entry["line_color"] = fdict['colour']
+                    entry["marker_color"] = fdict['colour']
+                    entries.append(entry)
+                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                do_comparison_graph(entries, title=title,
+                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
+                                    y_limit_protection=(0, 0.3), draw_fits=True,
+                                    output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
+
+            # Do resolution plots vs pt for given eta bin
+            for pt_bin in common_pt_bins:
+                entries = []
+                for fdict in entry_dicts:
+                    entry = deepcopy(fdict)
+                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
+                    entry["line_color"] = fdict['colour']
+                    entry["marker_color"] = fdict['colour']
+                    entries.append(entry)
+                title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                do_comparison_graph(entries, title=title + " GeV",
+                                    xtitle="|#eta|", ytitle="Relative resolution",
+                                    y_limit_protection=(0, 0.3), draw_fits=True,
+                                    output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
 
