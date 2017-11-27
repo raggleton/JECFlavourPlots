@@ -254,7 +254,7 @@ def main(in_args):
                     }
                     entries.append(entry)
                 title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                do_comparison_graph(entries, title=title + " GeV", xtitle="#eta", ytitle="Response",
+                do_comparison_graph(entries, title=title + " GeV", xtitle="|#eta|", ytitle="Response",
                                     output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
