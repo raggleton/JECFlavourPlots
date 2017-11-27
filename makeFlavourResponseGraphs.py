@@ -93,10 +93,16 @@ def grab_obj_from_file(file_name, obj_name):
         return obj
 
 
+def get_list_of_element_names(thing):
+    """Get list of key names for given thing in a ROOT file"""
+    return [x.GetName() for x in thing.GetListOfKeys()]
+
+
 def get_list_of_objects_in_dir(filename, dirname):
-    f = open_root_file(filename)
+    """Get list of elements in a TDirectory"""
+    f = open_root_file(filename)  # need to keep this in memory otherwise the get_list... segfaults
     d = get_from_tfile(f, dirname)
-    return [x.GetName() for x in d.GetListOfKeys()]
+    return get_list_of_element_names(d)
 
 
 def get_common_eta_bins(obj_list):
@@ -204,47 +210,52 @@ def main(in_args):
             {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kCyan-2, "marker_style": 25, "line_style": 1, "line_width": lw},
         ]
 
-        mydir = "ak4pfchs"
-        obj_list = get_list_of_objects_in_dir(args.inputGraphs, mydir)
+        dirs = get_list_of_element_names(open_root_file(args.inputGraphs))
+        for mydir in dirs:
+            # mydir = "ak4pfchsl1l2l3"
+            plot_dir = os.path.join(args.outputDir, mydir)
+            check_dir_exists_create(plot_dir)
 
-        # Do all flavs for given eta bins
-        common_eta_bins = get_common_eta_bins(obj_list)
-        for eta_bin in common_eta_bins:
-            entries = []
-            for fdict in entry_dicts:
-                entry = {
-                    "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)),
-                    "label" : fdict['label'],
-                    "line_width": fdict['line_width'],
-                    "line_style": fdict['line_style'],
-                    "line_color": fdict['colour'],
-                    "marker_color": fdict['colour'],
-                    "marker_style": fdict['marker_style'],
-                }
-                entries.append(entry)
-            title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            do_comparison_graph(entries, title=title, 
-                                xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                output_filename=os.path.join(args.outputDir, "%s_rsp_vs_pt_%s.pdf" % (mydir, eta_bin)))
+            obj_list = get_list_of_objects_in_dir(args.inputGraphs, mydir)
 
-        # Do all flavs for given pt bins
-        common_pt_bins = get_common_pt_bins(obj_list)
-        for pt_bin in common_pt_bins:
-            entries = []
-            for fdict in entry_dicts:
-                entry = {
-                    "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)),
-                    "label" : fdict['label'],
-                    "line_width": fdict['line_width'],
-                    "line_style": fdict['line_style'],
-                    "line_color": fdict['colour'],
-                    "marker_color": fdict['colour'],
-                    "marker_style": fdict['marker_style'],
-                }
-                entries.append(entry)
-            title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-            do_comparison_graph(entries, title=title + " GeV", xtitle="#eta", ytitle="Response",
-                                output_filename=os.path.join(args.outputDir, "%s_rsp_vs_eta_%s.pdf" % (mydir, pt_bin)))
+            # Do all flavs for given eta bins
+            common_eta_bins = get_common_eta_bins(obj_list)
+            for eta_bin in common_eta_bins:
+                entries = []
+                for fdict in entry_dicts:
+                    entry = {
+                        "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)),
+                        "label" : fdict['label'],
+                        "line_width": fdict['line_width'],
+                        "line_style": fdict['line_style'],
+                        "line_color": fdict['colour'],
+                        "marker_color": fdict['colour'],
+                        "marker_style": fdict['marker_style'],
+                    }
+                    entries.append(entry)
+                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                do_comparison_graph(entries, title=title,
+                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
+                                    output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
+
+            # Do all flavs for given pt bins
+            common_pt_bins = get_common_pt_bins(obj_list)
+            for pt_bin in common_pt_bins:
+                entries = []
+                for fdict in entry_dicts:
+                    entry = {
+                        "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)),
+                        "label" : fdict['label'],
+                        "line_width": fdict['line_width'],
+                        "line_style": fdict['line_style'],
+                        "line_color": fdict['colour'],
+                        "marker_color": fdict['colour'],
+                        "marker_style": fdict['marker_style'],
+                    }
+                    entries.append(entry)
+                title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                do_comparison_graph(entries, title=title + " GeV", xtitle="#eta", ytitle="Response",
+                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
 
