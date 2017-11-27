@@ -202,12 +202,12 @@ def main(in_args):
 
         lw = 2
         entry_dicts = [
-            {"flav": "RelRspVsRefPt", "label": "All", "colour": ROOT.kBlack, "marker_style": 20, "line_style": 1, "line_width": lw},
-            {"flav": "ud_RspVsRefPt_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": 21, "line_style": 1, "line_width": lw},
-            {"flav": "s_RRspVsRefPt_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": 22, "line_style": 1, "line_width": lw},
-            {"flav": "c_RRspVsRefPt_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": 23, "line_style": 1, "line_width": lw},
-            {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kMagenta, "marker_style": 24, "line_style": 1, "line_width": lw},
-            {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kCyan-2, "marker_style": 25, "line_style": 1, "line_width": lw},
+            {"flav": "RelRspVsRefPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
+            {"flav": "ud_RspVsRefPt_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+            {"flav": "s_RRspVsRefPt_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+            {"flav": "c_RRspVsRefPt_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+            {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kMagenta, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+            {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": ROOT.kFullCrossX, "line_style": 1, "line_width": lw, "marker_size": 1.6},
         ]
 
         dirs = get_list_of_element_names(open_root_file(args.inputGraphs))
