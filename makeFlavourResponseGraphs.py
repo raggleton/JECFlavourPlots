@@ -276,9 +276,9 @@ def main(in_args):
                 do_comparison_graph(entries, title=title + " GeV",
                                     xtitle="|#eta|", ytitle="Response",
                                     y_limit_protection=(0.8, 1.2),
-                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))# Do all flavs for given pt bins
+                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
 
-            # Do all flave resolution vs pt for given eta bin
+            # Do all flavs resolution vs pt for given eta bin
             for eta_bin in common_eta_bins:
                 entries = []
                 for fdict in entry_dicts:
@@ -293,7 +293,7 @@ def main(in_args):
                                     y_limit_protection=(0, 0.3), draw_fits=True,
                                     output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
 
-            # Do resolution plots vs pt for given eta bin
+            # Do all flavs resolution plots vs eta for given pt bin
             for pt_bin in common_pt_bins:
                 entries = []
                 for fdict in entry_dicts:
