@@ -206,7 +206,7 @@ def main(in_args):
             {"flav": "ud_RspVsRefPt_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
             {"flav": "s_RRspVsRefPt_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.2},
             {"flav": "c_RRspVsRefPt_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.2},
-            {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kMagenta, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+            {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
             {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": ROOT.kFullCrossX, "line_style": 1, "line_width": lw, "marker_size": 1.6},
         ]
 
