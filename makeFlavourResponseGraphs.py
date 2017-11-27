@@ -193,7 +193,9 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     if logy:
         canv.SetLogy()
     mg.Draw("ALP")
-
+    
+    mg.GetHistogram().SetMaximum(mg.GetYaxis().GetXmax() * 1.03)
+    
     # Protection in case y limits are dominated by large stat error
     if y_limit_protection and len(y_limit_protection) == 2:
         y_min, y_max = mg.GetYaxis().GetXmin(), mg.GetYaxis().GetXmax()
