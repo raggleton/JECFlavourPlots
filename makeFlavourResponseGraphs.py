@@ -89,8 +89,8 @@ def grab_obj_from_file(file_name, obj_name):
 
 
 def get_list_of_objects_in_dir(filename, dirname):
-    f = ROOT.TFile(filename)
-    d = f.Get(dirname)
+    f = open_root_file(filename)
+    d = get_from_tfile(f, dirname)
     return [x.GetName() for x in d.GetListOfKeys()]
 
 
