@@ -1,4 +1,4 @@
-#!/Usr/bin/env python
+#!/usr/bin/env python
 
 """Make lots of plots for flavour-binned response.
 
