@@ -153,9 +153,13 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join([title, xtitle, ytitle]))
-    leg = ROOT.TLegend(0.7, 0.55, 0.88, 0.88)
+    delta = 0.12
+    middle = 0.55
+    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
+    leg.SetNColumns(2)
+    leg.SetTextAlign(22)
 
     for entry in entries:
         entry['graph'].SetLineColor(entry.get('line_color', ROOT.kBlack))
