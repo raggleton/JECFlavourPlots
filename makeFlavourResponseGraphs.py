@@ -154,7 +154,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
     """
     mg = ROOT.TMultiGraph()
-    mg.SetTitle(";".join([title, xtitle, ytitle]))
+    mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.12
     middle = 0.55
     leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
@@ -211,9 +211,34 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         line.SetLineStyle(2)
         line.SetLineColor(ROOT.kGray+2)
         line.Draw()
+    
+    cms_text = ROOT.TPaveText(0.15, 0.83, 0.25, 0.87, "NDC")
+    cms_text.AddText("CMS")
+    cms_text.SetTextFont(62)
+    cms_text.SetTextAlign(11)
+    cms_text.SetBorderSize(0)
+    cms_text.SetFillStyle(0)
+    cms_text.Draw()
+
+    bin_text = ROOT.TPaveText(0.15, 0.79, 0.42, 0.83, "NDC")
+    bin_text.AddText(title)
+    bin_text.SetTextFont(42)
+    bin_text.SetTextAlign(11)
+    bin_text.SetBorderSize(0)
+    bin_text.SetFillStyle(0)
+    bin_text.Draw()
+
+    sample_text = ROOT.TPaveText(0.65, 0.91, 0.9, 0.95, "NDC")
+    sample_text.AddText("Flat QCD 13 TeV")
+    sample_text.SetTextFont(42)
+    sample_text.SetBorderSize(0)
+    sample_text.SetFillStyle(0)
+    sample_text.Draw()
+
     if other_elements:
         for ele in other_elements:
             ele.Draw()
+    
     canv.SaveAs(output_filename)
 
 
