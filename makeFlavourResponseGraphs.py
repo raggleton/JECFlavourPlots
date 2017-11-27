@@ -259,6 +259,7 @@ def main(in_args):
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
+                                    y_limit_protection=(0.8, 1.2),
                                     output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
             # Do all flavs for given pt bins
@@ -272,8 +273,10 @@ def main(in_args):
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
                 title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                do_comparison_graph(entries, title=title + " GeV", xtitle="|#eta|", ytitle="Response",
-                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
+                do_comparison_graph(entries, title=title + " GeV",
+                                    xtitle="|#eta|", ytitle="Response",
+                                    y_limit_protection=(0.8, 1.2),
+                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))# Do all flavs for given pt bins
 
     return 0
 
