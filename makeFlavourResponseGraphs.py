@@ -37,6 +37,11 @@ def check_file_exists(filepath):
     return os.path.isfile(os.path.realpath(filepath))
 
 
+def check_dir_exists_create(filepath):
+    """Check if directory exists. If not, create it."""
+    if not os.path.isdir(filepath):
+        os.makedirs(os.path.realpath(filepath))
+
 #
 # ROOT specific fns, like opening files safely
 #
@@ -185,8 +190,7 @@ def main(in_args):
     parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     args = parser.parse_args(in_args)
 
-    if not os.path.isdir(args.outputDir):
-        os.makedirs(args.outputDir)
+    check_dir_exists_create(args.outputDir)
 
     if args.inputGraphs:
 
