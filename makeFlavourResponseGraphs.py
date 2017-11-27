@@ -223,15 +223,10 @@ def main(in_args):
             for eta_bin in common_eta_bins:
                 entries = []
                 for fdict in entry_dicts:
-                    entry = {
-                        "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)),
-                        "label" : fdict['label'],
-                        "line_width": fdict['line_width'],
-                        "line_style": fdict['line_style'],
-                        "line_color": fdict['colour'],
-                        "marker_color": fdict['colour'],
-                        "marker_style": fdict['marker_style'],
-                    }
+                    entry = deepcopy(fdict)
+                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
+                    entry["line_color"] = fdict['colour']
+                    entry["marker_color"] = fdict['colour']
                     entries.append(entry)
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
@@ -243,15 +238,10 @@ def main(in_args):
             for pt_bin in common_pt_bins:
                 entries = []
                 for fdict in entry_dicts:
-                    entry = {
-                        "graph": grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)),
-                        "label" : fdict['label'],
-                        "line_width": fdict['line_width'],
-                        "line_style": fdict['line_style'],
-                        "line_color": fdict['colour'],
-                        "marker_color": fdict['colour'],
-                        "marker_style": fdict['marker_style'],
-                    }
+                    entry = deepcopy(fdict)
+                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                    entry["line_color"] = fdict['colour']
+                    entry["marker_color"] = fdict['colour']
                     entries.append(entry)
                 title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
                 do_comparison_graph(entries, title=title + " GeV", xtitle="|#eta|", ytitle="Response",
