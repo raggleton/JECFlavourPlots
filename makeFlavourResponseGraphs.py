@@ -125,9 +125,9 @@ def get_common_pt_bins(obj_list):
     return list(set(pt_bins))
 
 
-def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", other_elements=None, logx=False, logy=False, do_line=True):
+def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", other_elements=None, logx=False, logy=False, do_line=True, y_limit_protection=None, draw_fits=True):
     """Draw several graphs on one canvas and save to file
-
+    
     Parameters
     ----------
     entries : [dict]
@@ -149,7 +149,9 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         Log y axis
     do_line : bool, optional
         Do horizontal line at 1
-
+    y_limit_protection : (y_min, y_max), optional
+        Set minimum and maximum y values in the event of a huge stat error or weird point
+    
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join([title, xtitle, ytitle]))
@@ -162,16 +164,27 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     leg.SetTextAlign(22)
 
     for entry in entries:
-        entry['graph'].SetLineColor(entry.get('line_color', ROOT.kBlack))
-        entry['graph'].SetLineStyle(entry.get('line_style', 1))
-        entry['graph'].SetLineWidth(entry.get('line_width', 1))
+        default_colour = ROOT.kBlack
+        graph = entry['graph']
+        graph.SetLineColor(entry.get('line_color', default_colour))
+        graph.SetLineStyle(entry.get('line_style', 1))
+        graph.SetLineWidth(entry.get('line_width', 1))
 
-        entry['graph'].SetMarkerColor(entry.get('marker_color', ROOT.kBlack))
-        entry['graph'].SetMarkerStyle(entry.get('marker_style', 1))
-        entry['graph'].SetMarkerSize(entry.get('marker_size', 1))
+        graph.SetMarkerColor(entry.get('marker_color', default_colour))
+        graph.SetMarkerStyle(entry.get('marker_style', 1))
+        graph.SetMarkerSize(entry.get('marker_size', 1))
 
-        mg.Add(entry['graph'])
-        leg.AddEntry(entry['graph'], entry.get('label', entry['graph'].GetName()), "LP")
+        if graph.GetListOfFunctions().GetSize() > 0:
+            func = graph.GetListOfFunctions().Last()
+            if draw_fits:
+                func.SetLineColor(entry.get('line_color', default_colour))
+                func.SetLineStyle(3)
+            else:
+                # Broken for now
+                graph.GetListOfFunctions().Remove(func)
+
+        mg.Add(graph)
+        leg.AddEntry(graph, entry.get('label', graph.GetName()), "LP")
 
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
     canv.SetTicks(1, 1)
@@ -180,14 +193,15 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     if logy:
         canv.SetLogy()
     mg.Draw("ALP")
-    
+
     # Protection in case y limits are dominated by large stat error
-    y_min, y_max = mg.GetYaxis().GetXmin(), mg.GetYaxis().GetXmax() 
-    y_lim_lower, y_lim_upper = 0.8, 1.2
-    if y_max > y_lim_upper:
-        mg.GetHistogram().SetMaximum(y_lim_upper)
-    if y_min < y_lim_lower:
-        mg.GetHistogram().SetMinimum(y_lim_lower)
+    if y_limit_protection and len(y_limit_protection) == 2:
+        y_min, y_max = mg.GetYaxis().GetXmin(), mg.GetYaxis().GetXmax()
+        y_lim_lower, y_lim_upper = y_limit_protection
+        if y_max > y_lim_upper:
+            mg.GetHistogram().SetMaximum(y_lim_upper)
+        if y_min < y_lim_lower:
+            mg.GetHistogram().SetMinimum(y_lim_lower)
 
     leg.Draw()
 
