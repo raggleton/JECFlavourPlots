@@ -88,7 +88,7 @@ def grab_obj_from_file(file_name, obj_name):
         return obj
 
 
-def get_list_of_objects_in_file(filename, dirname):
+def get_list_of_objects_in_dir(filename, dirname):
     f = ROOT.TFile(filename)
     d = f.Get(dirname)
     return [x.GetName() for x in d.GetListOfKeys()]
@@ -201,7 +201,7 @@ def main(in_args):
         ]
 
         mydir = "ak4pfchs"
-        obj_list = get_list_of_objects_in_file(args.inputGraphs, mydir)
+        obj_list = get_list_of_objects_in_dir(args.inputGraphs, mydir)
 
         # Do all flavs for given eta bins
         common_eta_bins = get_common_eta_bins(obj_list)
