@@ -103,12 +103,18 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
         hist.SetMarkerStyle(entry.get('marker_style', 1))
         hist.SetMarkerSize(entry.get('marker_size', 1))
 
+        scale_factor = 1./hist.Integral()
+        if normalise:
+            hist.Scale(scale_factor)
+
         if hist.GetListOfFunctions().GetSize() > 0:
             func = hist.GetListOfFunctions().Last()
             if draw_fits:
                 func.SetLineColor(entry.get('line_color', default_colour))
                 # func.SetLineStyle(3)
                 func.SetLineWidth(1)
+                if normalise:
+                    func.SetParameter(0, func.GetParameter(0)*scale_factor)
                 funcs.append(func)
             else:
                 # Broken for now
