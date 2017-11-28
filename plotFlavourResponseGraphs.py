@@ -1,19 +1,7 @@
 #!/usr/bin/env python
 
-"""Make lots of plots for flavour-binned response.
+"""Plot response & resolution graphs using ROOT file from output of jet_response_and_resolution_x"""
 
-Uses output ROOT files from
-"""
-
-# split by:
-# eta binned
-# pt binned
-# inclusive over pt/eta
-#
-# want graphs, and comparison fits/hists
-#
-# do same for resolution?
-#
 
 import os
 import sys
@@ -211,9 +199,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
 def main(in_args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
-    parser.add_argument("--inputFits", help="Input ROOT file with response histograms & fits (from jet_response_fitter_x)")
     parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
+    parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
