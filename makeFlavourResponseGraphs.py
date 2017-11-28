@@ -125,9 +125,13 @@ def get_common_pt_bins(obj_list):
     return list(set(pt_bins))
 
 
-def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", other_elements=None, logx=False, logy=False, do_line=True, y_limit_protection=None, draw_fits=True):
-    """Draw several graphs on one canvas and save to file
 
+def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", 
+                        other_elements=None, logx=False, logy=False, 
+                        do_line=True, xlimits=None, ylimits=None,
+                        y_limit_protection=None, draw_fits=True):
+    """Draw several graphs on one canvas and save to file
+    
     Parameters
     ----------
     entries : [dict]
@@ -149,9 +153,15 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         Log y axis
     do_line : bool, optional
         Do horizontal line at 1
+    xlimits : (min, max), optional
+        Set hard x limits
+    ylimits : (min, max), optional
+        Set hard y limits
     y_limit_protection : (y_min, y_max), optional
         Set minimum and maximum y values in the event of a huge stat error or weird point
-
+    draw_fits : bool, optional
+        Draw fitted functions or not
+    
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
@@ -194,6 +204,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         canv.SetLogy()
     mg.Draw("ALP")
     
+    # Little extra breathing room
     mg.GetHistogram().SetMaximum(mg.GetYaxis().GetXmax() * 1.03)
     
     # Protection in case y limits are dominated by large stat error
@@ -205,14 +216,23 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         if y_min < y_lim_lower:
             mg.GetHistogram().SetMinimum(y_lim_lower)
 
+    if xlimits and len(xlimits) == 2:
+        mg.GetXaxis().SetLimits(*xlimits)
+
+    if ylimits and len(ylimits) == 2:
+        mg.GetHistogram().SetMaximum(ylimits[1])
+        mg.GetHistogram().SetMinimum(ylimits[0])
+
     leg.Draw()
 
     if do_line:
-        x_min, x_max = mg.GetXaxis().GetXmin(), mg.GetXaxis().GetXmax()
-        line = ROOT.TLine(x_min, 1, x_max, 1)
-        line.SetLineStyle(2)
-        line.SetLineColor(ROOT.kGray+2)
-        line.Draw()
+        y_min, y_max = mg.GetYaxis().GetXmin(), mg.GetYaxis().GetXmax()
+        if y_min < 1 and y_max > 1:
+            x_min, x_max = mg.GetXaxis().GetXmin(), mg.GetXaxis().GetXmax()
+            line = ROOT.TLine(x_min, 1, x_max, 1)
+            line.SetLineStyle(2)
+            line.SetLineColor(ROOT.kGray+2)
+            line.Draw()
     
     cms_text = ROOT.TPaveText(0.15, 0.84, 0.35, 0.88, "NDC")
     cms_text.AddText("CMS")
