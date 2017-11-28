@@ -156,7 +156,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.12
-    middle = 0.55
+    middle = 0.77
     leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
@@ -214,7 +214,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         line.SetLineColor(ROOT.kGray+2)
         line.Draw()
     
-    cms_text = ROOT.TPaveText(0.15, 0.83, 0.25, 0.87, "NDC")
+    cms_text = ROOT.TPaveText(0.15, 0.84, 0.35, 0.88, "NDC")
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(11)
@@ -265,8 +265,30 @@ def main(in_args):
             {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": ROOT.kFullCrossX, "line_style": 1, "line_width": lw, "marker_size": 1.6},
         ]
 
+
+        # Loop through all different ak4pfchs, etc
         dirs = get_list_of_element_names(open_root_file(args.inputGraphs))
         for mydir in dirs:
+            jec_text = ROOT.TPaveText(0.12, 0.91, 0.56, 0.95, "NDC")
+            jec_label = "Without JEC"
+            jec_label = "Summer16_23Sep2016V4"
+            # jec_label = "Summer16_03Feb2017_V8"
+            jec_text.AddText(jec_label)
+            jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+            jec_text.SetTextFont(42)
+            jec_text.SetBorderSize(0)
+            jec_text.SetFillStyle(0)
+            
+            dir_text = ROOT.TPaveText(0.15, 0.73, 0.46, 0.81, "NDC")
+            dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+            dir_text.AddText(dir_label)
+            dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+            dir_text.SetTextFont(42)
+            dir_text.SetBorderSize(0)
+            dir_text.SetFillStyle(0)
+
+            other_elements = [jec_text, dir_text]
+
             # mydir = "ak4pfchsl1l2l3"
             plot_dir = os.path.join(args.outputDir, mydir)
             check_dir_exists_create(plot_dir)
@@ -286,7 +308,8 @@ def main(in_args):
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                    y_limit_protection=(0.8, 1.2),
+                                    xlimits=(10, 3000), y_limit_protection=(0.8, 1.4), 
+                                    other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
             # Do all flavs rsp vs eta for given pt bin
@@ -302,7 +325,8 @@ def main(in_args):
                 title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
                 do_comparison_graph(entries, title=title + " GeV",
                                     xtitle="|#eta|", ytitle="Response",
-                                    y_limit_protection=(0.8, 1.2),
+                                    xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
+                                    other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
 
             # Do all flavs resolution vs pt for given eta bin
