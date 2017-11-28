@@ -161,7 +161,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetTextAlign(22)
+    leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
 
     for entry in entries:
         default_colour = ROOT.kBlack
@@ -217,7 +217,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     cms_text = ROOT.TPaveText(0.15, 0.84, 0.35, 0.88, "NDC")
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
-    cms_text.SetTextAlign(11)
+    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
     cms_text.SetBorderSize(0)
     cms_text.SetFillStyle(0)
     cms_text.Draw()
@@ -225,7 +225,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     bin_text = ROOT.TPaveText(0.15, 0.79, 0.42, 0.83, "NDC")
     bin_text.AddText(title)
     bin_text.SetTextFont(42)
-    bin_text.SetTextAlign(11)
+    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
     bin_text.SetBorderSize(0)
     bin_text.SetFillStyle(0)
     bin_text.Draw()
