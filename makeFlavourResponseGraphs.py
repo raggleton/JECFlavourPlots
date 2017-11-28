@@ -20,6 +20,8 @@ import sys
 import argparse
 from copy import deepcopy
 import re
+from array import array
+import numpy as np
 
 import ROOT
 from MyStyle import My_Style
@@ -124,6 +126,17 @@ def get_common_pt_bins(obj_list):
             pt_bins.append(m.group(0))
     return list(set(pt_bins))
 
+
+def construct_inverse_graph(graph):
+    """Construct graph with y values = 1/y of input graph"""
+    n = graph.GetN()
+    x = graph.GetX()
+    y = np.ndarray(n, 'd', graph.GetY())
+    new_y = array('d', [1/old_y if old_y != 0 else 0 for old_y in y])
+    ex = array('d', [0] * n)
+    ey = array('d', [0] * n)
+    gr = ROOT.TGraphErrors(n, x, new_y, ex, ey)
+    return gr
 
 
 def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", 
@@ -331,7 +344,21 @@ def main(in_args):
                                     xlimits=(10, 3000), y_limit_protection=(0.8, 1.4), 
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
-
+                
+                # Inverse response ie ~ correction
+                # entries = []
+                # for fdict in entry_dicts:
+                #     entry = deepcopy(fdict)
+                #     entry["graph"] = construct_inverse_graph(grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
+                #     entry["line_color"] = fdict['colour']
+                #     entry["marker_color"] = fdict['colour']
+                #     entries.append(entry)
+                # title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                # do_comparison_graph(entries, title=title,
+                #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
+                #                     y_limit_protection=(0.8, 1.2),
+                #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
+                    
             # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = get_common_pt_bins(obj_list)
             for pt_bin in common_pt_bins:
@@ -348,6 +375,21 @@ def main(in_args):
                                     xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
+
+                # Inverse response ie ~ correction
+                # entries = []
+                # for fdict in entry_dicts:
+                #     entry = deepcopy(fdict)
+                #     entry["graph"] = construct_inverse_graph(grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
+                #     entry["line_color"] = fdict['colour']
+                #     entry["marker_color"] = fdict['colour']
+                #     entries.append(entry)
+                # title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                # do_comparison_graph(entries, title=title + " GeV",
+                #                     xtitle="|#eta|", ytitle="1/Response",
+                #                     y_limit_protection=(0.8, 1.6),
+                #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_eta_%s.pdf" % (pt_bin)))
+
 
             # Do all flavs resolution vs pt for given eta bin
             for eta_bin in common_eta_bins:
