@@ -247,25 +247,29 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
             line.SetLineColor(ROOT.kGray+2)
             line.Draw()
     
-    cms_text = ROOT.TPaveText(0.15, 0.84, 0.35, 0.88, "NDC")
+    cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
-    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    cms_text.SetTextSize(0.035)
     cms_text.SetBorderSize(0)
     cms_text.SetFillStyle(0)
     cms_text.Draw()
 
-    bin_text = ROOT.TPaveText(0.15, 0.79, 0.42, 0.83, "NDC")
+    bin_text = ROOT.TPaveText(0.17, 0.8, 0.2, 0.81, "NDC")
     bin_text.AddText(title)
     bin_text.SetTextFont(42)
-    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+    bin_text.SetTextSize(0.035)
+    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     bin_text.SetBorderSize(0)
     bin_text.SetFillStyle(0)
     bin_text.Draw()
 
-    sample_text = ROOT.TPaveText(0.65, 0.91, 0.9, 0.95, "NDC")
+    sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
     sample_text.AddText("Flat QCD 13 TeV")
     sample_text.SetTextFont(42)
+    sample_text.SetTextSize(0.035)
+    sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     sample_text.SetBorderSize(0)
     sample_text.SetFillStyle(0)
     sample_text.Draw()
@@ -301,28 +305,29 @@ def main(in_args):
 
         # Loop through all different ak4pfchs, etc
         dirs = get_list_of_element_names(open_root_file(args.inputGraphs))
-        for mydir in dirs:
-            jec_text = ROOT.TPaveText(0.12, 0.91, 0.56, 0.95, "NDC")
+        for mydir in dirs[:]:
+            jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
             jec_label = "Without JEC"
-            jec_label = "Summer16_23Sep2016V4"
+            # jec_label = "Summer16_23Sep2016V4"
             # jec_label = "Summer16_03Feb2017_V8"
             jec_text.AddText(jec_label)
-            jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+            jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
             jec_text.SetTextFont(42)
+            jec_text.SetTextSize(0.035)
             jec_text.SetBorderSize(0)
             jec_text.SetFillStyle(0)
             
-            dir_text = ROOT.TPaveText(0.15, 0.73, 0.46, 0.81, "NDC")
+            dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
             dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
             dir_text.AddText(dir_label)
-            dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignCenter)
+            dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
             dir_text.SetTextFont(42)
+            dir_text.SetTextSize(0.035)
             dir_text.SetBorderSize(0)
             dir_text.SetFillStyle(0)
 
             other_elements = [jec_text, dir_text]
 
-            # mydir = "ak4pfchsl1l2l3"
             plot_dir = os.path.join(args.outputDir, mydir)
             check_dir_exists_create(plot_dir)
 
