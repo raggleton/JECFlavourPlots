@@ -209,6 +209,134 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     canv.SaveAs(output_filename)
 
 
+def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=True,
+                              title="", xtitle="", ytitle="", other_elements=None,
+                              logx=False, logy=False,):
+    """Do plot of flavour fraction vs something"""
+
+    # use a tuple so can be used as dict keys
+    bin_edges = [tuple([int(x) for x in re.search(r'([0-9.]+)to([0-9.]+)', bn).groups()]) for bn in bin_names]
+    x = [(i[0]+i[1])*0.5 for i in sorted(bin_edges)]
+    
+    if len(entries) != len(bin_names):
+        raise RuntimeError ("Collections need to be same length)")
+    
+    # entries come in unsorted. this will help us sort them based on x value
+    matched_entries = {(i[0]+i[1])*0.5: ent for i, ent in zip(bin_edges, entries)}
+
+    all_entries = {}  # for each x bin, store dict of {flav: fraction}
+    for x_value in sorted(matched_entries.keys()):
+        values = {}
+        total = 0
+        for entry in matched_entries[x_value]:
+            if entry['label'] == "All":
+                total = entry['hist'].Integral()
+            else:
+                values[entry['label']] = entry['hist'].Integral()
+        if total == 0:
+            break
+        else:
+            for k in values:
+                values[k] = values[k]/total
+        
+            if add_unknown:
+                values['Unknown'] = 1 - sum(values.values())
+
+        all_entries[x_value] = values
+
+    delta = 0.12
+    middle = 0.77
+    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetNColumns(2)
+    leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
+    
+    # flavs = all_entries.values()[0].keys()  # screws up ordering
+    flavs = [e['label'] for e in entries[0] if e['label'] != 'All']
+    mg = ROOT.TMultiGraph()
+    mg.SetTitle(";".join(["", xtitle, ytitle]))
+    graphs = []
+    for flav in flavs:
+        y = [all_entries[mid_val].get(flav, 0) for mid_val in sorted(all_entries.keys())]
+        gr = ROOT.TGraph(len(all_entries), array('d', x), array('d', y))
+        
+        default_colour = ROOT.kBlack
+        if add_unknown and flav == "Unknown":
+            gr.SetLineColor(default_colour)
+            gr.SetLineStyle(1)
+            gr.SetLineWidth(1)
+
+            gr.SetMarkerColor(default_colour)
+            gr.SetMarkerStyle(1)
+            gr.SetMarkerSize(1)
+        else:
+            this_entry = [e for e in entries[0] if e['label'] == flav][0]
+            gr.SetLineColor(this_entry.get('line_color', default_colour))
+            gr.SetLineStyle(this_entry.get('line_style', 1))
+            gr.SetLineWidth(this_entry.get('line_width', 1))
+
+            gr.SetMarkerColor(this_entry.get('marker_color', default_colour))
+            gr.SetMarkerStyle(this_entry.get('marker_style', 1))
+            gr.SetMarkerSize(this_entry.get('marker_size', 1))
+        
+        graphs.append(gr)
+        mg.Add(gr)
+        leg.AddEntry(gr, flav, "LP")
+
+    canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
+    canv.SetTicks(1, 1)
+    if logx:
+        canv.SetLogx()
+    if logy:
+        canv.SetLogy()
+
+    mg.Draw("ALP")
+    mg.GetHistogram().SetMaximum(1.1)
+    mg.GetHistogram().SetMinimum(0)
+    x_max = mg.GetXaxis().GetXmax()
+    mg.GetXaxis().SetLimits(10, x_max)
+    leg.Draw()
+
+    cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
+    cms_text.AddText("CMS")
+    cms_text.SetTextFont(62)
+    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    cms_text.SetTextSize(0.035)
+    cms_text.SetBorderSize(0)
+    cms_text.SetFillStyle(0)
+    cms_text.Draw()
+
+    n = title.count("\n")
+    # HERE BE MAGIC. Seriously though, it appears this works, so dont touch it
+    y1 = 0.79 - (n*0.04)
+    y2 = y1 + ((n+1)*0.04)
+    bin_text = ROOT.TPaveText(0.17, y1, 0.2, y2, "NDC")
+    for i, substr in enumerate(title.split("\n")):
+        bin_text.AddText(substr)
+    bin_text.SetTextFont(42)
+    bin_text.SetTextSize(0.035)
+    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    bin_text.SetBorderSize(0)
+    bin_text.SetFillStyle(0)
+    bin_text.Draw()
+
+    sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
+    sample_text.AddText("Flat QCD 13 TeV")
+    sample_text.SetTextFont(42)
+    sample_text.SetTextSize(0.035)
+    sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    sample_text.SetBorderSize(0)
+    sample_text.SetFillStyle(0)
+    sample_text.Draw()
+
+    if other_elements:
+        for ele in other_elements:
+            ele.Draw()
+
+    canv.SaveAs(output_filename)
+
+
 def main(in_args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputHists", help="Input ROOT file with response & resolution hists (from jet_response_fitter_x)")
@@ -265,6 +393,7 @@ def main(in_args):
                 this_plot_dir = os.path.join(plot_dir, eta_bin)
                 cu.check_dir_exists_create(this_plot_dir)
 
+                all_pt_entries = []
                 for pt_bin in common_pt_bins:
                     entries = []
                     for fdict in entry_dicts:
@@ -282,6 +411,15 @@ def main(in_args):
                                         other_elements=other_elements,
                                         output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
 
+
+                this_dir_text = dir_text.Clone()
+                this_dir_text.SetY1(0.76)
+                this_dir_text.SetY2(0.77)
+                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=title, 
+                                          xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
+                                          other_elements=[jec_text, this_dir_text], logx=True,
+                                          output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
 
     return 0
 
