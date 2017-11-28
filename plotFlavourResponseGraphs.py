@@ -203,7 +203,7 @@ def main(in_args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
-    parser.add_argument("--title", help="Title string for plots")
+    parser.add_argument("--title", help="Title string for plots", default="")
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
