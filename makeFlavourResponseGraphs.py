@@ -25,86 +25,14 @@ import numpy as np
 
 import ROOT
 from MyStyle import My_Style
+import common_utils as cu
+
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(1)
 ROOT.TH1.SetDefaultSumw2()
 ROOT.gStyle.SetOptStat(0)
 My_Style.cd()
-
-
-
-def check_file_exists(filepath):
-    """Check if file exists. Can do absolute or relative file paths."""
-    return os.path.isfile(os.path.realpath(filepath))
-
-
-def check_dir_exists_create(filepath):
-    """Check if directory exists. If not, create it."""
-    if not os.path.isdir(filepath):
-        os.makedirs(os.path.realpath(filepath))
-
-#
-# ROOT specific fns, like opening files safely
-#
-def open_root_file(filename, mode="READ"):
-    """Safe way to open ROOT file. Could be improved."""
-    if mode in ["READ", "UPDATE"]:
-        if not check_file_exists(filename):
-            raise IOError("No such file %s" % filename)
-    f = ROOT.TFile(filename, mode)
-    if f.IsZombie() or not f:
-        raise IOError("Can't open TFile %s" % filename)
-    return f
-
-
-def exists_in_file(tfile, obj_name):
-    """Check if object exists in TFile.
-
-    Also handles directory structure, e.g. histograms/central/pt_1
-    """
-    parts = obj_name.split("/")
-    current_obj = tfile
-    for p in parts:
-        if current_obj.GetListOfKeys().Contains(p):
-            current_obj = current_obj.Get(p)
-        else:
-            return False
-    return True
-
-
-def get_from_tfile(tfile, obj_name, info=False):
-    """Get some object from ROOT TFile with checks."""
-    if info:
-        print "Getting %s" % obj_name
-    if not exists_in_file(tfile, obj_name):
-        raise IOError("No object named %s in %s" % (obj_name, tfile.GetName()))
-    else:
-        return tfile.Get(obj_name)
-
-
-def grab_obj_from_file(file_name, obj_name):
-    """Get object names obj_name from ROOT file file_name"""
-    input_file = open_root_file(file_name)
-    obj = get_from_tfile(input_file, obj_name)
-    if isinstance(obj, (ROOT.TH1)):
-        obj.SetDirectory(0)  # Ownership kludge
-        input_file.Close()
-        return obj.Clone(ROOT.TUUID().AsString())
-    else:
-        return obj
-
-
-def get_list_of_element_names(thing):
-    """Get list of key names for given thing in a ROOT file"""
-    return [x.GetName() for x in thing.GetListOfKeys()]
-
-
-def get_list_of_objects_in_dir(filename, dirname):
-    """Get list of elements in a TDirectory"""
-    f = open_root_file(filename)  # need to keep this in memory otherwise the get_list... segfaults
-    d = get_from_tfile(f, dirname)
-    return get_list_of_element_names(d)
 
 
 def get_common_eta_bins(obj_list):
@@ -139,12 +67,12 @@ def construct_inverse_graph(graph):
     return gr
 
 
-def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="", 
-                        other_elements=None, logx=False, logy=False, 
+def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="",
+                        other_elements=None, logx=False, logy=False,
                         do_line=True, xlimits=None, ylimits=None,
                         y_limit_protection=None, draw_fits=True):
     """Draw several graphs on one canvas and save to file
-    
+
     Parameters
     ----------
     entries : [dict]
@@ -174,7 +102,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         Set minimum and maximum y values in the event of a huge stat error or weird point
     draw_fits : bool, optional
         Draw fitted functions or not
-    
+
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
@@ -216,10 +144,10 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     if logy:
         canv.SetLogy()
     mg.Draw("ALP")
-    
+
     # Little extra breathing room
     mg.GetHistogram().SetMaximum(mg.GetYaxis().GetXmax() * 1.03)
-    
+
     # Protection in case y limits are dominated by large stat error
     if y_limit_protection and len(y_limit_protection) == 2:
         y_min, y_max = mg.GetYaxis().GetXmin(), mg.GetYaxis().GetXmax()
@@ -246,7 +174,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
             line.SetLineStyle(2)
             line.SetLineColor(ROOT.kGray+2)
             line.Draw()
-    
+
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
@@ -277,7 +205,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     if other_elements:
         for ele in other_elements:
             ele.Draw()
-    
+
     canv.SaveAs(output_filename)
 
 
@@ -288,7 +216,7 @@ def main(in_args):
     parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     args = parser.parse_args(in_args)
 
-    check_dir_exists_create(args.outputDir)
+    cu.check_dir_exists_create(args.outputDir)
 
     if args.inputGraphs:
 
@@ -304,7 +232,7 @@ def main(in_args):
 
 
         # Loop through all different ak4pfchs, etc
-        dirs = get_list_of_element_names(open_root_file(args.inputGraphs))
+        dirs = cu.get_list_of_element_names(cu.open_root_file(args.inputGraphs))
         for mydir in dirs[:]:
             jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
             jec_label = "Without JEC"
@@ -316,7 +244,7 @@ def main(in_args):
             jec_text.SetTextSize(0.035)
             jec_text.SetBorderSize(0)
             jec_text.SetFillStyle(0)
-            
+
             dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
             dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
             dir_text.AddText(dir_label)
@@ -329,9 +257,9 @@ def main(in_args):
             other_elements = [jec_text, dir_text]
 
             plot_dir = os.path.join(args.outputDir, mydir)
-            check_dir_exists_create(plot_dir)
+            cu.check_dir_exists_create(plot_dir)
 
-            obj_list = get_list_of_objects_in_dir(args.inputGraphs, mydir)
+            obj_list = cu.get_list_of_objects_in_dir(args.inputGraphs, mydir)
 
             # Do all flavs rsp vs pt for given eta bin
             common_eta_bins = get_common_eta_bins(obj_list)
@@ -339,22 +267,22 @@ def main(in_args):
                 entries = []
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
-                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
+                    entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                    xlimits=(10, 3000), y_limit_protection=(0.8, 1.4), 
+                                    xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
-                
+
                 # Inverse response ie ~ correction
                 # entries = []
                 # for fdict in entry_dicts:
                 #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
+                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
                 #     entry["line_color"] = fdict['colour']
                 #     entry["marker_color"] = fdict['colour']
                 #     entries.append(entry)
@@ -363,14 +291,14 @@ def main(in_args):
                 #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
                 #                     y_limit_protection=(0.8, 1.2),
                 #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
-                    
+
             # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = get_common_pt_bins(obj_list)
             for pt_bin in common_pt_bins:
                 entries = []
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
-                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                    entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
@@ -385,7 +313,7 @@ def main(in_args):
                 # entries = []
                 # for fdict in entry_dicts:
                 #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
+                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
                 #     entry["line_color"] = fdict['colour']
                 #     entry["marker_color"] = fdict['colour']
                 #     entries.append(entry)
@@ -401,14 +329,14 @@ def main(in_args):
             #     entries = []
             #     for fdict in entry_dicts:
             #         entry = deepcopy(fdict)
-            #         entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
+            #         entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
             #         entry["line_color"] = fdict['colour']
             #         entry["marker_color"] = fdict['colour']
             #         entries.append(entry)
             #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
             #     do_comparison_graph(entries, title=title,
             #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
-            #                         y_limit_protection=(0, 0.3), draw_fits=True, 
+            #                         y_limit_protection=(0, 0.3), draw_fits=True,
             #                         xlimits=(10, 3000),
             #                         output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
 
@@ -417,7 +345,7 @@ def main(in_args):
             #     entries = []
             #     for fdict in entry_dicts:
             #         entry = deepcopy(fdict)
-            #         entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
+            #         entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
             #         entry["line_color"] = fdict['colour']
             #         entry["marker_color"] = fdict['colour']
             #         entries.append(entry)
