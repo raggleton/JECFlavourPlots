@@ -397,34 +397,35 @@ def main(in_args):
 
 
             # Do all flavs resolution vs pt for given eta bin
-            for eta_bin in common_eta_bins:
-                entries = []
-                for fdict in entry_dicts:
-                    entry = deepcopy(fdict)
-                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
-                    entry["line_color"] = fdict['colour']
-                    entry["marker_color"] = fdict['colour']
-                    entries.append(entry)
-                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                do_comparison_graph(entries, title=title,
-                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
-                                    y_limit_protection=(0, 0.3), draw_fits=True,
-                                    output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
+            # for eta_bin in common_eta_bins:
+            #     entries = []
+            #     for fdict in entry_dicts:
+            #         entry = deepcopy(fdict)
+            #         entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
+            #         entry["line_color"] = fdict['colour']
+            #         entry["marker_color"] = fdict['colour']
+            #         entries.append(entry)
+            #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            #     do_comparison_graph(entries, title=title,
+            #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
+            #                         y_limit_protection=(0, 0.3), draw_fits=True, 
+            #                         xlimits=(10, 3000),
+            #                         output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
 
             # Do all flavs resolution plots vs eta for given pt bin
-            for pt_bin in common_pt_bins:
-                entries = []
-                for fdict in entry_dicts:
-                    entry = deepcopy(fdict)
-                    entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
-                    entry["line_color"] = fdict['colour']
-                    entry["marker_color"] = fdict['colour']
-                    entries.append(entry)
-                title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                do_comparison_graph(entries, title=title + " GeV",
-                                    xtitle="|#eta|", ytitle="Relative resolution",
-                                    y_limit_protection=(0, 0.3), draw_fits=True,
-                                    output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
+            # for pt_bin in common_pt_bins:
+            #     entries = []
+            #     for fdict in entry_dicts:
+            #         entry = deepcopy(fdict)
+            #         entry["graph"] = grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
+            #         entry["line_color"] = fdict['colour']
+            #         entry["marker_color"] = fdict['colour']
+            #         entries.append(entry)
+            #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+            #     do_comparison_graph(entries, title=title + " GeV",
+            #                         xtitle="|#eta|", ytitle="Relative resolution",
+            #                         y_limit_protection=(0, 0.3), draw_fits=True, xlimits=(0, 5.2),
+            #                         output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
 
