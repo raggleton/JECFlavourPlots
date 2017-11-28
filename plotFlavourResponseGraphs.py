@@ -203,6 +203,7 @@ def main(in_args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
+    parser.add_argument("--title", help="Title string for plots")
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
@@ -225,9 +226,9 @@ def main(in_args):
         for mydir in dirs[:]:
             jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
             jec_label = "Without JEC"
-            # jec_label = "Summer16_23Sep2016V4"
+            jec_label = "Summer16_23Sep2016V4"
             # jec_label = "Summer16_03Feb2017_V8"
-            jec_text.AddText(jec_label)
+            jec_text.AddText(args.title)
             jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
             jec_text.SetTextFont(42)
             jec_text.SetTextSize(FONT_SIZE)
