@@ -339,87 +339,89 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
 
 def main(in_args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--inputHists", help="Input ROOT file with response & resolution hists (from jet_response_fitter_x)")
+    parser.add_argument("--input", help="Input ROOT file with response & resolution hists (from jet_response_fitter_x)", required=True)
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots", default="")
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
 
-    if args.inputHists:
-
-        lw = 2
-        entry_dicts = [
-            {"flav": "RelRsp", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
-            {"flav": "ud_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
-            {"flav": "s_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "c_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "b_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
-            {"flav": "g_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
-        ]
+    lw = 2
+    entry_dicts = [
+        {"flav": "RelRsp", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
+        {"flav": "ud_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+        {"flav": "s_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.4},
+        {"flav": "c_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.4},
+        {"flav": "b_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+        {"flav": "g_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
+    ]
 
 
-        # Loop through all different ak4pfchs, etc
-        dirs = cu.get_list_of_element_names(cu.open_root_file(args.inputHists))
-        for mydir in dirs[:]:
-            jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
-            jec_text.AddText(args.title)
-            jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-            jec_text.SetTextFont(42)
-            jec_text.SetTextSize(0.035)
-            jec_text.SetBorderSize(0)
-            jec_text.SetFillStyle(0)
+    # Loop through all different ak4pfchs, etc
+    dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
+    for mydir in dirs[:]:
+        jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
+        jec_text.AddText(args.title)
+        jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+        jec_text.SetTextFont(42)
+        jec_text.SetTextSize(0.035)
+        jec_text.SetBorderSize(0)
+        jec_text.SetFillStyle(0)
 
-            dir_text = ROOT.TPaveText(0.17, 0.72, 0.2, 0.73, "NDC")
-            dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
-            dir_text.AddText(dir_label)
-            dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-            dir_text.SetTextFont(42)
-            dir_text.SetTextSize(0.035)
-            dir_text.SetBorderSize(0)
-            dir_text.SetFillStyle(0)
+        dir_text = ROOT.TPaveText(0.17, 0.72, 0.2, 0.73, "NDC")
+        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+        dir_text.AddText(dir_label)
+        dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+        dir_text.SetTextFont(42)
+        dir_text.SetTextSize(0.035)
+        dir_text.SetBorderSize(0)
+        dir_text.SetFillStyle(0)
 
-            other_elements = [jec_text, dir_text]
+        other_elements = [jec_text, dir_text]
 
-            plot_dir = os.path.join(args.outputDir, mydir)
-            cu.check_dir_exists_create(plot_dir)
+        plot_dir = os.path.join(args.outputDir, mydir)
+        cu.check_dir_exists_create(plot_dir)
 
-            obj_list = cu.get_list_of_objects_in_dir(args.inputHists, mydir)
+        obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
-            # Do separate dir for each eta bin, then separate plot for each pt bin
-            common_eta_bins = get_common_eta_bins(obj_list)
-            common_pt_bins = get_common_pt_bins(obj_list)
-            for eta_bin in common_eta_bins:
-                this_plot_dir = os.path.join(plot_dir, eta_bin)
-                cu.check_dir_exists_create(this_plot_dir)
+        # Do separate dir for each eta bin, then separate plot for each pt bin
+        common_eta_bins = get_common_eta_bins(obj_list)
+        common_pt_bins = get_common_pt_bins(obj_list)
+        for eta_bin in common_eta_bins[:]:
+            this_plot_dir = os.path.join(plot_dir, eta_bin)
+            cu.check_dir_exists_create(this_plot_dir)
 
-                all_pt_entries = []
-                for pt_bin in common_pt_bins:
-                    entries = []
-                    for fdict in entry_dicts:
-                        entry = deepcopy(fdict)
-                        entry["hist"] = cu.grab_obj_from_file(args.inputHists, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
-                        entry["line_color"] = fdict['colour']
-                        entry["marker_color"] = fdict['colour']
-                        entries.append(entry)
-                    title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                    title += "\n"
-                    title += pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                    title += " GeV"
-                    do_comparison_hist(entries, title=title,
-                                        xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
-                                        other_elements=other_elements,
-                                        output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
-
-
-                this_dir_text = dir_text.Clone()
-                this_dir_text.SetY1(0.76)
-                this_dir_text.SetY2(0.77)
+            all_pt_entries = []
+            for pt_bin in common_pt_bins:
+                entries = []
+                for fdict in entry_dicts:
+                    entry = deepcopy(fdict)
+                    entry["hist"] = cu.grab_obj_from_file(args.input, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
+                    entry["line_color"] = fdict['colour']
+                    entry["marker_color"] = fdict['colour']
+                    entries.append(entry)
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=title, 
-                                          xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
-                                          other_elements=[jec_text, this_dir_text], logx=True,
-                                          output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
+                title += "\n"
+                title += pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                title += " GeV"
+                # do_comparison_hist(entries, title=title,
+                #                    xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
+                #                    other_elements=other_elements, normalise=False,
+                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
+                # do_comparison_hist(entries, title=title,
+                #                    xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
+                #                    other_elements=other_elements, normalise=True, draw_fits=False,
+                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
+                all_pt_entries.append(entries)
+
+            this_dir_text = dir_text.Clone()
+            this_dir_text.SetY1(0.76)
+            this_dir_text.SetY2(0.77)
+            title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=title, 
+                                      xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
+                                      other_elements=[jec_text, this_dir_text], logx=True,
+                                      output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
 
     return 0
 
