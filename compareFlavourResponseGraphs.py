@@ -308,21 +308,45 @@ def main(in_args):
 
 
             # Do all flavs rsp vs eta for given pt bin
-            # common_pt_bins = get_common_pt_bins(obj_list)
-            # for pt_bin in common_pt_bins:
-            #     entries = []
-            #     for fdict in entry_dicts:
-            #         entry = deepcopy(fdict)
-            #         entry["graph"] = cu.grab_obj_from_file(args.input[0], "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
-            #         entry["line_color"] = fdict['colour']
-            #         entry["marker_color"] = fdict['colour']
-            #         entries.append(entry)
-            #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-            #     do_comparison_graph(entries, title=title + " GeV",
-            #                         xtitle="|#eta|", ytitle="Response",
-            #                         xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
-            #                         other_elements=other_elements,
-            #                         output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
+            common_pt_bins = get_common_pt_bins(obj_list)
+            for pt_bin in common_pt_bins:
+                # Do a per-flavour comparison plot
+                for fdict in entry_dicts:
+                    entries = []
+                    for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
+                        entry = deepcopy(fdict)
+                        entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                        entry['label'] += " [%s]" % label
+                        entry["line_color"] = fdict['colour']
+                        entry["marker_color"] = fdict['colour']
+                        if ind == 1:
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entries.append(entry)
+                    title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                    do_comparison_graph(entries, title=title,
+                                        xtitle="|#eta|", ytitle="Response",
+                                        xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
+                                        other_elements=other_elements,
+                                        output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_%s.pdf" % (pt_bin, fdict['label'])))
+
+                # Do a plot with all flavours
+                entries = []
+                for fdict in entry_dicts:
+                    for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
+                        entry = deepcopy(fdict)
+                        entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                        entry['label'] += " [%s]" % label
+                        entry["line_color"] = fdict['colour']
+                        entry["marker_color"] = fdict['colour']
+                        if ind == 1:
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entries.append(entry)
+                title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                do_comparison_graph(entries, title=title + " GeV",
+                                    xtitle="|#eta|", ytitle="Response",
+                                    xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
+                                    other_elements=other_elements,
+                                    output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_allFlavs.pdf" % (pt_bin)))
 
 
     return 0
