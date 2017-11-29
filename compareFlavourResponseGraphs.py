@@ -47,6 +47,29 @@ def get_common_pt_bins(obj_list):
     return list(set(pt_bins))
 
 
+def construct_difference_graph(graph, other_graph):
+    x, y = cu.get_xy(graph)
+    x_other, y_other = cu.get_xy(other_graph)
+    n = graph.GetN()
+    if len(y) != len(y_other):
+        # If different # points, just use the smaller
+        if len(x) < len(x_other):
+            n = len(x)
+            x_other = x_other[:len(x)]
+            y_other = y_other[:len(y)]
+        elif len(x) > len(x_other):
+            n = len(x_other)
+            x = x[:len(x_other)]
+            y = y[:len(y_other)]
+    if x != x_other:
+        raise RuntimeError("x values different")
+    diff_y = [y1-y2 for y1, y2 in zip(y, y_other)]
+    ex = [0]*n
+    ey = [0]*n
+    gr = ROOT.TGraphErrors(n, array('d', x), array('d', diff_y), array('d', ex), array('d', ey))
+    return gr
+
+
 def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="",
                         other_elements=None, logx=False, logy=False,
                         do_line=True, xlimits=None, ylimits=None,
@@ -289,6 +312,7 @@ def main(in_args):
 
                 # Do a plot with all flavours
                 entries = []
+                ud_entries, g_entries = [], []
                 for fdict in entry_dicts:
                     for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
                         entry = deepcopy(fdict)
@@ -299,13 +323,30 @@ def main(in_args):
                         if ind == 1:
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
+                        if fdict['label'] == "ud":
+                            ud_entries.append(entry)
+                        elif fdict['label'] == "g":
+                            g_entries.append(entry)
+                            
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
                                     xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_allFlavs.pdf" % (eta_bin)))
-
+                diff_entries = []
+                for ind, (ud, g, label) in enumerate(zip(ud_entries, g_entries, args.label)):
+                    diff_graph = construct_difference_graph(ud['graph'], g['graph'])
+                    diff = deepcopy(ud)
+                    diff['graph'] = diff_graph
+                    diff['label'] = label
+                    diff_entries.append(diff)
+                do_comparison_graph(diff_entries, title=title,
+                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Response (ud) - response (g)", logx=True,
+                                    xlimits=(10, 3000), ylimits=(0, 0.08),
+                                    other_elements=other_elements,
+                                    output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
+            return    
 
             # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = get_common_pt_bins(obj_list)
