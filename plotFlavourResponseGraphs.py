@@ -201,14 +201,14 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
 def main(in_args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--inputGraphs", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
+    parser.add_argument("--input", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots", default="")
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
 
-    if args.inputGraphs:
+    if args.input:
 
         lw = 2
         entry_dicts = [
@@ -222,7 +222,7 @@ def main(in_args):
 
 
         # Loop through all different ak4pfchs, etc
-        dirs = cu.get_list_of_element_names(cu.open_root_file(args.inputGraphs))
+        dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
         for mydir in dirs[:]:
             jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
             jec_label = "Without JEC"
@@ -249,7 +249,7 @@ def main(in_args):
             plot_dir = os.path.join(args.outputDir, mydir)
             cu.check_dir_exists_create(plot_dir)
 
-            obj_list = cu.get_list_of_objects_in_dir(args.inputGraphs, mydir)
+            obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
             # Do all flavs rsp vs pt for given eta bin
             common_eta_bins = get_common_eta_bins(obj_list)
@@ -257,7 +257,7 @@ def main(in_args):
                 entries = []
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
-                    entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
+                    entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
@@ -272,7 +272,7 @@ def main(in_args):
                 # entries = []
                 # for fdict in entry_dicts:
                 #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
+                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
                 #     entry["line_color"] = fdict['colour']
                 #     entry["marker_color"] = fdict['colour']
                 #     entries.append(entry)
@@ -288,7 +288,7 @@ def main(in_args):
                 entries = []
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
-                    entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                    entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
@@ -303,7 +303,7 @@ def main(in_args):
                 # entries = []
                 # for fdict in entry_dicts:
                 #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
+                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
                 #     entry["line_color"] = fdict['colour']
                 #     entry["marker_color"] = fdict['colour']
                 #     entries.append(entry)
@@ -319,7 +319,7 @@ def main(in_args):
             #     entries = []
             #     for fdict in entry_dicts:
             #         entry = deepcopy(fdict)
-            #         entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
+            #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
             #         entry["line_color"] = fdict['colour']
             #         entry["marker_color"] = fdict['colour']
             #         entries.append(entry)
@@ -335,7 +335,7 @@ def main(in_args):
             #     entries = []
             #     for fdict in entry_dicts:
             #         entry = deepcopy(fdict)
-            #         entry["graph"] = cu.grab_obj_from_file(args.inputGraphs, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
+            #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
             #         entry["line_color"] = fdict['colour']
             #         entry["marker_color"] = fdict['colour']
             #         entries.append(entry)
