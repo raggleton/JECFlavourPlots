@@ -8,6 +8,7 @@ from sys import platform as _platform
 import numpy as np
 import math
 import argparse
+from array import array
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -141,8 +142,10 @@ def get_xy(graph):
     """
     Return lists of x, y points from a graph, because it's such a PITA
     """
-    xarr = list(np.ndarray(graph.GetN(), 'd', graph.GetX()))
-    yarr = list(np.ndarray(graph.GetN(), 'd', graph.GetY()))
+    # xarr = list(np.ndarray(graph.GetN(), 'd', graph.GetX()))
+    # yarr = list(np.ndarray(graph.GetN(), 'd', graph.GetY()))
+    xarr = array('d', graph.GetX())
+    yarr = array('d', graph.GetY())
     return xarr, yarr
 
 
@@ -150,8 +153,10 @@ def get_exey(graph):
     """
     Return lists of errors on x, y points from a graph, because it's such a PITA
     """
-    xarr = list(np.ndarray(graph.GetN(), 'd', graph.GetEX()))
-    yarr = list(np.ndarray(graph.GetN(), 'd', graph.GetEY()))
+    # xarr = list(np.ndarray(graph.GetN(), 'd', graph.GetEX()))
+    # yarr = list(np.ndarray(graph.GetN(), 'd', graph.GetEY()))
+    xarr = array('d', graph.GetEX())
+    yarr = array('d', graph.GetEY())
     return xarr, yarr
 
 
