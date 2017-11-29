@@ -22,6 +22,8 @@ ROOT.TH1.SetDefaultSumw2()
 ROOT.gStyle.SetOptStat(0)
 My_Style.cd()
 
+FONT_SIZE = 0.032
+
 
 def get_common_eta_bins(obj_list):
     """Get list of common eta bins from list of object names"""
@@ -174,7 +176,7 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-    cms_text.SetTextSize(0.035)
+    cms_text.SetTextSize(FONT_SIZE)
     cms_text.SetBorderSize(0)
     cms_text.SetFillStyle(0)
     cms_text.Draw()
@@ -187,7 +189,7 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     for i, substr in enumerate(title.split("\n")):
         bin_text.AddText(substr)
     bin_text.SetTextFont(42)
-    bin_text.SetTextSize(0.035)
+    bin_text.SetTextSize(FONT_SIZE)
     bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     bin_text.SetBorderSize(0)
     bin_text.SetFillStyle(0)
@@ -196,7 +198,7 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
     sample_text.AddText("Flat QCD 13 TeV")
     sample_text.SetTextFont(42)
-    sample_text.SetTextSize(0.035)
+    sample_text.SetTextSize(FONT_SIZE)
     sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     sample_text.SetBorderSize(0)
     sample_text.SetFillStyle(0)
@@ -302,7 +304,7 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     cms_text.AddText("CMS")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-    cms_text.SetTextSize(0.035)
+    cms_text.SetTextSize(FONT_SIZE)
     cms_text.SetBorderSize(0)
     cms_text.SetFillStyle(0)
     cms_text.Draw()
@@ -315,7 +317,7 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     for i, substr in enumerate(title.split("\n")):
         bin_text.AddText(substr)
     bin_text.SetTextFont(42)
-    bin_text.SetTextSize(0.035)
+    bin_text.SetTextSize(FONT_SIZE)
     bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     bin_text.SetBorderSize(0)
     bin_text.SetFillStyle(0)
@@ -355,7 +357,7 @@ def main(in_args):
         jec_text.AddText(args.title)
         jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         jec_text.SetTextFont(42)
-        jec_text.SetTextSize(0.035)
+        jec_text.SetTextSize(FONT_SIZE)
         jec_text.SetBorderSize(0)
         jec_text.SetFillStyle(0)
 
@@ -364,7 +366,7 @@ def main(in_args):
         dir_text.AddText(dir_label)
         dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         dir_text.SetTextFont(42)
-        dir_text.SetTextSize(0.035)
+        dir_text.SetTextSize(FONT_SIZE)
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
