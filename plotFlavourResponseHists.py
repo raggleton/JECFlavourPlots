@@ -105,6 +105,9 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
         hist.SetMarkerStyle(entry.get('marker_style', 1))
         hist.SetMarkerSize(entry.get('marker_size', 1))
 
+        if hist.Integral() == 0:
+            continue
+        
         scale_factor = 1./hist.Integral()
         if normalise:
             hist.Scale(scale_factor)
