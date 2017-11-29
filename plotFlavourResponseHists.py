@@ -321,15 +321,6 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     bin_text.SetFillStyle(0)
     bin_text.Draw()
 
-    sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
-    sample_text.AddText("Flat QCD 13 TeV")
-    sample_text.SetTextFont(42)
-    sample_text.SetTextSize(0.035)
-    sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-    sample_text.SetBorderSize(0)
-    sample_text.SetFillStyle(0)
-    sample_text.Draw()
-
     if other_elements:
         for ele in other_elements:
             ele.Draw()
@@ -342,6 +333,7 @@ def main(in_args):
     parser.add_argument("--input", help="Input ROOT file with response & resolution hists (from jet_response_fitter_x)", required=True)
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots", default="")
+    parser.add_argument("--sampleName", help="Sample name string for plots", default="")
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
@@ -355,7 +347,6 @@ def main(in_args):
         {"flav": "b_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
         {"flav": "g_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
     ]
-
 
     # Loop through all different ak4pfchs, etc
     dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
@@ -377,7 +368,16 @@ def main(in_args):
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
-        other_elements = [jec_text, dir_text]
+        sample_text = ROOT.TPaveText(0.89, 0.91, 0.9, 0.92, "NDC")
+        sample_text.AddText(args.sampleName + " 13 TeV")
+        sample_text.SetTextFont(42)
+        sample_text.SetTextSize(FONT_SIZE)
+        sample_text.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)
+        sample_text.SetBorderSize(0)
+        sample_text.SetFillStyle(0)
+        sample_text.Draw()
+
+        other_elements = [jec_text, dir_text, sample_text]
 
         plot_dir = os.path.join(args.outputDir, mydir)
         cu.check_dir_exists_create(plot_dir)
@@ -420,7 +420,7 @@ def main(in_args):
             title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
             do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=title, 
                                       xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
-                                      other_elements=[jec_text, this_dir_text], logx=True,
+                                      other_elements=[jec_text, this_dir_text, sample_text], logx=True,
                                       output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
 
     return 0
