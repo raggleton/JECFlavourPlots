@@ -1,4 +1,5 @@
 #!/bin/bash -e
+set -u
 
 # Compare response
 ./compareFlavourResponseGraphs.py \

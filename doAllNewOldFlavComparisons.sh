@@ -1,5 +1,7 @@
 #!/bin/bash -e
-# So all old/new flavour comparison plots
+set -u
+
+# Do all old/new flavour comparison plots
 
 ./compareFlavourResponseGraphs.py \
 --input jra_QCD_FLAT_NoJEC_f_g.root --label "New flavour" \

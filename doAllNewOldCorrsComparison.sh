@@ -1,5 +1,7 @@
 #!/bin/bash -e
-# So all old/new corrections comparison plots
+set -u
+
+# Do all old/new corrections comparison plots
 
 ./compareFlavourResponseGraphs.py \
 --input jra_QCD_FLAT_withL1L2L3_Summer16_23Sep2016V4_f_g.root --label "23Sep2016V4" \

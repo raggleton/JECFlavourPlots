@@ -1,4 +1,5 @@
 #!/bin/bash -e
+set -u
 
 PYTHIA_TEXT="PYTHIA8 Flat QCD"
 ./plotFlavourResponseGraphs.py --input jra_QCD_FLAT_NoJEC_f_g.root --outputDir QCD_FLAT_NoJEC --title "Without JEC" --sampleName "$PYTHIA_TEXT"
