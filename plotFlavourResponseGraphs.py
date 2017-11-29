@@ -192,7 +192,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
 def main(in_args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)")
+    parser.add_argument("--input", help="Input ROOT file with response & resolution graphs (from jet_response_and_resolution_x)", required=True)
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots", default="")
     parser.add_argument("--sampleName", help="Sample name string for plots", default="")
@@ -200,152 +200,150 @@ def main(in_args):
 
     cu.check_dir_exists_create(args.outputDir)
 
-    if args.input:
-
-        lw = 2
-        entry_dicts = [
-            {"flav": "RelRspVsRefPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
-            {"flav": "ud_RspVsRefPt_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
-            {"flav": "s_RRspVsRefPt_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "c_RRspVsRefPt_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
-            {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
-        ]
+    lw = 2
+    entry_dicts = [
+        {"flav": "RelRspVsRefPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
+        {"flav": "ud_RspVsRefPt_RelRsp", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+        {"flav": "s_RRspVsRefPt_RelRsp", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.4},
+        {"flav": "c_RRspVsRefPt_RelRsp", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.4},
+        {"flav": "b_RRspVsRefPt_RelRsp", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+        {"flav": "g_RRspVsRefPt_RelRsp", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
+    ]
 
 
-        # Loop through all different ak4pfchs, etc
-        dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
-        for mydir in dirs[:]:
-            jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
-            jec_label = "Without JEC"
-            jec_label = "Summer16_23Sep2016V4"
-            # jec_label = "Summer16_03Feb2017_V8"
-            jec_text.AddText(args.title)
-            jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-            jec_text.SetTextFont(42)
-            jec_text.SetTextSize(FONT_SIZE)
-            jec_text.SetBorderSize(0)
-            jec_text.SetFillStyle(0)
+    # Loop through all different ak4pfchs, etc
+    dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
+    for mydir in dirs[:]:
+        jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
+        jec_label = "Without JEC"
+        jec_label = "Summer16_23Sep2016V4"
+        # jec_label = "Summer16_03Feb2017_V8"
+        jec_text.AddText(args.title)
+        jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+        jec_text.SetTextFont(42)
+        jec_text.SetTextSize(FONT_SIZE)
+        jec_text.SetBorderSize(0)
+        jec_text.SetFillStyle(0)
 
-            dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
-            dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
-            dir_text.AddText(dir_label)
-            dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-            dir_text.SetTextFont(42)
-            dir_text.SetTextSize(FONT_SIZE)
-            dir_text.SetBorderSize(0)
-            dir_text.SetFillStyle(0)
+        dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
+        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+        dir_text.AddText(dir_label)
+        dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+        dir_text.SetTextFont(42)
+        dir_text.SetTextSize(FONT_SIZE)
+        dir_text.SetBorderSize(0)
+        dir_text.SetFillStyle(0)
 
-            sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
-            # sample_text.AddText("Flat QCD 13 TeV")
-            sample_text.AddText(args.sampleName + " 13 TeV")
-            sample_text.SetTextFont(42)
-            sample_text.SetTextSize(FONT_SIZE)
-            sample_text.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)
-            sample_text.SetBorderSize(0)
-            sample_text.SetFillStyle(0)
-            sample_text.Draw()
+        sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
+        # sample_text.AddText("Flat QCD 13 TeV")
+        sample_text.AddText(args.sampleName + " 13 TeV")
+        sample_text.SetTextFont(42)
+        sample_text.SetTextSize(FONT_SIZE)
+        sample_text.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)
+        sample_text.SetBorderSize(0)
+        sample_text.SetFillStyle(0)
+        sample_text.Draw()
 
-            other_elements = [jec_text, dir_text, sample_text]
+        other_elements = [jec_text, dir_text, sample_text]
 
-            plot_dir = os.path.join(args.outputDir, mydir)
-            cu.check_dir_exists_create(plot_dir)
+        plot_dir = os.path.join(args.outputDir, mydir)
+        cu.check_dir_exists_create(plot_dir)
 
-            obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
+        obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
-            # Do all flavs rsp vs pt for given eta bin
-            common_eta_bins = get_common_eta_bins(obj_list)
-            for eta_bin in common_eta_bins:
-                entries = []
-                for fdict in entry_dicts:
-                    entry = deepcopy(fdict)
-                    entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
-                    entry["line_color"] = fdict['colour']
-                    entry["marker_color"] = fdict['colour']
-                    entries.append(entry)
-                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                do_comparison_graph(entries, title=title,
-                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                    xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
-                                    other_elements=other_elements,
-                                    output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
+        # Do all flavs rsp vs pt for given eta bin
+        common_eta_bins = get_common_eta_bins(obj_list)
+        for eta_bin in common_eta_bins:
+            entries = []
+            for fdict in entry_dicts:
+                entry = deepcopy(fdict)
+                entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
+                entry["line_color"] = fdict['colour']
+                entry["marker_color"] = fdict['colour']
+                entries.append(entry)
+            title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            do_comparison_graph(entries, title=title,
+                                xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
+                                xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
+                                other_elements=other_elements,
+                                output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
-                # Inverse response ie ~ correction
-                # entries = []
-                # for fdict in entry_dicts:
-                #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
-                #     entry["line_color"] = fdict['colour']
-                #     entry["marker_color"] = fdict['colour']
-                #     entries.append(entry)
-                # title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                # do_comparison_graph(entries, title=title,
-                #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
-                #                     y_limit_protection=(0.8, 1.2),
-                #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
+            # Inverse response ie ~ correction
+            # entries = []
+            # for fdict in entry_dicts:
+            #     entry = deepcopy(fdict)
+            #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
+            #     entry["line_color"] = fdict['colour']
+            #     entry["marker_color"] = fdict['colour']
+            #     entries.append(entry)
+            # title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            # do_comparison_graph(entries, title=title,
+            #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
+            #                     y_limit_protection=(0.8, 1.2),
+            #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
 
-            # Do all flavs rsp vs eta for given pt bin
-            common_pt_bins = get_common_pt_bins(obj_list)
-            for pt_bin in common_pt_bins:
-                entries = []
-                for fdict in entry_dicts:
-                    entry = deepcopy(fdict)
-                    entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
-                    entry["line_color"] = fdict['colour']
-                    entry["marker_color"] = fdict['colour']
-                    entries.append(entry)
-                title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                do_comparison_graph(entries, title=title + " GeV",
-                                    xtitle="|#eta|", ytitle="Response",
-                                    xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
-                                    other_elements=other_elements,
-                                    output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
+        # Do all flavs rsp vs eta for given pt bin
+        common_pt_bins = get_common_pt_bins(obj_list)
+        for pt_bin in common_pt_bins:
+            entries = []
+            for fdict in entry_dicts:
+                entry = deepcopy(fdict)
+                entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
+                entry["line_color"] = fdict['colour']
+                entry["marker_color"] = fdict['colour']
+                entries.append(entry)
+            title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+            do_comparison_graph(entries, title=title + " GeV",
+                                xtitle="|#eta|", ytitle="Response",
+                                xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
+                                other_elements=other_elements,
+                                output_filename=os.path.join(plot_dir, "rsp_vs_eta_%s.pdf" % (pt_bin)))
 
-                # Inverse response ie ~ correction
-                # entries = []
-                # for fdict in entry_dicts:
-                #     entry = deepcopy(fdict)
-                #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
-                #     entry["line_color"] = fdict['colour']
-                #     entry["marker_color"] = fdict['colour']
-                #     entries.append(entry)
-                # title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                # do_comparison_graph(entries, title=title + " GeV",
-                #                     xtitle="|#eta|", ytitle="1/Response",
-                #                     y_limit_protection=(0.8, 1.6),
-                #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_eta_%s.pdf" % (pt_bin)))
+            # Inverse response ie ~ correction
+            # entries = []
+            # for fdict in entry_dicts:
+            #     entry = deepcopy(fdict)
+            #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin)))
+            #     entry["line_color"] = fdict['colour']
+            #     entry["marker_color"] = fdict['colour']
+            #     entries.append(entry)
+            # title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+            # do_comparison_graph(entries, title=title + " GeV",
+            #                     xtitle="|#eta|", ytitle="1/Response",
+            #                     y_limit_protection=(0.8, 1.6),
+            #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_eta_%s.pdf" % (pt_bin)))
 
 
-            # Do all flavs resolution vs pt for given eta bin
-            # for eta_bin in common_eta_bins:
-            #     entries = []
-            #     for fdict in entry_dicts:
-            #         entry = deepcopy(fdict)
-            #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
-            #         entry["line_color"] = fdict['colour']
-            #         entry["marker_color"] = fdict['colour']
-            #         entries.append(entry)
-            #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            #     do_comparison_graph(entries, title=title,
-            #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
-            #                         y_limit_protection=(0, 0.3), draw_fits=True,
-            #                         xlimits=(10, 3000),
-            #                         output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
+        # Do all flavs resolution vs pt for given eta bin
+        # for eta_bin in common_eta_bins:
+        #     entries = []
+        #     for fdict in entry_dicts:
+        #         entry = deepcopy(fdict)
+        #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1), eta_bin))
+        #         entry["line_color"] = fdict['colour']
+        #         entry["marker_color"] = fdict['colour']
+        #         entries.append(entry)
+        #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+        #     do_comparison_graph(entries, title=title,
+        #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
+        #                         y_limit_protection=(0, 0.3), draw_fits=True,
+        #                         xlimits=(10, 3000),
+        #                         output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
 
-            # Do all flavs resolution plots vs eta for given pt bin
-            # for pt_bin in common_pt_bins:
-            #     entries = []
-            #     for fdict in entry_dicts:
-            #         entry = deepcopy(fdict)
-            #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
-            #         entry["line_color"] = fdict['colour']
-            #         entry["marker_color"] = fdict['colour']
-            #         entries.append(entry)
-            #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-            #     do_comparison_graph(entries, title=title + " GeV",
-            #                         xtitle="|#eta|", ytitle="Relative resolution",
-            #                         y_limit_protection=(0, 0.3), draw_fits=True, xlimits=(0, 5.2),
-            #                         output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
+        # Do all flavs resolution plots vs eta for given pt bin
+        # for pt_bin in common_pt_bins:
+        #     entries = []
+        #     for fdict in entry_dicts:
+        #         entry = deepcopy(fdict)
+        #         entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'].replace("Rsp", "Res", 1).replace("RefPt", "JetEta"), pt_bin))
+        #         entry["line_color"] = fdict['colour']
+        #         entry["marker_color"] = fdict['colour']
+        #         entries.append(entry)
+        #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+        #     do_comparison_graph(entries, title=title + " GeV",
+        #                         xtitle="|#eta|", ytitle="Relative resolution",
+        #                         y_limit_protection=(0, 0.3), draw_fits=True, xlimits=(0, 5.2),
+        #                         output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
 
