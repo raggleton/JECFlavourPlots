@@ -234,7 +234,7 @@ def main(in_args):
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
-        sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
+        sample_text = ROOT.TPaveText(0.89, 0.91, 0.9, 0.92, "NDC")
         # sample_text.AddText("Flat QCD 13 TeV")
         sample_text.AddText(args.sampleName + " 13 TeV")
         sample_text.SetTextFont(42)
