@@ -48,8 +48,8 @@ def get_common_pt_bins(obj_list):
 def construct_inverse_graph(graph):
     """Construct graph with y values = 1/y of input graph"""
     n = graph.GetN()
-    x = graph.GetX()
-    y = np.ndarray(n, 'd', graph.GetY())
+    x, y = cu.get_xy(graph)
+    # y = np.ndarray(n, 'd', graph.GetY())
     new_y = array('d', [1/old_y if old_y != 0 else 0 for old_y in y])
     ex = array('d', [0] * n)
     ey = array('d', [0] * n)
