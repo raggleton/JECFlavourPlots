@@ -94,6 +94,7 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
 
     funcs = []  # have to save them here, THStack doesn't draw them by default for some stupid reason
+    num_entries = 0
     for entry in entries:
         default_colour = ROOT.kBlack
         hist = entry['hist']
@@ -126,12 +127,17 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
                 hist.GetListOfFunctions().Remove(func)
 
         hst.Add(hist)
+        num_entries += 1
         this_label = entry.get('label', hist.GetName())
         for i, substr in enumerate(this_label.split("\n")):
             if i == 0:
                 leg.AddEntry(hist, substr, "LP")
             else:
                 leg.AddEntry(0, substr, "")
+
+    # if hst.GetHists().GetSize() == 0:  # segfaults, completely unobviously
+    if num_entries == 0:
+        return
 
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
     canv.SetTicks(1, 1)
