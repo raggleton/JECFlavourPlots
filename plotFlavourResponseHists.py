@@ -195,15 +195,6 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     bin_text.SetFillStyle(0)
     bin_text.Draw()
 
-    sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
-    sample_text.AddText("Flat QCD 13 TeV")
-    sample_text.SetTextFont(42)
-    sample_text.SetTextSize(FONT_SIZE)
-    sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
-    sample_text.SetBorderSize(0)
-    sample_text.SetFillStyle(0)
-    sample_text.Draw()
-
     if other_elements:
         for ele in other_elements:
             ele.Draw()
