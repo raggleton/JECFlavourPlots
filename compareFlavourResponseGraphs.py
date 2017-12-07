@@ -259,9 +259,10 @@ def main(in_args):
         dirs = all_dirs[0]
         for d in all_dirs[1:]:
             dirs = dirs & d
+        dirs = sorted(list(dirs))[:1]
         print "Doing: ", dirs
         # Loop through all different ak4pfchs, etc
-        for mydir in list(dirs):
+        for mydir in dirs:
             jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
             # jec_label = "Without JEC"
             jec_label = "With JEC"
