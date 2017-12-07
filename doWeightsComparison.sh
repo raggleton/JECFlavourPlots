@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_NoJEC_f_g_median.root" --label "Unweighted" --input "jra_QCD_FLAT_NoJEC_newFlav_weighted_f_g_median.root" --label "Weighted" --outputDir "QCD_FLAT_NoJEC_weighted/compareUnweighted" --title "Pythia8 NoJEC (median)"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8_f_g_median.root" --label "Unweighted" --input "jra_QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8_newFlav_weighted_f_g_median.root" --label "Weighted" --outputDir "QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8_weighted/compareUnweighted" --title "Pythia8 03Feb2017_V8 JEC (median)"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_withL1L2L3_Summer16_07Aug2017_V1_newFlav_f_g_median.root" --label "Unweighted" --input "jra_QCD_FLAT_withL1L2L3_Summer16_07Aug2017_V1_newFlav_weighted_f_g_median.root" --label "Weighted" --outputDir "QCD_FLAT_withL1L2L3_Summer16_07Aug2017_V1_weighted/compareUnweighted" --title "Pythia8 07Aug2017_V1 JEC (median)"

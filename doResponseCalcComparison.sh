@@ -1,0 +1,8 @@
+#!/bin/bash -e
+set -u
+
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_HERWIG_withL1L2L3_Summer16_03Feb2017_V8_ak4pfchs_newFlav_f_g.root" --label "Fitted mean" --input "jra_QCD_FLAT_HERWIG_withL1L2L3_Summer16_03Feb2017_V8_ak4pfchs_newFlav_f_g_rawMean.root" --label "Raw mean" --outputDir "QCD_FLAT_HERWIG_withL1L2L3_Summer16_03Feb2017_V8_ak4pfchs_newFlav/compareFitRawMean" --title "HERWIG_withL1L2L3_Summer16_03Feb2017_V8"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_HERWIG_NoJEC_ak4pfchs_newFlav_f_g.root" --label "Fitted mean" --input "jra_QCD_FLAT_HERWIG_NoJEC_ak4pfchs_newFlav_f_g_rawMean.root" --label "Raw mean" --outputDir "QCD_FLAT_HERWIG_NoJEC_ak4pfchs_newFlav/compareFitRawMean" --title "HERWIG_NoJEC"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_withL1L2L3_Summer16_23Sep2016V4_f_g.root" --label "Fitted mean" --input "jra_QCD_FLAT_withL1L2L3_Summer16_23Sep2016V4_f_g_rawMean.root" --label "Raw mean" --outputDir "QCD_FLAT_withL1L2L3_Summer16_23Sep2016V4/compareFitRawMean" --title "withL1L2L3_Summer16_23Sep2016V4"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8_f_g.root" --label "Fitted mean" --input "jra_QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8_f_g_rawMean.root" --label "Raw mean" --outputDir "QCD_FLAT_withL1L2L3_Summer16_03Feb2017_V8/compareFitRawMean" --title "withL1L2L3_Summer16_03Feb2017_V8"
+./compareFlavourResponseGraphs.py --input "jra_QCD_FLAT_NoJEC_f_g.root" --label "Fitted mean" --input "jra_QCD_FLAT_NoJEC_f_g_rawMean.root" --label "Raw mean" --outputDir "QCD_FLAT_NoJEC/compareFitRawMean" --title "Pythia8 NoJEC"
