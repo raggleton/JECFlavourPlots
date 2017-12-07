@@ -233,6 +233,7 @@ def main(in_args):
     parser.add_argument("--label", help="Label for input file", action='append')
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots")
+    parser.add_argument("--ylim", help="Set explicit y limits", nargs=2)
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
@@ -288,6 +289,7 @@ def main(in_args):
 
             obj_list = cu.get_list_of_objects_in_dir(args.input[0], mydir)
 
+            ylimits = (float(args.ylim[0]), float(args.ylim[1])) if args.ylim else None
             # Do all flavs rsp vs pt for given eta bin
             common_eta_bins = get_common_eta_bins(obj_list)
             for eta_bin in common_eta_bins:
@@ -311,7 +313,8 @@ def main(in_args):
                     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                        xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
+                                        xlimits=(10, 3000), y_limit_protection=(0.8, 1.4), 
+                                        ylimits=ylimits,
                                         other_elements=other_elements,
                                         output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_%s.pdf" % (eta_bin, fdict['label'])))
 
@@ -382,7 +385,7 @@ def main(in_args):
                     do_comparison_graph(entries, title=title,
                                         xtitle="|#eta|", ytitle="Response",
                                         xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
-                                        other_elements=other_elements,
+                                        other_elements=other_elements, ylimits=ylimits,
                                         output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_%s.pdf" % (pt_bin, fdict['label'])))
 
                 # Do a plot with all flavours
@@ -406,7 +409,7 @@ def main(in_args):
                 do_comparison_graph(entries, title=title + " GeV",
                                     xtitle="|#eta|", ytitle="Response",
                                     xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
-                                    other_elements=other_elements,
+                                    other_elements=other_elements, ylimits=ylimits,
                                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_allFlavs.pdf" % (pt_bin)))
 
 
