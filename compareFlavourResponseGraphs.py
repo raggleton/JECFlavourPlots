@@ -302,6 +302,11 @@ def main(in_args):
                         entry["marker_color"] = fdict['colour']
                         if ind == 1:
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        if ind == 2:
+                            entry["line_style"] += 1
+                        if ind == 3:
+                            entry["line_style"] += 1
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
                     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
@@ -321,6 +326,11 @@ def main(in_args):
                         entry["line_color"] = fdict['colour']
                         entry["marker_color"] = fdict['colour']
                         if ind == 1:
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        if ind == 2:
+                            entry["line_style"] += 1
+                        if ind == 3:
+                            entry["line_style"] += 1
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
                         if fdict['label'] == "ud":
@@ -362,6 +372,11 @@ def main(in_args):
                         entry["marker_color"] = fdict['colour']
                         if ind == 1:
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        if ind == 2:
+                            entry["line_style"] += 1
+                        if ind == 3:
+                            entry["line_style"] += 1
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
                     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
                     do_comparison_graph(entries, title=title,
@@ -380,6 +395,11 @@ def main(in_args):
                         entry["line_color"] = fdict['colour']
                         entry["marker_color"] = fdict['colour']
                         if ind == 1:
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        if ind == 2:
+                            entry["line_style"] += 1
+                        if ind == 3:
+                            entry["line_style"] += 1
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
                 title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
