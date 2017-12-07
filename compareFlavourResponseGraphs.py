@@ -233,6 +233,7 @@ def main(in_args):
     parser.add_argument("--label", help="Label for input file", action='append')
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots")
+    parser.add_argument("--chi2", help="Do Chi2 comparison plot", action='store_true')
     parser.add_argument("--ylim", help="Set explicit y limits", nargs=2)
     args = parser.parse_args(in_args)
 
@@ -290,12 +291,14 @@ def main(in_args):
             obj_list = cu.get_list_of_objects_in_dir(args.input[0], mydir)
 
             ylimits = (float(args.ylim[0]), float(args.ylim[1])) if args.ylim else None
+
             # Do all flavs rsp vs pt for given eta bin
             common_eta_bins = get_common_eta_bins(obj_list)
             for eta_bin in common_eta_bins:
                 # Do a per-flavour comparison plot
                 for fdict in entry_dicts:
                     entries = []
+                    chi2entries = []
                     for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
                         entry = deepcopy(fdict)
                         entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
@@ -310,6 +313,12 @@ def main(in_args):
                             entry["line_style"] += 1
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
+
+                        if args.chi2:
+                            chi2entry = deepcopy(entry)
+                            chi2entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("RspVs", "Chi2NDoFVs"), eta_bin))
+                            chi2entries.append(chi2entry)
+
                     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
@@ -317,6 +326,12 @@ def main(in_args):
                                         ylimits=ylimits,
                                         other_elements=other_elements,
                                         output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_%s.pdf" % (eta_bin, fdict['label'])))
+                    if args.chi2:
+                        do_comparison_graph(chi2entries, title=title,
+                                            xtitle="p_{T}^{Gen} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
+                                            xlimits=(10, 3000),
+                                            other_elements=other_elements,
+                                            output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_%s_chi2.pdf" % (eta_bin, fdict['label'])))
 
                 # Do a plot with all flavours
                 entries = []
@@ -367,6 +382,7 @@ def main(in_args):
                 # Do a per-flavour comparison plot
                 for fdict in entry_dicts:
                     entries = []
+                    chi2entries = []
                     for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
                         entry = deepcopy(fdict)
                         entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta"), pt_bin))
@@ -381,12 +397,23 @@ def main(in_args):
                             entry["line_style"] += 1
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
+                        if args.chi2:
+                            chi2entry = deepcopy(entry)
+                            chi2entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("RefPt", "JetEta").replace("RspVs", "Chi2NDoFVs"), pt_bin))
+                            chi2entries.append(chi2entry)
+                    
                     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
                     do_comparison_graph(entries, title=title + " GeV",
                                         xtitle="|#eta|", ytitle="Response",
                                         xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
                                         other_elements=other_elements, ylimits=ylimits,
                                         output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_%s.pdf" % (pt_bin, fdict['label'])))
+                    if args.chi2:
+                        do_comparison_graph(entries, title=title,
+                                            xtitle="|#eta|", ytitle="#chi^{2}/N_{DoF}",
+                                            xlimits=(0, 5.2),
+                                            other_elements=other_elements,
+                                            output_filename=os.path.join(plot_dir, "compare_rsp_vs_eta_%s_%s_chi2.pdf" % (pt_bin, fdict['label'])))
 
                 # Do a plot with all flavours
                 entries = []
