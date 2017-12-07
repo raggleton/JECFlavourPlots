@@ -382,7 +382,7 @@ def main(in_args):
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                         entries.append(entry)
                     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                    do_comparison_graph(entries, title=title,
+                    do_comparison_graph(entries, title=title + " GeV",
                                         xtitle="|#eta|", ytitle="Response",
                                         xlimits=(0, 5.2), y_limit_protection=(0.8, 1.4),
                                         other_elements=other_elements, ylimits=ylimits,
