@@ -222,7 +222,7 @@ def main(in_args):
         jec_text.SetBorderSize(0)
         jec_text.SetFillStyle(0)
 
-        dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
+        dir_text = ROOT.TPaveText(0.17, 0.75, 0.2, 0.77, "NDC")
         dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
         dir_text.AddText(dir_label)
         dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
