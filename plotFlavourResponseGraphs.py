@@ -214,10 +214,7 @@ def main(in_args):
     # Loop through all different ak4pfchs, etc
     dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
     for mydir in dirs[:]:
-        jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
-        jec_label = "Without JEC"
-        jec_label = "Summer16_23Sep2016V4"
-        # jec_label = "Summer16_03Feb2017_V8"
+        jec_text = ROOT.TPaveText(0.14, 0.91, 0.2, 0.92, "NDC")
         jec_text.AddText(args.title)
         jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         jec_text.SetTextFont(42)
