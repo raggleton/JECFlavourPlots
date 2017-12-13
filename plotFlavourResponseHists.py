@@ -21,6 +21,8 @@ ROOT.gROOT.SetBatch(1)
 ROOT.TH1.SetDefaultSumw2()
 ROOT.gStyle.SetOptStat(0)
 My_Style.cd()
+# Move exponent label as it overlaps title box
+ROOT.TGaxis.SetExponentOffset(-0.06, 0, "y")
 
 FONT_SIZE = 0.032
 
