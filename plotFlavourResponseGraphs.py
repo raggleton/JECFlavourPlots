@@ -339,8 +339,8 @@ def main(in_args):
         #         entries.append(entry)
         #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
         #     do_comparison_graph(entries, title=title + " GeV",
-        #                         xtitle="|#eta|", ytitle="Relative resolution",
-        #                         y_limit_protection=(0, 0.3), draw_fits=True, xlimits=(0, 5.2),
+        #                         xtitle="|#eta|", ytitle="Relative resolution", other_elements=other_elements,
+        #                         y_limit_protection=(0, 0.5), draw_fits=True, xlimits=(0, 5.2),
         #                         output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
 
     return 0
