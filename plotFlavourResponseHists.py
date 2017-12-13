@@ -47,7 +47,7 @@ def get_common_pt_bins(obj_list):
     return list(set(pt_bins))
 
 
-def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
+def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle="",
                        other_elements=None, logx=False, logy=False,
                        do_line=True, xlimits=None, ylimits=None,
                        y_limit_protection=None, draw_fits=True, normalise=True):
@@ -60,8 +60,8 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
         label, and various other style options to be applied.
     output_filename : str
         Name of output plot file
-    title : str
-        Overall plot title
+    bin_title : str
+        Bin title e.g. x < pT < y
     xtitle : str
         X axis label
     ytitle : str
@@ -192,12 +192,12 @@ def do_comparison_hist(entries, output_filename, title="", xtitle="", ytitle="",
     cms_text.SetFillStyle(0)
     cms_text.Draw()
 
-    n = title.count("\n")
+    n = bin_title.count("\n")
     # HERE BE MAGIC. Seriously though, it appears this works, so dont touch it
     y1 = 0.79 - (n*0.04)
     y2 = y1 + ((n+1)*0.04)
     bin_text = ROOT.TPaveText(0.17, y1, 0.2, y2, "NDC")
-    for i, substr in enumerate(title.split("\n")):
+    for i, substr in enumerate(bin_title.split("\n")):
         bin_text.AddText(substr)
     bin_text.SetTextFont(42)
     bin_text.SetTextSize(FONT_SIZE)
@@ -404,28 +404,28 @@ def main(in_args):
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
-                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-                title += "\n"
-                title += pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-                title += " GeV"
-                # do_comparison_hist(entries, title=title,
-                #                    xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
-                #                    other_elements=other_elements, normalise=False,
-                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
-                # do_comparison_hist(entries, title=title,
-                #                    xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
-                #                    other_elements=other_elements, normalise=True, draw_fits=False,
-                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
+                bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                bin_title += "\n"
+                bin_title += pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                bin_title += " GeV"
+                do_comparison_hist(entries, bin_title=bin_title,
+                                   xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
+                                   other_elements=other_elements, normalise=False,
+                                   output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
+                do_comparison_hist(entries, bin_title=bin_title,
+                                   xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
+                                   other_elements=other_elements, normalise=True, draw_fits=False,
+                                   output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
                 all_pt_entries.append(entries)
 
-            this_dir_text = dir_text.Clone()
-            this_dir_text.SetY1(0.76)
-            this_dir_text.SetY2(0.77)
-            title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=title, 
-                                      xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
-                                      other_elements=[jec_text, this_dir_text, sample_text], logx=True,
-                                      output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
+            # this_dir_text = dir_text.Clone()
+            # this_dir_text.SetY1(0.76)
+            # this_dir_text.SetY2(0.77)
+            # bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            # do_flavour_fraction_graph(all_pt_entries, common_pt_bins, bin_title=bin_title, 
+            #                           xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
+            #                           other_elements=[jec_text, this_dir_text, sample_text], logx=True,
+            #                           output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
 
     return 0
 

@@ -57,7 +57,7 @@ def construct_inverse_graph(graph):
     return gr
 
 
-def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle="",
+def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitle="",
                         other_elements=None, logx=False, logy=False,
                         do_line=True, xlimits=None, ylimits=None,
                         y_limit_protection=None, draw_fits=True):
@@ -70,8 +70,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         label, and various other style options to be applied.
     output_filename : str
         Name of output plot file
-    title : str
-        Overall plot title
+    bin_title : str
+        Bin title e.g. x < pT < y
     xtitle : str
         X axis label
     ytitle : str
@@ -175,7 +175,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     cms_text.Draw()
 
     bin_text = ROOT.TPaveText(0.17, 0.8, 0.2, 0.81, "NDC")
-    bin_text.AddText(title)
+    bin_text.AddText(bin_title)
     bin_text.SetTextFont(42)
     bin_text.SetTextSize(FONT_SIZE)
     bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
@@ -258,26 +258,26 @@ def main(in_args):
                 entry["line_color"] = fdict['colour']
                 entry["marker_color"] = fdict['colour']
                 entries.append(entry)
-            title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            do_comparison_graph(entries, title=title,
+            bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            do_comparison_graph(entries, bin_title=bin_title,
                                 xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
                                 xlimits=(10, 5000), y_limit_protection=(0.5, 1.5),
                                 other_elements=other_elements,
                                 output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
             # Inverse response ie ~ correction
-            # entries = []
-            # for fdict in entry_dicts:
-            #     entry = deepcopy(fdict)
-            #     entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
-            #     entry["line_color"] = fdict['colour']
-            #     entry["marker_color"] = fdict['colour']
-            #     entries.append(entry)
-            # title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            # do_comparison_graph(entries, title=title,
-            #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
-            #                     y_limit_protection=(0.8, 1.2),
-            #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
+            entries = []
+            for fdict in entry_dicts:
+                entry = deepcopy(fdict)
+                entry["graph"] = construct_inverse_graph(cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin)))
+                entry["line_color"] = fdict['colour']
+                entry["marker_color"] = fdict['colour']
+                entries.append(entry)
+            bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            do_comparison_graph(entries, bin_title=bin_title,
+                                xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
+                                y_limit_protection=(0.8, 1.2),
+                                output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
 
         # Do all flavs rsp vs eta for given pt bin
         common_pt_bins = get_common_pt_bins(obj_list)
@@ -289,8 +289,8 @@ def main(in_args):
                 entry["line_color"] = fdict['colour']
                 entry["marker_color"] = fdict['colour']
                 entries.append(entry)
-            title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-            do_comparison_graph(entries, title=title + " GeV",
+            bin_title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+            do_comparison_graph(entries, bin_title=bin_title + " GeV",
                                 xtitle="|#eta|", ytitle="Response",
                                 xlimits=(0, 5.2), y_limit_protection=(0.5, 1.5),
                                 other_elements=other_elements,
@@ -304,8 +304,8 @@ def main(in_args):
             #     entry["line_color"] = fdict['colour']
             #     entry["marker_color"] = fdict['colour']
             #     entries.append(entry)
-            # title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-            # do_comparison_graph(entries, title=title + " GeV",
+            # bin_title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+            # do_comparison_graph(entries, bin_title=bin_title + " GeV",
             #                     xtitle="|#eta|", ytitle="1/Response",
             #                     y_limit_protection=(0.8, 1.6),
             #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_eta_%s.pdf" % (pt_bin)))
@@ -320,8 +320,8 @@ def main(in_args):
         #         entry["line_color"] = fdict['colour']
         #         entry["marker_color"] = fdict['colour']
         #         entries.append(entry)
-        #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-        #     do_comparison_graph(entries, title=title,
+        #     bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+        #     do_comparison_graph(entries, bin_title=bin_title,
         #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
         #                         y_limit_protection=(0, 0.5), draw_fits=False,
         #                         ylimits=(0, 0.5),
@@ -337,8 +337,8 @@ def main(in_args):
         #         entry["line_color"] = fdict['colour']
         #         entry["marker_color"] = fdict['colour']
         #         entries.append(entry)
-        #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
-        #     do_comparison_graph(entries, title=title + " GeV",
+        #     bin_title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+        #     do_comparison_graph(entries, bin_title=bin_title + " GeV",
         #                         xtitle="|#eta|", ytitle="Relative resolution", other_elements=other_elements,
         #                         y_limit_protection=(0, 0.5), draw_fits=True, xlimits=(0, 5.2),
         #                         output_filename=os.path.join(plot_dir, "res_vs_eta_%s.pdf" % (pt_bin)))
