@@ -277,6 +277,7 @@ def main(in_args):
             do_comparison_graph(entries, bin_title=bin_title,
                                 xtitle="p_{T}^{Gen} [GeV]", ytitle="1/Response", logx=True,
                                 y_limit_protection=(0.8, 1.2),
+                                other_elements=other_elements,
                                 output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
 
         # Do all flavs rsp vs eta for given pt bin
@@ -308,6 +309,7 @@ def main(in_args):
             # do_comparison_graph(entries, bin_title=bin_title + " GeV",
             #                     xtitle="|#eta|", ytitle="1/Response",
             #                     y_limit_protection=(0.8, 1.6),
+            #                     other_elements=other_elements,
             #                     output_filename=os.path.join(plot_dir, "inv_rsp_vs_eta_%s.pdf" % (pt_bin)))
 
 
