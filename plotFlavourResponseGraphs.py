@@ -261,7 +261,7 @@ def main(in_args):
             title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
             do_comparison_graph(entries, title=title,
                                 xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
+                                xlimits=(10, 5000), y_limit_protection=(0.5, 1.5),
                                 other_elements=other_elements,
                                 output_filename=os.path.join(plot_dir, "rsp_vs_pt_%s.pdf" % (eta_bin)))
 
@@ -323,8 +323,9 @@ def main(in_args):
         #     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
         #     do_comparison_graph(entries, title=title,
         #                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Relative resolution", logx=True,
-        #                         y_limit_protection=(0, 0.3), draw_fits=True,
-        #                         xlimits=(10, 3000),
+        #                         y_limit_protection=(0, 0.5), draw_fits=False,
+        #                         ylimits=(0, 0.5),
+        #                         xlimits=(10, 5000), other_elements=other_elements,
         #                         output_filename=os.path.join(plot_dir, "res_vs_pt_%s.pdf" % (eta_bin)))
 
         # Do all flavs resolution plots vs eta for given pt bin
