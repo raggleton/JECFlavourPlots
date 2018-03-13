@@ -299,6 +299,8 @@ def main(in_args):
 
             ylimits = (float(args.ylim[0]), float(args.ylim[1])) if args.ylim else None
 
+            X_MIN, X_MAX = 8, 5000
+            # For limit protection:
             Y_MIN, Y_MAX = 0.8, 1.6
 
             # Do all flavs corr vs pt for given eta bin
@@ -332,14 +334,14 @@ def main(in_args):
                     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction", logx=True,
-                                        xlimits=(10, 3000), y_limit_protection=(Y_MIN, Y_MAX), 
+                                        xlimits=(X_MIN, X_MAX), y_limit_protection=(Y_MIN, Y_MAX), 
                                         ylimits=ylimits,
                                         other_elements=other_elements,
                                         output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s.pdf" % (eta_bin, fdict['label'])))
                     if args.chi2:
                         do_comparison_graph(chi2entries, title=title,
                                             xtitle="p_{T}^{Gen} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
-                                            xlimits=(10, 3000),
+                                            xlimits=(X_MIN, X_MAX),
                                             other_elements=other_elements,
                                             output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_chi2.pdf" % (eta_bin, fdict['label'])))
 
@@ -370,7 +372,7 @@ def main(in_args):
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction", logx=True,
-                                    xlimits=(10, 3000), y_limit_protection=(Y_MIN, Y_MAX),
+                                    xlimits=(X_MIN, X_MAX), y_limit_protection=(Y_MIN, Y_MAX),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs.pdf" % (eta_bin)))
                 
@@ -383,7 +385,7 @@ def main(in_args):
                 #     diff_entries.append(diff)
                 # do_comparison_graph(diff_entries, title=title,
                 #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction (ud) - Correction (g)", logx=True,
-                #                     xlimits=(10, 3000), ylimits=(0, 0.08),
+                #                     xlimits=(X_MIN, X_MAX), ylimits=(0, 0.08),
                 #                     other_elements=other_elements,
                 #                     output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
             
