@@ -9,6 +9,7 @@ import numpy as np
 import math
 import argparse
 from array import array
+import re
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -218,3 +219,22 @@ def make_normalised_TH2(hist, norm_axis, recolour=True):
 def th1_to_arr(hist):
     return np.array([hist.GetBinContent(i) for i in range(1, hist.GetNbinsX()+1)])
 
+
+def tryint(s):
+    try:
+        return int(s)
+    except:
+        return s
+     
+
+def alphanum_key(s):
+    """ Turn a string into a list of string and number chunks.
+        "z23a" -> ["z", 23, "a"]
+    """
+    return [ tryint(c) for c in re.split('([0-9]+)', s) ]
+
+
+def sort_human(l):
+    """ Sort the given list in the way that humans expect.
+    """
+    return sorted(l, key=alphanum_key)
