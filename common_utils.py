@@ -1,6 +1,7 @@
 """Set of common functions that are used in loads of scripts."""
 
 
+from __future__ import print_function
 import ROOT
 import os
 from subprocess import call
@@ -96,7 +97,7 @@ def exists_in_file(tfile, obj_name):
 def get_from_tfile(tfile, obj_name, info=False):
     """Get some object from ROOT TFile with checks."""
     if info:
-        print "Getting %s" % obj_name
+        print("Getting %s" % obj_name)
     if not exists_in_file(tfile, obj_name):
         raise IOError("No object named %s in %s" % (obj_name, tfile.GetName()))
     else:

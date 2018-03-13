@@ -3,6 +3,7 @@
 """Plot response hists using ROOT file from output of jet_response_fitter"""
 
 
+from __future__ import print_function
 import os
 import sys
 import argparse
@@ -389,8 +390,11 @@ def main(in_args):
         obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
         # Do separate dir for each eta bin, then separate plot for each pt bin
-        common_eta_bins = get_common_eta_bins(obj_list)
-        common_pt_bins = get_common_pt_bins(obj_list)
+        common_eta_bins = cu.sort_human(get_common_eta_bins(obj_list))
+        common_pt_bins = cu.sort_human(get_common_pt_bins(obj_list))
+        print("Doing eta bins", common_eta_bins)
+        print("Doing pt bins", common_pt_bins)
+
         for eta_bin in common_eta_bins[:]:
             this_plot_dir = os.path.join(plot_dir, eta_bin)
             cu.check_dir_exists_create(this_plot_dir)
