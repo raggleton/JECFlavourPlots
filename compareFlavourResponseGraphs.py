@@ -363,19 +363,19 @@ def main(in_args):
                                     xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_allFlavs.pdf" % (eta_bin)))
-                diff_entries = []
-                for ind, (ud, g, label) in enumerate(zip(ud_entries, g_entries, args.label)):
-                    diff_graph = construct_difference_graph(ud['graph'], g['graph'])
-                    diff = deepcopy(ud)
-                    diff['graph'] = diff_graph
-                    diff['label'] = label
-                    diff_entries.append(diff)
-                do_comparison_graph(diff_entries, title=title,
-                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Response (ud) - response (g)", logx=True,
-                                    xlimits=(10, 3000), ylimits=(0, 0.08),
-                                    other_elements=other_elements,
-                                    output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
-            return    
+                # diff_entries = []
+                # for ind, (ud, g, label) in enumerate(zip(ud_entries, g_entries, args.label)):
+                #     diff_graph = construct_difference_graph(ud['graph'], g['graph'])
+                #     diff = deepcopy(ud)
+                #     diff['graph'] = diff_graph
+                #     diff['label'] = label
+                #     diff_entries.append(diff)
+                # do_comparison_graph(diff_entries, title=title,
+                #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response (ud) - response (g)", logx=True,
+                #                     xlimits=(10, 3000), ylimits=(0, 0.08),
+                #                     other_elements=other_elements,
+                #                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
+            # return    
 
             # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = get_common_pt_bins(obj_list)
