@@ -184,7 +184,7 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
             line.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS")
+    cms_text.AddText("CMS Simulation")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -303,7 +303,7 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     leg.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS")
+    cms_text.AddText("CMS Simulation")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -406,7 +406,7 @@ def main(in_args):
                     entries.append(entry)
                 bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 bin_title += "\n"
-                bin_title += pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
+                bin_title += pt_bin.replace("to", " < p^{Gen}_{T} < ").replace("RefPt", "")
                 bin_title += " GeV"
                 do_comparison_hist(entries, bin_title=bin_title,
                                    xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
