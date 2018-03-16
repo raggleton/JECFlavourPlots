@@ -61,10 +61,46 @@ def construct_inverse_graph(graph):
     return gr
 
 
+def construct_graph_func_diff_graph(graph, func):
+    """Construct a graph of function - graph for each (x, y) point in graph"""
+    x, y = cu.get_xy(graph)
+    n = len(x)
+    diff = array('d', [func.Eval(this_x) - this_y for this_x, this_y in zip(x, y)])
+    ex = array('d', [0] * n)
+    ey = array('d', [0] * n)
+    gr = ROOT.TGraphErrors(n, x, diff, ex, ey)
+    return gr
+
+
+def construct_graph_func_ratio_graph(graph, func):
+    """Construct a graph of function / graph for each (x, y) point in graph"""
+    x, y = cu.get_xy(graph)
+    n = len(x)
+    diff = array('d', [func.Eval(this_x) / this_y for this_x, this_y in zip(x, y)])
+    ex = array('d', [0] * n)
+    ey = array('d', [0] * n)
+    gr = ROOT.TGraphErrors(n, x, diff, ex, ey)
+    return gr
+
+
+def rescale_plot_labels(container, factor):
+    # What a pile of wank, why does ROOT scale all these sizes?
+    container.GetXaxis().SetLabelSize(container.GetXaxis().GetLabelSize()/factor)
+    container.GetXaxis().SetTitleSize(container.GetXaxis().GetTitleSize()/factor)
+    container.GetXaxis().SetTitleOffset(container.GetXaxis().GetTitleOffset()*factor)  # doesn't seem to work?
+    container.GetXaxis().SetTickLength(container.GetXaxis().GetTickLength()/factor)
+
+    container.GetYaxis().SetLabelSize(container.GetYaxis().GetLabelSize()/factor)
+    container.GetYaxis().SetTitleSize(container.GetYaxis().GetTitleSize()/factor)
+    container.GetYaxis().SetTitleOffset(container.GetYaxis().GetTitleOffset()*factor)
+    # container.GetYaxis().SetTickLength(0.03/factor)
+
+
 def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitle="",
                         other_elements=None, logx=False, logy=False,
                         do_line=True, xlimits=None, ylimits=None,
-                        y_limit_protection=None, draw_fits=True):
+                        y_limit_protection=None, draw_fits=True,
+                        draw_fit_graph_ratio=False):
     """Draw several graphs on one canvas and save to file
 
     Parameters
@@ -96,18 +132,20 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
         Set minimum and maximum y values in the event of a huge stat error or weird point
     draw_fits : bool, optional
         Draw fitted functions or not
+    draw_fit_graph_ratio : bool, optional
+        Draw subplot with ratio between graph and fit function
 
     """
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.12
-    middle = 0.77
+    middle = 0.79
     leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
     leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
-    
+
     # VITAL to stop ROOT destroying all the graphs inside the TMultiGraph as well
     ROOT.SetOwnership(mg, False)
 
@@ -115,6 +153,8 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
         ROOT.gStyle.SetOptFit(OPT_FIT_STYLE)
     else:
         ROOT.gStyle.SetOptFit(0)
+
+    diff_entries = []
 
     for entry in entries:
         default_colour = ROOT.kBlack
@@ -128,15 +168,34 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
         graph.SetMarkerSize(entry.get('marker_size', 1))
 
         if graph.GetListOfFunctions().GetSize() > 0:
-            func = graph.GetListOfFunctions().Last()
+            # don't use .Last() here as ROOT will append the TPaveStats to ListOfFunctions()
+            # whyyyyyyyyyy
+            func = graph.FindObject("fit")
+            if type(func) != ROOT.TF1:
+                raise RuntimeError("func has type " + str(type(func)))
+
             if draw_fits:
                 func.SetLineColor(entry.get('line_color', default_colour))
                 func.SetLineStyle(4)
                 func.SetLineWidth(2)
-            else:
-                # Broken for now
-                graph.GetListOfFunctions().Remove(func)
 
+            # else:
+            #     # Broken for now
+            #     graph.GetListOfFunctions().Remove(func)
+
+            if draw_fit_graph_ratio:
+                diff_graph = construct_graph_func_ratio_graph(graph, func)
+                diff_graph.SetLineColor(entry.get('line_color', default_colour))
+                diff_graph.SetLineStyle(entry.get('line_style', 1))
+                diff_graph.SetLineWidth(entry.get('line_width', 1))
+                diff_graph.SetMarkerColor(entry.get('marker_color', default_colour))
+                diff_graph.SetMarkerStyle(entry.get('marker_style', 1))
+                diff_graph.SetMarkerSize(entry.get('marker_size', 1))
+                diff_entry = deepcopy(entry)
+                diff_entry['graph'] = diff_graph
+                diff_entries.append(diff_entry)
+
+        # Need a dummy canvas first to draw the graph to get the fit stats box for later...gnahhhh
         c_dummy = ROOT.TCanvas("dummy"+ROOT.TUUID().AsString(), "", 800, 800)
         graph.Draw("ALP")
         ROOT.gPad.Modified()
@@ -155,18 +214,51 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
             fit_stats.SetTextColorAlpha(ROOT.kWhite, 0)
         fit_stats.SetOptStat(0)  # Doesn't work
         entry['stats'] = fit_stats
-        
+
         mg.Add(graph)
         leg.AddEntry(graph, entry.get('label', graph.GetName()), "LP")
-    
+
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
-    canv.SetTicks(1, 1)
+    right_margin = 0.03
+    subplot_pad_height = 0.32
+    subplot_pad_fudge = 0.01
+    main_pad, subplot_pad = None, None
+    if draw_fit_graph_ratio:
+        main_pad = ROOT.TPad("main_pad", "", 0, subplot_pad_height+subplot_pad_fudge, 1, 1)
+        ROOT.SetOwnership(main_pad, False)
+        main_pad.SetTicks(1, 1)
+        main_pad.SetBottomMargin(2*subplot_pad_fudge)
+        main_pad.SetTopMargin(0.12)
+        main_pad.SetRightMargin(right_margin)
+        canv.cd()
+        main_pad.Draw()
+        subplot_pad = ROOT.TPad("subplot_pad", "", 0, 0, 1, subplot_pad_height-subplot_pad_fudge)
+        ROOT.SetOwnership(subplot_pad, False)
+        subplot_pad.SetTicks(1, 1)
+        subplot_pad.SetFillColor(0)
+        subplot_pad.SetFillStyle(0)
+        subplot_pad.SetTopMargin(5*subplot_pad_fudge)
+        subplot_pad.SetRightMargin(right_margin)
+        subplot_pad.SetBottomMargin(0.35)
+        canv.cd()
+        subplot_pad.Draw()
+    else:
+        main_pad = ROOT.TPad("main_pad", "", 0, 0, 1, 1)
+        ROOT.SetOwnership(main_pad, False)
+        main_pad.SetRightMargin(right_margin)
+        main_pad.SetTicks(1, 1)
+        main_pad.Draw()
+
+    main_pad.cd()
     if logx:
-        canv.SetLogx()
+        main_pad.SetLogx()
     if logy:
-        canv.SetLogy()
+        main_pad.SetLogy()
 
     mg.Draw("ALP")
+
+    if draw_fit_graph_ratio:
+        rescale_plot_labels(mg, 1-subplot_pad_height)
 
     # Little extra breathing room
     mg.GetHistogram().SetMaximum(mg.GetYaxis().GetXmax() * 1.05)
@@ -220,6 +312,43 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
         for ele in other_elements:
             ele.Draw()
 
+    if draw_fit_graph_ratio:
+        # Remove x axis labels & title
+        mg.GetHistogram().GetXaxis().SetLabelSize(0)
+        mg.GetXaxis().SetLabelSize(0)
+        mg.GetHistogram().GetXaxis().SetTitleSize(0)
+        mg.GetXaxis().SetTitleSize(0)
+
+        subplot_pad.cd()
+        if logx:
+            subplot_pad.SetLogx()
+
+        mg_sub = ROOT.TMultiGraph()
+        mg_sub.SetTitle(";".join(["", xtitle, "Function / graph"]))
+        ROOT.SetOwnership(mg_sub, False)
+        for entry in diff_entries:
+            mg_sub.Add(entry['graph'])
+        mg_sub.Draw("ALP")
+
+        # Set y axis range
+        mg_sub.GetHistogram().SetMaximum(1.02)
+        mg_sub.GetHistogram().SetMinimum(0.98)
+
+        # Make it look sensible
+        mg_sub.GetXaxis().SetTitleOffset(mg_sub.GetXaxis().GetTitleOffset()*2.8)
+        mg_sub.GetYaxis().SetNdivisions(505)
+
+        # Draw a line at 1
+        y_min, y_max = mg_sub.GetYaxis().GetXmin(), mg_sub.GetYaxis().GetXmax()
+        if y_min < 1 and y_max > 1:
+            x_min, x_max = mg_sub.GetXaxis().GetXmin(), mg_sub.GetXaxis().GetXmax()
+            line = ROOT.TLine(x_min, 1, x_max, 1)
+            line.SetLineStyle(2)
+            line.SetLineColor(ROOT.kGray+2)
+            line.Draw()
+
+        rescale_plot_labels(mg_sub, subplot_pad_height)
+
     canv.SaveAs(output_filename)
 
 
@@ -263,7 +392,7 @@ def main(in_args):
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
-        sample_text = ROOT.TPaveText(0.89, 0.91, 0.9, 0.92, "NDC")
+        sample_text = ROOT.TPaveText(0.93, 0.91, 0.94, 0.92, "NDC")
         # sample_text.AddText("Flat QCD 13 TeV")
         sample_text.AddText(args.sampleName + " 13 TeV")
         sample_text.SetTextFont(42)
@@ -284,7 +413,7 @@ def main(in_args):
         common_eta_bins = get_common_eta_bins(obj_list)
         for eta_bin in common_eta_bins:
             entries = []
-            
+
             # repsonse
             # for fdict in entry_dicts:
             #     entry = deepcopy(fdict)
@@ -307,29 +436,34 @@ def main(in_args):
                 entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                 entry["line_color"] = fdict['colour']
                 entry["marker_color"] = fdict['colour']
+
                 entries.append(entry)
                 do_comparison_graph([entry], bin_title=bin_title,
                                     xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                     y_limit_protection=(0.7, 1.8),
                                     other_elements=other_elements,
+                                    draw_fit_graph_ratio=True,
                                     output_filename=os.path.join(plot_dir, "%s_%s_logX.pdf" % (fdict['flav'], eta_bin)))
 
                 do_comparison_graph([entry], bin_title=bin_title,
                                     xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=False,
                                     y_limit_protection=(0.7, 1.8),
                                     other_elements=other_elements,
+                                    draw_fit_graph_ratio=True,
                                     output_filename=os.path.join(plot_dir, "%s_%s_linX.pdf" % (fdict['flav'], eta_bin)))
 
             do_comparison_graph(entries, bin_title=bin_title,
                                 xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                 y_limit_protection=(0.7, 1.8),
                                 other_elements=other_elements,
+                                draw_fit_graph_ratio=True,
                                 output_filename=os.path.join(plot_dir, "corr_vs_pt_%s_logX.pdf" % (eta_bin)))
 
             do_comparison_graph(entries, bin_title=bin_title,
                                 xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=False,
                                 y_limit_protection=(0.7, 1.8),
                                 other_elements=other_elements,
+                                draw_fit_graph_ratio=True,
                                 output_filename=os.path.join(plot_dir, "corr_vs_pt_%s_linX.pdf" % (eta_bin)))
 
     return 0
