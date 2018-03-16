@@ -33,7 +33,7 @@ def get_common_eta_bins(obj_list):
     """Get list of common eta bins from list of object names"""
     eta_bins = []
     for x in obj_list:
-        m = re.search(r'JetEta[0-9.]+to[0-9.]+', x)
+        m = re.search(r'JetEta[0-9.-]+to[0-9.-]+', x)
         if m:
             eta_bins.append(m.group(0))
     return list(set(eta_bins))
