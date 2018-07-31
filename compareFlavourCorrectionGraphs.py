@@ -15,7 +15,6 @@ import numpy as np
 import ROOT
 from MyStyle import My_Style
 import common_utils as cu
-from comparator import Contribution, Plot
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
