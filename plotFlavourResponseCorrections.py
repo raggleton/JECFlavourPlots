@@ -26,27 +26,7 @@ My_Style.cd()
 OPT_FIT_STYLE = 1111
 ROOT.gStyle.SetOptFit(OPT_FIT_STYLE)
 
-FONT_SIZE = 0.032
-
-
-def get_common_eta_bins(obj_list):
-    """Get list of common eta bins from list of object names"""
-    eta_bins = []
-    for x in obj_list:
-        m = re.search(r'JetEta[0-9.-]+to[0-9.-]+', x)
-        if m:
-            eta_bins.append(m.group(0))
-    return list(set(eta_bins))
-
-
-def get_common_pt_bins(obj_list):
-    """Get list of common pt bins from list of object names"""
-    pt_bins = []
-    for x in obj_list:
-        m = re.search(r'RefPt[0-9.]+to[0-9.]+', x)
-        if m:
-            pt_bins.append(m.group(0))
-    return list(set(pt_bins))
+FONT_SIZE = 0.037
 
 
 def construct_inverse_graph(graph):
@@ -410,7 +390,7 @@ def main(in_args):
         obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
         # Do all flavs rsp vs pt for given eta bin
-        common_eta_bins = get_common_eta_bins(obj_list)
+        common_eta_bins = cu.get_common_eta_bins(obj_list)
         for eta_bin in common_eta_bins:
             entries = []
 

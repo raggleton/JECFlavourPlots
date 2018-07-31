@@ -25,27 +25,7 @@ My_Style.cd()
 # Move exponent label as it overlaps title box
 ROOT.TGaxis.SetExponentOffset(-0.06, 0, "y")
 
-FONT_SIZE = 0.032
-
-
-def get_common_eta_bins(obj_list):
-    """Get list of common eta bins from list of object names"""
-    eta_bins = []
-    for x in obj_list:
-        m = re.search(r'JetEta[0-9.]+to[0-9.]+', x)
-        if m:
-            eta_bins.append(m.group(0))
-    return list(set(eta_bins))
-
-
-def get_common_pt_bins(obj_list):
-    """Get list of common pt bins from list of object names"""
-    pt_bins = []
-    for x in obj_list:
-        m = re.search(r'RefPt[0-9.]+to[0-9.]+', x)
-        if m:
-            pt_bins.append(m.group(0))
-    return list(set(pt_bins))
+FONT_SIZE = 0.03
 
 
 def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle="",
@@ -390,8 +370,8 @@ def main(in_args):
         obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
         # Do separate dir for each eta bin, then separate plot for each pt bin
-        common_eta_bins = cu.sort_human(get_common_eta_bins(obj_list))
-        common_pt_bins = cu.sort_human(get_common_pt_bins(obj_list))
+        common_eta_bins = cu.sort_human(cu.get_common_eta_bins(obj_list))
+        common_pt_bins = cu.sort_human(cu.get_common_pt_bins(obj_list))
         print("Doing eta bins", common_eta_bins)
         print("Doing pt bins", common_pt_bins)
 

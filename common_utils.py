@@ -239,3 +239,36 @@ def sort_human(l):
     """ Sort the given list in the way that humans expect.
     """
     return sorted(l, key=alphanum_key)
+
+
+def get_common_eta_bins(obj_list):
+    """Get list of common eta bins from list of object names"""
+    eta_bins = []
+    for x in obj_list:
+        m = re.search(r'JetEta[0-9.]+to[0-9.]+', x)
+        if m:
+            eta_bins.append(m.group(0))
+    return list(set(eta_bins))
+
+
+def get_common_pt_bins(obj_list):
+    """Get list of common pt bins from list of object names"""
+    pt_bins = []
+    for x in obj_list:
+        m = re.search(r'RefPt[0-9.]+to[0-9.]+', x)
+        if m:
+            pt_bins.append(m.group(0))
+    return list(set(pt_bins))
+
+
+def get_open_marker(marker):
+    opposites = {
+        20: 24,
+        21: 25,
+        22: 26,
+        23: 32,
+        33: 27,
+        29: 30,
+        34: 28,
+    }
+    return opposites[marker]

@@ -25,26 +25,6 @@ My_Style.cd()
 FONT_SIZE = 0.032
 
 
-def get_common_eta_bins(obj_list):
-    """Get list of common eta bins from list of object names"""
-    eta_bins = []
-    for x in obj_list:
-        m = re.search(r'JetEta[0-9.]+to[0-9.]+', x)
-        if m:
-            eta_bins.append(m.group(0))
-    return list(set(eta_bins))
-
-
-def get_common_pt_bins(obj_list):
-    """Get list of common pt bins from list of object names"""
-    pt_bins = []
-    for x in obj_list:
-        m = re.search(r'RefPt[0-9.]+to[0-9.]+', x)
-        if m:
-            pt_bins.append(m.group(0))
-    return list(set(pt_bins))
-
-
 def construct_inverse_graph(graph):
     """Construct graph with y values = 1/y of input graph"""
     n = graph.GetN()
@@ -249,7 +229,7 @@ def main(in_args):
         obj_list = cu.get_list_of_objects_in_dir(args.input, mydir)
 
         # Do all flavs rsp vs pt for given eta bin
-        common_eta_bins = get_common_eta_bins(obj_list)
+        common_eta_bins = cu.get_common_eta_bins(obj_list)
         for eta_bin in common_eta_bins:
             entries = []
             for fdict in entry_dicts:
@@ -281,7 +261,7 @@ def main(in_args):
                                 output_filename=os.path.join(plot_dir, "inv_rsp_vs_pt_%s.pdf" % (eta_bin)))
 
         # Do all flavs rsp vs eta for given pt bin
-        common_pt_bins = get_common_pt_bins(obj_list)
+        common_pt_bins = cu.get_common_pt_bins(obj_list)
         for pt_bin in common_pt_bins:
             entries = []
             for fdict in entry_dicts:

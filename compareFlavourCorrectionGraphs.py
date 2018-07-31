@@ -28,26 +28,6 @@ My_Style.cd()
 FONT_SIZE = 0.032
 
 
-def get_common_eta_bins(obj_list):
-    """Get list of common eta bins from list of object names"""
-    eta_bins = []
-    for x in obj_list:
-        m = re.search(r'JetEta[0-9.-]+to[0-9.-]+', x)
-        if m:
-            eta_bins.append(m.group(0))
-    return list(set(eta_bins))
-
-
-def get_common_pt_bins(obj_list):
-    """Get list of common pt bins from list of object names"""
-    pt_bins = []
-    for x in obj_list:
-        m = re.search(r'RefPt[0-9.]+to[0-9.]+', x)
-        if m:
-            pt_bins.append(m.group(0))
-    return list(set(pt_bins))
-
-
 def construct_difference_graph(graph, other_graph):
     x, y = cu.get_xy(graph)
     x_other, y_other = cu.get_xy(other_graph)
@@ -304,7 +284,7 @@ def main(in_args):
             Y_MIN, Y_MAX = 0.8, 1.6
 
             # Do all flavs corr vs pt for given eta bin
-            common_eta_bins = cu.sort_human(get_common_eta_bins(obj_list))
+            common_eta_bins = cu.sort_human(cu.get_common_eta_bins(obj_list))
             for eta_bin in common_eta_bins:
                 # Do a per-flavour comparison plot
                 for fdict in entry_dicts:
@@ -392,7 +372,7 @@ def main(in_args):
             return    
 
             # Do all flavs corr vs eta for given pt bin
-            common_pt_bins = cu.sort_human(get_common_pt_bins(obj_list))
+            common_pt_bins = cu.sort_human(cu.get_common_pt_bins(obj_list))
             for pt_bin in common_pt_bins:
                 # Do a per-flavour comparison plot
                 for fdict in entry_dicts:
