@@ -317,9 +317,27 @@ class Plot(object):
 
     def set_logx(self, state=True):
         self.main_pad.SetLogx(int(state))
+        self.subplot_pad.SetLogx(int(state))
+        if self.container:
+            ax = self.container.GetXaxis()
+            if ax:
+                ax.SetMoreLogLabels()
+        if self.subplot_container:
+            ax = self.subplot_container.GetXaxis()
+            if ax:
+                ax.SetMoreLogLabels()
 
     def set_logy(self, state=True):
         self.main_pad.SetLogy(int(state))
+        self.subplot_pad.SetLogy(int(state))
+        if self.container:
+            ax = self.container.GetYaxis()
+            if ax:
+                ax.SetMoreLogLabels()
+        if self.subplot_container:
+            ax = self.subplot_container.GetYaxis()
+            if ax:
+                ax.SetMoreLogLabels()
 
     def set_logz(self, state=True):
         self.main_pad.SetLogz(int(state))
@@ -425,6 +443,11 @@ class Plot(object):
             modifier.GetYaxis().SetRangeUser(*self.ylim)
             modifier.SetMinimum(self.ylim[0])  # use this, not SetRangeUser()
             modifier.SetMaximum(self.ylim[1])
+
+        if self.main_pad.GetLogx():
+            modifier.GetXaxis().SetMoreLogLabels()
+        if self.main_pad.GetLogy():
+            modifier.GetYaxis().SetMoreLogLabels()
 
         # Draw it again to update
         if self.plot_what == "graph":
