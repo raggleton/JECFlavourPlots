@@ -484,8 +484,14 @@ class Plot(object):
             self.subplot_container.GetXaxis().SetTitleOffset(self.subplot_container.GetXaxis().GetTitleOffset()*2.8)
             self.subplot_container.GetYaxis().SetNdivisions(505)
 
-            if self.xlim:
-                self.subplot_container.GetXaxis().SetRangeUser(*self.xlim)
+            # sync x limits with main plot
+            main_xlimits = [self.container.GetXaxis().GetXmin(), self.container.GetXaxis().GetXmax()]
+            self.subplot_container.GetXaxis().SetLimits(*main_xlimits)  # setrangeuser doesn't work for x axis
+
+            if self.subplot_pad.GetLogx():
+                self.subplot_container.GetXaxis().SetMoreLogLabels()
+            if self.subplot_pad.GetLogy():
+                self.subplot_container.GetYaxis().SetMoreLogLabels()
 
             if self.subplot_type == "ratio":
                 # self.subplot_container.SetMinimum(self.subplot_ratio_lim[0])  # use this, not SetRangeUser()
