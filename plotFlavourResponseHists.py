@@ -88,6 +88,8 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
         hist.SetMarkerColor(entry.get('marker_color', default_colour))
         hist.SetMarkerStyle(entry.get('marker_style', 1))
         hist.SetMarkerSize(entry.get('marker_size', 1))
+        
+        # hist.Rebin(2)
 
         if hist.Integral() == 0:
             continue
@@ -124,6 +126,7 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
 
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
     canv.SetTicks(1, 1)
+    canv.SetRightMargin(0.03)
     if logx:
         canv.SetLogx()
     if logy:
@@ -131,7 +134,7 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
     hst.Draw("NOSTACK HISTE")
 
     # Little extra breathing room
-    hst.SetMaximum(hst.GetMaximum("NOSTACK") * 1.1)
+    hst.SetMaximum(hst.GetMaximum("NOSTACK") * 1.4)
 
     if draw_fits:
         for f in funcs:
@@ -165,7 +168,7 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
             line.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS Simulation")
+    cms_text.AddText("CMS Simulation Preliminary")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -209,7 +212,9 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     # entries come in unsorted. this will help us sort them based on x value
     matched_entries = {(i[0]+i[1])*0.5: ent for i, ent in zip(bin_edges, entries)}
 
-    all_entries = {}  # for each x bin, store dict of {flav: fraction}
+    # for each x bin, store dict of {flav: fraction}
+    # key is midpoint of pt bin to get ordering
+    all_entries = {}
     for x_value in sorted(matched_entries.keys()):
         values = {}
         total = 0
@@ -239,6 +244,8 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     
     # flavs = all_entries.values()[0].keys()  # screws up ordering
     flavs = [e['label'] for e in entries[0] if e['label'] != 'All']
+    if add_unknown:
+        flavs.append("Unknown")
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     graphs = []
@@ -270,6 +277,7 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
         leg.AddEntry(gr, flav, "LP")
 
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
+    canv.SetRightMargin(0.03)
     canv.SetTicks(1, 1)
     if logx:
         canv.SetLogx()
@@ -277,8 +285,12 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
         canv.SetLogy()
 
     mg.Draw("ALP")
-    mg.GetHistogram().SetMaximum(1.1)
-    mg.GetHistogram().SetMinimum(0)
+    if logy:
+        mg.GetHistogram().SetMaximum(3)
+        mg.GetHistogram().SetMinimum(0.01)
+    else:
+        mg.GetHistogram().SetMaximum(1.2)
+        mg.GetHistogram().SetMinimum(0)
     x_max = mg.GetXaxis().GetXmax()
     mg.GetXaxis().SetLimits(10, x_max)
     leg.Draw()
@@ -345,7 +357,7 @@ def main(in_args):
         jec_text.SetFillStyle(0)
 
         dir_text = ROOT.TPaveText(0.17, 0.72, 0.2, 0.73, "NDC")
-        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3").replace("L1", " + L1")
         dir_text.AddText(dir_label)
         dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         dir_text.SetTextFont(42)
@@ -353,7 +365,7 @@ def main(in_args):
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
-        sample_text = ROOT.TPaveText(0.89, 0.91, 0.9, 0.92, "NDC")
+        sample_text = ROOT.TPaveText(0.91, 0.91, 0.97, 0.92, "NDC")
         sample_text.AddText(args.sampleName + " 13 TeV")
         sample_text.SetTextFont(42)
         sample_text.SetTextSize(FONT_SIZE)
@@ -385,6 +397,7 @@ def main(in_args):
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
                     entry["hist"] = cu.grab_obj_from_file(args.input, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
+                    entry["hist"].Rebin(int(entry["hist"].GetNbinsX()/100))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
@@ -392,24 +405,27 @@ def main(in_args):
                 bin_title += "\n"
                 bin_title += pt_bin.replace("to", " < p^{Gen}_{T} < ").replace("RefPt", "")
                 bin_title += " GeV"
+                norm_entries = deepcopy(entries)
                 do_comparison_hist(entries, bin_title=bin_title,
-                                   xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
+                                   xlimits=(0, 2), xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="N",
                                    other_elements=other_elements, normalise=False,
                                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
-                do_comparison_hist(entries, bin_title=bin_title,
-                                   xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
-                                   other_elements=other_elements, normalise=True, draw_fits=False,
-                                   output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
-                all_pt_entries.append(entries)
+                
+                # all_pt_entries.append(deepcopy(entries))
+                # do_comparison_hist(norm_entries, bin_title=bin_title,
+                #                    xlimits=(0, 2), xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
+                #                    other_elements=other_elements, normalise=True, draw_fits=False,
+                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
 
-            # this_dir_text = dir_text.Clone()
-            # this_dir_text.SetY1(0.76)
-            # this_dir_text.SetY2(0.77)
-            # bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
-            # do_flavour_fraction_graph(all_pt_entries, common_pt_bins, bin_title=bin_title, 
-            #                           xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
-            #                           other_elements=[jec_text, this_dir_text, sample_text], logx=True,
-            #                           output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
+            this_dir_text = dir_text.Clone()
+            this_dir_text.SetY1(0.76)
+            this_dir_text.SetY2(0.77)
+            bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            do_flavour_fraction_graph(all_pt_entries, common_pt_bins, title=bin_title, 
+                                      xtitle="p^{Gen}_{T} [GeV]", ytitle="Flavour fraction",
+                                      other_elements=[jec_text, this_dir_text, sample_text], 
+                                      add_unknown=False, logx=True, logy=True,
+                                      output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
 
     return 0
 
