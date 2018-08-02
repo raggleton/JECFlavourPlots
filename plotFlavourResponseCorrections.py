@@ -120,7 +120,7 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.12
     middle = 0.79
-    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
+    leg = ROOT.TLegend(middle-delta, 0.7, middle+delta, 0.85)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
@@ -235,7 +235,7 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
     if logy:
         main_pad.SetLogy()
 
-    mg.Draw("ALP")
+    mg.Draw("AP")
 
     if draw_fit_graph_ratio:
         rescale_plot_labels(mg, 1-subplot_pad_height)
@@ -270,8 +270,8 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
             line.SetLineColor(ROOT.kGray+2)
             line.Draw()
 
-    cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS Simulation")
+    cms_text = ROOT.TPaveText(0.17, 0.82, 0.2, 0.83, "NDC")
+    cms_text.AddText("CMS Simulation Preliminary")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -279,7 +279,7 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
     cms_text.SetFillStyle(0)
     cms_text.Draw()
 
-    bin_text = ROOT.TPaveText(0.17, 0.8, 0.2, 0.81, "NDC")
+    bin_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.79, "NDC")
     bin_text.AddText(bin_title)
     bin_text.SetTextFont(42)
     bin_text.SetTextSize(FONT_SIZE)
@@ -363,8 +363,8 @@ def main(in_args):
         jec_text.SetBorderSize(0)
         jec_text.SetFillStyle(0)
 
-        dir_text = ROOT.TPaveText(0.17, 0.75, 0.2, 0.77, "NDC")
-        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+        dir_text = ROOT.TPaveText(0.17, 0.71, 0.2, 0.74, "NDC")
+        dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3").replace("L1", " + L1")
         dir_text.AddText(dir_label)
         dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         dir_text.SetTextFont(42)
@@ -410,7 +410,7 @@ def main(in_args):
 
             # correction
             entries = []
-            bin_title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+            bin_title = eta_bin.replace("to", " < #eta < ").replace("JetEta", "")
             for fdict in entry_dicts:
                 entry = deepcopy(fdict)
                 entry["graph"] = cu.grab_obj_from_file(args.input, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))

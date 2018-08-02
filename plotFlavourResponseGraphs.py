@@ -22,7 +22,7 @@ ROOT.TH1.SetDefaultSumw2()
 ROOT.gStyle.SetOptStat(0)
 My_Style.cd()
 
-FONT_SIZE = 0.032
+FONT_SIZE = 0.03
 
 
 def construct_inverse_graph(graph):
@@ -146,7 +146,7 @@ def do_comparison_graph(entries, output_filename, bin_title="", xtitle="", ytitl
             line.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS")
+    cms_text.AddText("CMS Simulation")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -194,7 +194,7 @@ def main(in_args):
     # Loop through all different ak4pfchs, etc
     dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
     for mydir in dirs[:]:
-        jec_text = ROOT.TPaveText(0.14, 0.91, 0.2, 0.92, "NDC")
+        jec_text = ROOT.TPaveText(0.14, 0.93, 0.2, 0.96, "NDC")
         jec_text.AddText(args.title)
         jec_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         jec_text.SetTextFont(42)
@@ -211,9 +211,9 @@ def main(in_args):
         dir_text.SetBorderSize(0)
         dir_text.SetFillStyle(0)
 
-        sample_text = ROOT.TPaveText(0.89, 0.91, 0.9, 0.92, "NDC")
+        sample_text = ROOT.TPaveText(0.94, 0.93, 0.95, 0.96, "NDC")
         # sample_text.AddText("Flat QCD 13 TeV")
-        sample_text.AddText(args.sampleName + " 13 TeV")
+        sample_text.AddText(args.sampleName) # + " 13 TeV")
         sample_text.SetTextFont(42)
         sample_text.SetTextSize(FONT_SIZE)
         sample_text.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)

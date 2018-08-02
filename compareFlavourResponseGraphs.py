@@ -3,6 +3,7 @@
 """Comapre response graphs"""
 
 
+from __future__ import print_function
 import os
 import sys
 import argparse
@@ -159,7 +160,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
             line.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS")
+    cms_text.AddText("CMS Simulation")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -178,7 +179,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         bin_text.Draw()
 
     sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
-    sample_text.AddText("Flat QCD 13 TeV")
+    sample_text.AddText("QCD 13 TeV")
     sample_text.SetTextFont(42)
     sample_text.SetTextSize(FONT_SIZE)
     sample_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
@@ -239,12 +240,12 @@ def main(in_args):
         for d in all_dirs[1:]:
             dirs = dirs & d
         dirs = sorted(list(dirs))[:1]
-        print "Doing: ", dirs
+        print("Doing: ", dirs)
         # Loop through all different ak4pfchs, etc
         for mydir in dirs:
             jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
-            # jec_label = "Without JEC"
-            jec_label = "With JEC"
+            jec_label = "Without JEC"
+            # jec_label = "With JEC"
             # jec_label = "Summer16_23Sep2016V4"
             # jec_label = "Summer16_03Feb2017_V8"
             jec_text.AddText(args.title)
@@ -302,7 +303,7 @@ def main(in_args):
                     title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                        xlimits=(10, 3000), y_limit_protection=(0.8, 1.4), 
+                                        xlimits=(10, 3000), y_limit_protection=(0.7, 1.4), 
                                         ylimits=ylimits,
                                         other_elements=other_elements,
                                         output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_%s.pdf" % (eta_bin, fdict['label'])))
@@ -339,7 +340,7 @@ def main(in_args):
                 title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Response", logx=True,
-                                    xlimits=(10, 3000), y_limit_protection=(0.8, 1.4),
+                                    xlimits=(10, 3000), y_limit_protection=(0.7, 1.4),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_allFlavs.pdf" % (eta_bin)))
                 # diff_entries = []
@@ -354,7 +355,7 @@ def main(in_args):
                 #                     xlimits=(10, 3000), ylimits=(0, 0.08),
                 #                     other_elements=other_elements,
                 #                     output_filename=os.path.join(plot_dir, "compare_rsp_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
-            # return    
+            return
 
             # Do all flavs rsp vs eta for given pt bin
             common_pt_bins = cu.get_common_pt_bins(obj_list)
