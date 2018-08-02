@@ -16,7 +16,9 @@ import os
 import numpy as np
 import ROOT
 import common_utils as cu
+from array import array
 from MyStyle import My_Style
+from collections import OrderedDict
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -283,21 +285,80 @@ class Plot(object):
             if self.subplot:
                 subplot_obj = self.subplot.obj.Clone()
                 if contrib != self.subplot:
-                    new_hist = contrib.obj.Clone()
+                    new_obj = contrib.obj.Clone()
                     if (self.subplot_type == "ratio"):
-                        new_hist.Divide(subplot_obj)
+                        if self.plot_what == 'graph':
+                            interp_obj = self._construct_interpolated_graph(contrib.obj, self.subplot.obj)
+                            new_obj = self._construct_divided_graph(interp_obj, self.subplot.obj)
+                            new_obj.SetLineWidth(contrib.line_width)
+                            new_obj.SetLineColor(contrib.line_color)
+                            new_obj.SetLineStyle(contrib.line_style)
+                            new_obj.SetFillColor(contrib.fill_color)
+                            new_obj.SetFillStyle(contrib.fill_style)
+                            new_obj.SetMarkerSize(contrib.marker_size)
+                            new_obj.SetMarkerColor(contrib.marker_color)
+                            new_obj.SetMarkerStyle(contrib.marker_style)
+
+                        elif self.plot_what == 'hist':
+                            new_obj.Divide(subplot_obj)
+                    
                     elif (self.subplot_type == "diff"):
-                        new_hist.Add(subplot_obj, -1.)
+                        if self.plot_what == 'graph':
+                            pass
+                        elif self.plot_what == 'hist':
+                            new_obj.Add(subplot_obj, -1.)
+                    
                     elif (self.subplot_type == "ddelta"):
                         # Do the differntial delta spectrum, see 1704.03878
-                        new_hist.Add(subplot_obj, -1.)
-                        new_hist.Multiply(new_hist)
+                        new_obj.Add(subplot_obj, -1.)
+                        new_obj.Multiply(new_obj)
                         sum_hist = contrib.obj.Clone()
                         sum_hist.Add(subplot_obj)
-                        new_hist.Divide(sum_hist)
-                        new_hist.Scale(0.5)
-                    self.subplot_container.Add(new_hist)
-                    self.subplot_contributions.append(new_hist)
+                        new_obj.Divide(sum_hist)
+                        new_obj.Scale(0.5)
+                    
+                    self.subplot_container.Add(new_obj)
+                    self.subplot_contributions.append(new_obj)
+
+    def _construct_interpolated_graph(self, from_this_graph, ref_graph):
+        """Construct a new graph from from_this_graph using the x values from ref_graph as reference + interpolation"""
+        ref_x, ref_y = cu.get_xy(ref_graph)
+        this_x, this_y = cu.get_xy(from_this_graph)
+        this_ex, this_ey = cu.get_exey(from_this_graph)
+        new_x, new_y = [], []
+        new_ex, new_ey = [], []
+        for x in ref_x:
+
+            # ignore anything outside the original range of from_this_graph
+            if x > max(this_x) or x < min(this_x):
+                continue
+
+            tmp_y = from_this_graph.Eval(x)
+
+            new_x.append(x)
+            new_y.append(tmp_y)
+            new_ex.append(0.)
+            new_ey.append(0.)
+
+        new_graph = ROOT.TGraphErrors(len(new_x), array('d', new_x), array('d', new_y))
+        return new_graph
+
+    def _construct_divided_graph(self, one_graph, other_graph):
+        """Construct graph by doing one_graph/other_graph"""
+        one_dict = {k:v for k, v in zip(*cu.get_xy(one_graph))}
+        one_dict = OrderedDict(sorted(one_dict.items(), key=lambda t: t[0]))
+
+        other_dict = {k:v for k, v in zip(*cu.get_xy(other_graph))}
+        other_dict = OrderedDict(sorted(other_dict.items(), key=lambda t: t[0]))
+        
+        new_x, new_y = [], []
+        for x, y in one_dict.items():
+            if x in other_dict:
+                new_x.append(x)
+                new_y.append(y / other_dict[x])
+
+        gr = ROOT.TGraphErrors(len(new_x), array('f', new_x), array('f', new_y))
+        return gr
 
     def _style_legend(self):
         # self.legend.SetBorderSize(0)
@@ -456,6 +517,7 @@ class Plot(object):
         # Plot legend
         if self.do_legend:
             self._style_legend()
+            self.canvas.cd()
             self.legend.Draw()
 
         if self.subplot:
@@ -494,22 +556,24 @@ class Plot(object):
                 self.subplot_container.GetYaxis().SetMoreLogLabels()
 
             if self.subplot_type == "ratio":
-                # self.subplot_container.SetMinimum(self.subplot_ratio_lim[0])  # use this, not SetRangeUser()
-                self.subplot_container.SetMinimum(0)  # use this, not SetRangeUser()
                 
-                # Make sure that the upper limit is the largest bin of the contributions,
-                # so long as it is within 1.5 and some upper limit
-                bin_meds = [np.max(cu.th1_to_arr(h)) for h in self.subplot_contributions]
-                self.subplot_container.SetMaximum(min(10, max(1.5, 1.*max(bin_meds))))
-                
-                # Make sure the lower limit is the smallest bin of the contributions, 
-                # so long as it is within 0 and 0.5
-                bin_mins = [np.min(cu.th1_to_arr(h)) for h in self.subplot_contributions]
-                self.subplot_container.SetMinimum(min(0.5, min(bin_mins)))
-                
-                # self.subplot_container.SetMaximum(1.5)
-                # self.subplot_container.SetMinimum(0.5)
-                
+                if self.plot_what == "hist":
+                    # self.subplot_container.SetMinimum(self.subplot_ratio_lim[0])  # use this, not SetRangeUser()
+                    self.subplot_container.SetMinimum(0)  # use this, not SetRangeUser()
+                    
+                    # Make sure that the upper limit is the largest bin of the contributions,
+                    # so long as it is within 1.5 and some upper limit
+                    bin_meds = [np.max(cu.th1_to_arr(h)) for h in self.subplot_contributions]
+                    self.subplot_container.SetMaximum(min(10, max(1.5, 1.*max(bin_meds))))
+                    
+                    # Make sure the lower limit is the smallest bin of the contributions, 
+                    # so long as it is within 0 and 0.5
+                    bin_mins = [np.min(cu.th1_to_arr(h)) for h in self.subplot_contributions]
+                    self.subplot_container.SetMinimum(min(0.5, min(bin_mins)))
+                    
+                    # self.subplot_container.SetMaximum(1.5)
+                    # self.subplot_container.SetMinimum(0.5)
+                    
                 xax = modifier.GetXaxis()
                 self.subplot_line = ROOT.TLine(xax.GetXmin(), 1., xax.GetXmax(), 1.)
                 self.subplot_line.SetLineStyle(2)
