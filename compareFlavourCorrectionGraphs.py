@@ -90,8 +90,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.21
-    middle = 0.69
-    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
+    middle = 0.77
+    leg = ROOT.TLegend(middle-delta, 0.7, middle+delta, 0.88)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     if len(entries) > 4:
@@ -110,7 +110,10 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
         graph.SetMarkerColor(entry.get('marker_color', default_colour))
         graph.SetMarkerStyle(entry.get('marker_style', 1))
-        graph.SetMarkerSize(entry.get('marker_size', 1))
+        graph.SetMarkerSize(entry.get('marker_size', 1)*0.5)
+
+        graph.SetFillColorAlpha(entry.get('fill_color', default_colour), entry.get('fill_alpha', 1))
+        graph.SetFillStyle(entry.get('fill_style', 1001))
 
         if graph.GetListOfFunctions().GetSize() > 0:
             func = graph.GetListOfFunctions().Last()
@@ -128,6 +131,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
 
     canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
     canv.SetTicks(1, 1)
+    canv.SetRightMargin(0.03)
     if logx:
         canv.SetLogx()
     if logy:
@@ -165,7 +169,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
             line.Draw()
 
     cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
-    cms_text.AddText("CMS")
+    cms_text.AddText("CMS Simulation Preliminary")
     cms_text.SetTextFont(62)
     cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
     cms_text.SetTextSize(FONT_SIZE)
@@ -183,7 +187,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         bin_text.SetFillStyle(0)
         bin_text.Draw()
 
-    sample_text = ROOT.TPaveText(0.65, 0.91, 0.67, 0.92, "NDC")
+    sample_text = ROOT.TPaveText(0.78, 0.91, 0.8, 0.92, "NDC")
     sample_text.AddText("QCD 13 TeV")
     sample_text.SetTextFont(42)
     sample_text.SetTextSize(FONT_SIZE)
@@ -248,9 +252,9 @@ def main(in_args):
         print("Doing: ", dirs)
         # Loop through all different ak4pfchs, etc
         for mydir in dirs:
-            jec_text = ROOT.TPaveText(0.17, 0.91, 0.2, 0.92, "NDC")
+            jec_text = ROOT.TPaveText(0.15, 0.91, 0.2, 0.92, "NDC")
             # jec_label = "Without JEC"
-            jec_label = "With JEC"
+            # jec_label = "With JEC"
             # jec_label = "Summer16_23Sep2016V4"
             # jec_label = "Summer16_03Feb2017_V8"
             jec_text.AddText(args.title)
@@ -261,7 +265,7 @@ def main(in_args):
             jec_text.SetFillStyle(0)
 
             dir_text = ROOT.TPaveText(0.17, 0.76, 0.2, 0.77, "NDC")
-            dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3")
+            dir_label = mydir.upper().replace("PFCHS", " PF CHS").replace("PUPPI", " PUPPI").replace("L1L2L3", " + L1L2L3").replace("L1", " + L1")
             dir_text.AddText(dir_label)
             dir_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
             dir_text.SetTextFont(42)
@@ -278,7 +282,7 @@ def main(in_args):
 
             ylimits = (float(args.ylim[0]), float(args.ylim[1])) if args.ylim else None
 
-            X_MIN, X_MAX = 8, 5000
+            X_MIN, X_MAX = 8, 2000
             # For limit protection:
             Y_MIN, Y_MAX = 0.8, 1.6
 
@@ -293,8 +297,11 @@ def main(in_args):
                         entry = deepcopy(fdict)
                         entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                         entry['label'] += " [%s]" % label
-                        entry["line_color"] = fdict['colour']
-                        entry["marker_color"] = fdict['colour']
+                        entry["line_color"] = fdict['colour']+ind
+                        entry["marker_color"] = fdict['colour']+ind
+                        entry["fill_color"] = fdict['colour']+ind
+                        entry["fill_style"] = 1001
+                        entry["fill_alpha"] = 0.7
                         if ind == 1:
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                             entry["line_style"] += 1
@@ -310,16 +317,18 @@ def main(in_args):
                             chi2entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("corrVs", "Chi2NDoFVs"), eta_bin))
                             chi2entries.append(chi2entry)
 
-                    title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                    title = eta_bin.replace("to", " < #eta < ").replace("JetEta", "")
                     do_comparison_graph(entries, title=title,
-                                        xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction", logx=True,
-                                        xlimits=(X_MIN, X_MAX), y_limit_protection=(Y_MIN, Y_MAX), 
+                                        xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
+                                        # xlimits=(X_MIN, X_MAX), 
+                                        xlimits=None, 
+                                        y_limit_protection=(Y_MIN, Y_MAX), 
                                         ylimits=ylimits,
                                         other_elements=other_elements,
                                         output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s.pdf" % (eta_bin, fdict['label'])))
                     if args.chi2:
                         do_comparison_graph(chi2entries, title=title,
-                                            xtitle="p_{T}^{Gen} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
+                                            xtitle="p_{T}^{Reco} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
                                             xlimits=(X_MIN, X_MAX),
                                             other_elements=other_elements,
                                             output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_chi2.pdf" % (eta_bin, fdict['label'])))
@@ -332,8 +341,11 @@ def main(in_args):
                         entry = deepcopy(fdict)
                         entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                         entry['label'] += " [%s]" % label
-                        entry["line_color"] = fdict['colour']
-                        entry["marker_color"] = fdict['colour']
+                        entry["line_color"] = fdict['colour']+ind
+                        entry["marker_color"] = fdict['colour']+ind
+                        entry["fill_color"] = fdict['colour']+ind
+                        entry["fill_style"] = 1001
+                        entry["fill_alpha"] = 0.8
                         if ind == 1:
                             entry["marker_style"] = get_open_marker(entry['marker_style'])
                             entry["line_style"] += 1
@@ -348,9 +360,9 @@ def main(in_args):
                         elif fdict['label'] == "g":
                             g_entries.append(entry)
 
-                title = eta_bin.replace("to", " < |#eta| < ").replace("JetEta", "")
+                title = eta_bin.replace("to", " < #eta < ").replace("JetEta", "")
                 do_comparison_graph(entries, title=title,
-                                    xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction", logx=True,
+                                    xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                     xlimits=(X_MIN, X_MAX), y_limit_protection=(Y_MIN, Y_MAX),
                                     other_elements=other_elements,
                                     output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs.pdf" % (eta_bin)))
@@ -363,7 +375,7 @@ def main(in_args):
                 #     diff['label'] = label
                 #     diff_entries.append(diff)
                 # do_comparison_graph(diff_entries, title=title,
-                #                     xtitle="p_{T}^{Gen} [GeV]", ytitle="Correction (ud) - Correction (g)", logx=True,
+                #                     xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction (ud) - Correction (g)", logx=True,
                 #                     xlimits=(X_MIN, X_MAX), ylimits=(0, 0.08),
                 #                     other_elements=other_elements,
                 #                     output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_ud_g_diff.pdf" % (eta_bin)))
