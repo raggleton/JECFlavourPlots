@@ -581,6 +581,18 @@ class Plot(object):
                 self.subplot_line.SetLineColor(ROOT.kBlack)
                 self.subplot_line.Draw()
 
+                self.subplot_line_up = ROOT.TLine(xax.GetXmin(), 1.02, xax.GetXmax(), 1.02)
+                self.subplot_line_up.SetLineStyle(3)
+                self.subplot_line_up.SetLineWidth(2)
+                self.subplot_line_up.SetLineColor(ROOT.kBlack)
+                self.subplot_line_up.Draw()
+
+                self.subplot_line_down = ROOT.TLine(xax.GetXmin(), 0.98, xax.GetXmax(), 0.98)
+                self.subplot_line_down.SetLineStyle(3)
+                self.subplot_line_down.SetLineWidth(2)
+                self.subplot_line_down.SetLineColor(ROOT.kBlack)
+                self.subplot_line_down.Draw()
+
             self.subplot_pad.Update()
             self.canvas.Update()
 
