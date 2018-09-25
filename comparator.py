@@ -255,6 +255,14 @@ class Plot(object):
 
     def _populate_container_and_legend(self):
         """Add objects to the container, and to the legend"""
+        ref_func = None
+        if (self.subplot and (self.plot_what == "both" or self.plot_what == "function")):
+            ref_func = self.subplot.obj.GetListOfFunctions().At(0)
+
+        ref_graph = None
+        if (self.subplot and (self.plot_what == "both" or self.plot_what == "graph")):
+            ref_graph = self.subplot.obj
+
         for contrib in self.contributions:
             if self.plot_what == "graph":
                 # if drawing only graph, we need to remove the fit if there is one
@@ -287,9 +295,9 @@ class Plot(object):
                 if contrib != self.subplot:
                     new_obj = contrib.obj.Clone()
                     if (self.subplot_type == "ratio"):
-                        if self.plot_what == 'graph':
-                            interp_obj = self._construct_interpolated_graph(contrib.obj, self.subplot.obj)
-                            new_obj = self._construct_divided_graph(interp_obj, self.subplot.obj)
+                        if self.plot_what == 'graph' or self.plot_what == 'both':
+                            interp_obj = self._construct_interpolated_graph(contrib.obj, ref_graph)
+                            new_obj = self._construct_divided_graph(interp_obj, ref_graph)
                             new_obj.SetLineWidth(contrib.line_width)
                             new_obj.SetLineColor(contrib.line_color)
                             new_obj.SetLineStyle(contrib.line_style)
@@ -298,16 +306,22 @@ class Plot(object):
                             new_obj.SetMarkerSize(contrib.marker_size)
                             new_obj.SetMarkerColor(contrib.marker_color)
                             new_obj.SetMarkerStyle(contrib.marker_style)
+                            if self.plot_what == "both":
+                                orig_func = contrib.obj.GetListOfFunctions().At(0)
+                                new_func = self._construct_divided_function(orig_func, ref_func)
+                                new_func.SetLineColor(orig_func.GetLineColor())
+                                new_func.SetLineWidth(orig_func.GetLineWidth())
+                                new_func.SetLineStyle(orig_func.GetLineStyle())
 
                         elif self.plot_what == 'hist':
                             new_obj.Divide(subplot_obj)
-                    
+
                     elif (self.subplot_type == "diff"):
                         if self.plot_what == 'graph':
                             pass
                         elif self.plot_what == 'hist':
                             new_obj.Add(subplot_obj, -1.)
-                    
+
                     elif (self.subplot_type == "ddelta"):
                         # Do the differntial delta spectrum, see 1704.03878
                         new_obj.Add(subplot_obj, -1.)
@@ -316,7 +330,7 @@ class Plot(object):
                         sum_hist.Add(subplot_obj)
                         new_obj.Divide(sum_hist)
                         new_obj.Scale(0.5)
-                    
+
                     self.subplot_container.Add(new_obj)
                     self.subplot_contributions.append(new_obj)
 
@@ -343,14 +357,14 @@ class Plot(object):
         new_graph = ROOT.TGraphErrors(len(new_x), array('d', new_x), array('d', new_y))
         return new_graph
 
-    def _construct_divided_graph(self, one_graph, other_graph):
-        """Construct graph by doing one_graph/other_graph"""
-        one_dict = {k:v for k, v in zip(*cu.get_xy(one_graph))}
+    def _construct_divided_graph(self, this_graph, ref_graph):
+        """Construct graph by doing this_graph/ref_graph"""
+        one_dict = {k:v for k, v in zip(*cu.get_xy(this_graph))}
         one_dict = OrderedDict(sorted(one_dict.items(), key=lambda t: t[0]))
 
-        other_dict = {k:v for k, v in zip(*cu.get_xy(other_graph))}
+        other_dict = {k:v for k, v in zip(*cu.get_xy(ref_graph))}
         other_dict = OrderedDict(sorted(other_dict.items(), key=lambda t: t[0]))
-        
+
         new_x, new_y = [], []
         for x, y in one_dict.items():
             if x in other_dict:
@@ -359,6 +373,14 @@ class Plot(object):
 
         gr = ROOT.TGraphErrors(len(new_x), array('f', new_x), array('f', new_y))
         return gr
+
+    def _construct_divided_function(self, this_func, ref_func):
+        """Construct function by doing this_func / ref_func"""
+        this_formula = this_func.GetExpFormula("CLINGP")
+        ref_formula = this_func.GetExpFormula("CLINGP")
+        new_formula = "(%s)/(%s)" % (this_formula, ref_formula)
+        new_func = TFormula("new_formula" + ROOT.TUUID().AsString(), new_formula)
+        return new_func
 
     def _style_legend(self):
         # self.legend.SetBorderSize(0)
@@ -539,7 +561,7 @@ class Plot(object):
                     self.subplot_title = "#splitline{Difference}{vs %s}" % (self.subplot.label)
                 elif (self.subplot_type == "ddelta"):
                     self.subplot_title = "d#Delta/d#lambda"
-            
+
             self.subplot_container.SetTitle(";%s;%s" % (self.xtitle, self.subplot_title))
 
             self._rescale_plot_labels(self.subplot_container, self.subplot_pad_height)
@@ -556,24 +578,24 @@ class Plot(object):
                 self.subplot_container.GetYaxis().SetMoreLogLabels()
 
             if self.subplot_type == "ratio":
-                
+
                 if self.plot_what == "hist":
                     # self.subplot_container.SetMinimum(self.subplot_ratio_lim[0])  # use this, not SetRangeUser()
                     self.subplot_container.SetMinimum(0)  # use this, not SetRangeUser()
-                    
+
                     # Make sure that the upper limit is the largest bin of the contributions,
                     # so long as it is within 1.5 and some upper limit
                     bin_meds = [np.max(cu.th1_to_arr(h)) for h in self.subplot_contributions]
                     self.subplot_container.SetMaximum(min(10, max(1.5, 1.*max(bin_meds))))
-                    
-                    # Make sure the lower limit is the smallest bin of the contributions, 
+
+                    # Make sure the lower limit is the smallest bin of the contributions,
                     # so long as it is within 0 and 0.5
                     bin_mins = [np.min(cu.th1_to_arr(h)) for h in self.subplot_contributions]
                     self.subplot_container.SetMinimum(min(0.5, min(bin_mins)))
-                    
+
                     # self.subplot_container.SetMaximum(1.5)
                     # self.subplot_container.SetMinimum(0.5)
-                    
+
                 xax = modifier.GetXaxis()
                 self.subplot_line = ROOT.TLine(xax.GetXmin(), 1., xax.GetXmax(), 1.)
                 self.subplot_line.SetLineStyle(2)
