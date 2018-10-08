@@ -198,8 +198,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
     delta = 0.21
-    middle = 0.77
-    leg = ROOT.TLegend(middle-delta, 0.7, middle+delta, 0.88)
+    xmiddle = 0.75
+    leg = ROOT.TLegend(xmiddle-delta, 0.65, xmiddle+delta, 0.86)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     if len(entries) > 4:
