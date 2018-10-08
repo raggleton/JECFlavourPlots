@@ -490,6 +490,23 @@ def get_open_marker(marker):
     return opposites[marker]
 
 
+def get_eta_mid(s):
+    # find numbers
+    parts = cu.alphanum_key(s)
+    nums = [i for i in parts if isinstance(i, float)]
+    if len(nums) > 2:
+        raise RuntimeError("no idea how to get midpoint of bin %s" % s)
+    return 0.5*(nums[0] + nums[1])
+
+def get_eta_half_width(s):
+    # find half width between bin edges
+    parts = cu.alphanum_key(s)
+    nums = [i for i in parts if isinstance(i, float)]
+    if len(nums) > 2:
+        raise RuntimeError("no idea how to get width of bin %s" % s)
+    return fabs(0.5*(nums[0] - nums[1]))
+
+
 def main(in_args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", help="Input ROOT file with correction graphs", action='append')
@@ -514,13 +531,13 @@ def main(in_args):
 
         lw = 1
         entry_dicts = [
-            {"flav": "AbsCorVsJetPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
-            {"flav": "ud_AbsCorVsJetPt", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.2},
-            {"flav": "s_AbsCorVsJetPt", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "c_AbsCorVsJetPt", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-            {"flav": "b_AbsCorVsJetPt", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.6},
-            {"flav": "g_AbsCorVsJetPt", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.8},
-        ]
+            {"flav": "AbsCorVsJetPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.4},
+            {"flav": "ud_AbsCorVsJetPt", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.4},
+            {"flav": "g_AbsCorVsJetPt", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 2.},
+            {"flav": "s_AbsCorVsJetPt", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+            {"flav": "c_AbsCorVsJetPt", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.6},
+            {"flav": "b_AbsCorVsJetPt", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.8},
+        ][1:]
 
 
         all_dirs = [set(cu.get_list_of_element_names(cu.open_root_file(infile))) for infile in args.input]
@@ -562,9 +579,18 @@ def main(in_args):
 
             ylimits = (float(args.ylim[0]), float(args.ylim[1])) if args.ylim else None
 
-            X_MIN, X_MAX = 4, None
+            X_MIN, X_MAX = 7, None
             # For limit protection:
             Y_MIN, Y_MAX = 0.8, 1.6
+
+            # Store chi2 for fits over pT
+            # Each entry is for a flavour, 
+            # and is a dict of file label : chi2/dof values
+            fit_chi2entries = {}
+            for fdict in entry_dicts:
+                fit_chi2entries[fdict['label']] = {}
+                for label in args.label:
+                    fit_chi2entries[fdict['label']][label] = []
 
             # Do all flavs corr vs pt for given eta bin
             common_eta_bins = cu.sort_human(cu.get_common_eta_bins(obj_list))
@@ -599,9 +625,14 @@ def main(in_args):
 
 
                         if args.chi2:
-                            chi2entry = deepcopy(entry)
-                            chi2entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("corrVs", "Chi2NDoFVs"), eta_bin))
-                            chi2entries.append(chi2entry)
+                            # chi2entry = deepcopy(entry)
+                            # chi2entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'].replace("corrVs", "Chi2NDoFVs"), eta_bin))
+                            # chi2entries.append(chi2entry)
+                            if entry['graph'].GetListOfFunctions().GetSize() > 0:
+                                fit = entry['graph'].GetListOfFunctions().Last()
+                                chi2 = fit.GetChisquare()
+                                ndof = fit.GetNDF()
+                                fit_chi2entries[fdict['label']][label].append(chi2 / ndof)
 
                     output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_funcGraphRatio.pdf" % (eta_bin, fdict['label'])))
                     outputs.append(output_filename)
@@ -627,23 +658,12 @@ def main(in_args):
                                         output_filename=output_filename,
                                         vertical_line=args.vertLine,
                                         do_ratio_plots=True, ratio_title="H++ / Py8")
-                    if args.chi2:
-                        do_comparison_graph(chi2entries, title=title,
-                                            xtitle="p_{T}^{Reco} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
-                                            xlimits=(X_MIN, X_MAX),
-                                            other_elements=other_elements,
-                                            output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_chi2.pdf" % (eta_bin, fdict['label'])))
-
-                # make 1 slide with all flavours for this eta bin
-                if do_slides:
-                    plots = ",\n".join(['            ["{fname}", "{title}"]'.format(fname=fname, title="") for fname in outputs])
-                    text = """    {{
-        "title": "${thistitle}$",
-        "plots": [
-{plots}
-        ]
-    }}""".format(thistitle=title, plots=plots)
-                    slides_contents.append(text)
+                    # if args.chi2:
+                    #     do_comparison_graph(chi2entries, title=title,
+                    #                         xtitle="p_{T}^{Reco} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
+                    #                         xlimits=(X_MIN, X_MAX),
+                    #                         other_elements=other_elements,
+                    #                         output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_chi2.pdf" % (eta_bin, fdict['label'])))
 
                 # Do a plot with all flavours
                 entries = []
@@ -693,6 +713,60 @@ def main(in_args):
                                     output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_pyHerwigRatio.pdf" % (eta_bin)),
                                     vertical_line=args.vertLine,
                                     do_ratio_plots=True, ratio_title="H++ / Py8")
+
+            if args.chi2:
+                # for each flav, do a plot of chi2 of total fit vs eta for all files
+                all_entries = []
+                all_ymax = 0
+                for fdict in entry_dicts:
+                    entries = []
+                    file_labels = list(fit_chi2entries[fdict['label']].keys())
+                    ymax = 0
+                    for ind, flabel in enumerate(file_labels):
+                        eta_bins = [get_eta_mid(x) for x in common_eta_bins]
+                        y = fit_chi2entries[fdict['label']][flabel]
+                        ymax = max(ymax, max(y))
+                        ey = [0] * len(y)
+                        ex = [get_eta_half_width(x) for x in common_eta_bins]
+                        gr = ROOT.TGraphErrors(len(y), array('d', eta_bins), array('d', y), array('d', ex), array('d', ey))
+                        entry = deepcopy(fdict)
+                        entry["graph"] = gr
+                        entry['label'] = "%s [%s]" % (fdict['label'], flabel)
+                        entry["line_color"] = fdict['colour']+ind
+                        entry["marker_color"] = fdict['colour']+ind
+                        entry["fill_color"] = fdict['colour']+ind
+                        entry["fill_style"] = 1001
+                        entry["fill_alpha"] = 0.8
+                        if ind == 1:
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                            entry["line_style"] += 1
+                        if ind == 2:
+                            entry["line_style"] += 1
+                        if ind == 3:
+                            entry["line_style"] += 1
+                            entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entries.append(entry)
+                    all_ymax = max(all_ymax, ymax)
+                    ylimits = (0, ymax*1.3)
+                    output_filename = os.path.abspath(os.path.join(plot_dir, "compare_chi2_vs_eta_%s.pdf" % (fdict['label'])))
+                    do_comparison_graph(entries, title="",
+                                    xtitle="#eta^{Reco}", ytitle="#chi^{2} / N_{dof}",
+                                    draw_opt="ALP",
+                                    ylimits=ylimits,
+                                    other_elements=other_elements,
+                                    output_filename=output_filename)
+                    all_entries.extend(entries)
+
+                # do a single plot with all flavs
+                ylimits = (0, all_ymax*1.3)
+                output_filename = os.path.abspath(os.path.join(plot_dir, "compare_chi2_vs_eta_allFlavs.pdf"))
+                do_comparison_graph(all_entries, title="",
+                                xtitle="#eta^{Reco}", ytitle="#chi^{2} / N_{dof}",
+                                draw_opt="ALP",
+                                ylimits=ylimits,
+                                other_elements=other_elements,
+                                output_filename=output_filename)
+                
 
                 # diff_entries = []
                 # for ind, (ud, g, label) in enumerate(zip(ud_entries, g_entries, args.label)):
