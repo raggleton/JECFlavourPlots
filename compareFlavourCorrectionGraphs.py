@@ -139,8 +139,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
                         other_elements=None, logx=False, logy=False,
                         do_line=False, xlimits=None, ylimits=None,
                         y_limit_protection=None, draw_fits=True,
-                        vertical_line=None,
-                        do_fit_graph_ratio=False, 
+                        vertical_line=None, draw_opt="AP",
+                        do_fit_graph_ratio=False,
                         do_ratio_plots=False, ratio_title=""):
     """Draw several graphs on one canvas and save to file
     
@@ -175,6 +175,8 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         Draw fitted functions or not
     vertical_line : int, optional
         Draw a vertical dashed line at this x value
+    draw_opt : str, optional
+        Option to give to TMultiGraph.Draw()
     do_fit_graph_ratio : bool, optional
         Draw subplot of fit to graph ratio for each entry
     do_ratio_plots : bool, optional
@@ -317,7 +319,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     if logy:
         main_pad.SetLogy()
 
-    mg.Draw("AP")
+    mg.Draw(draw_opt)
 
     if do_fit_graph_ratio or do_ratio_plots:
         rescale_plot_labels(mg, 1-subplot_pad_height)
