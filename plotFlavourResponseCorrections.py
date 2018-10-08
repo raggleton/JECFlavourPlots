@@ -64,7 +64,7 @@ def construct_graph_func_ratio_graph(graph, func):
 
 
 def rescale_plot_labels(container, factor):
-    # What a pile of wank, why does ROOT scale all these sizes?
+    # What a pile of poop, why does ROOT scale all these sizes?
     container.GetXaxis().SetLabelSize(container.GetXaxis().GetLabelSize()/factor)
     container.GetXaxis().SetTitleSize(container.GetXaxis().GetTitleSize()/factor)
     container.GetXaxis().SetTitleOffset(container.GetXaxis().GetTitleOffset()*factor)  # doesn't seem to work?
