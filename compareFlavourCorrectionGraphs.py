@@ -339,23 +339,25 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
         if y_min < y_lim_lower:
             mg.GetHistogram().SetMinimum(y_lim_lower)
 
-    xlimits = list(xlimits)
-    if xlimits and len(xlimits) == 2:
-        if xlimits[0] is None:
-            xlimits[0] = mg.GetXaxis().GetXmin() / 1.05
-        if xlimits[1] is None:
-            xlimits[1] = mg.GetXaxis().GetXmax() * 1.2
-        mg.GetXaxis().SetLimits(*xlimits)
+    if xlimits:
+        xlimits = list(xlimits)
+        if len(xlimits) == 2:
+            if xlimits[0] is None:
+                xlimits[0] = mg.GetXaxis().GetXmin() / 1.05
+            if xlimits[1] is None:
+                xlimits[1] = mg.GetXaxis().GetXmax() * 1.2
+            mg.GetXaxis().SetLimits(*xlimits)
 
-    ylimits = list(ylimits)
-    if ylimits and len(ylimits) == 2:
-        if ylimits[0] is None:
-            ylimits[0] = mg.GetYaxis().GetXmin() / 1.05
-        if ylimits[1] is None:
-            ylimits[1] = mg.GetYaxis().GetXmax() * 1.2
+    if ylimits:
+        ylimits = list(ylimits)
+        if len(ylimits) == 2:
+            if ylimits[0] is None:
+                ylimits[0] = mg.GetYaxis().GetXmin() / 1.05
+            if ylimits[1] is None:
+                ylimits[1] = mg.GetYaxis().GetXmax() * 1.2
 
-        mg.GetHistogram().SetMaximum(ylimits[1])
-        mg.GetHistogram().SetMinimum(ylimits[0])
+            mg.GetHistogram().SetMaximum(ylimits[1])
+            mg.GetHistogram().SetMinimum(ylimits[0])
 
     leg.Draw()
 
