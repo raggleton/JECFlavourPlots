@@ -11,6 +11,7 @@ from copy import deepcopy
 import re
 from array import array
 import numpy as np
+from math import sqrt, fabs
 
 import ROOT
 from MyStyle import My_Style
@@ -79,25 +80,32 @@ def construct_graph_ratio(graph, ref_graph):
     The x values from ref_graph will be used as the reference values.
     """
     x, y = cu.get_xy(graph)
+    ex, ey = cu.get_exey(graph)
     x_ref, y_ref = cu.get_xy(ref_graph)
+    ex_ref, ey_ref = cu.get_exey(ref_graph)
     n = graph.GetN()
+    # handle different length arrays
     if len(y) != len(y_ref):
         # If different # points, just use the smaller
         if len(x) < len(x_ref):
             n = len(x)
             x_ref = x_ref[:len(x)]
             y_ref = y_ref[:len(y)]
+            ex_ref = ex_ref[:len(y)]
+            ey_ref = ey_ref[:len(y)]
         elif len(x) > len(x_ref):
             n = len(x_ref)
             x = x[:len(x_ref)]
             y = y[:len(y_ref)]
+            ex = ex[:len(x_ref)]
+            ey = ey[:len(y_ref)]
     # if x != x_ref:
         # raise RuntimeError("x values different")
     # Interpolate
     y = [graph.Eval(xi) for xi in x_ref]
     ratio_y = [y1/y2 for y1, y2 in zip(y, y_ref)]
     ex = [0]*n
-    ey = [0]*n
+    ey = [(iy/iy_ref)*sqrt(pow(iey/iy, 2) + pow(iey_ref/iy_ref, 2)) for iy, iey, iy_ref, iey_ref in zip(y, ey, y_ref, ey_ref)]
     gr = ROOT.TGraphErrors(n, array('d', x_ref), array('d', ratio_y), array('d', ex), array('d', ey))
     return gr
 
