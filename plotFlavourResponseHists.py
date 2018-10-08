@@ -80,7 +80,8 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
     num_entries = 0
     for entry in entries:
         default_colour = ROOT.kBlack
-        hist = entry['hist']
+        hist_name = entry['hist'].GetName()
+        hist = entry['hist'].Clone(hist_name+"Clone")
         hist.SetLineColor(entry.get('line_color', default_colour))
         hist.SetLineStyle(entry.get('line_style', 1))
         hist.SetLineWidth(entry.get('line_width', 1))
@@ -113,7 +114,7 @@ def do_comparison_hist(entries, output_filename, bin_title="", xtitle="", ytitle
 
         hst.Add(hist)
         num_entries += 1
-        this_label = entry.get('label', hist.GetName())
+        this_label = entry.get('label', hist_name)
         for i, substr in enumerate(this_label.split("\n")):
             if i == 0:
                 leg.AddEntry(hist, substr, "LP")
@@ -325,12 +326,235 @@ def do_flavour_fraction_graph(entries, bin_names, output_filename, add_unknown=T
     canv.SaveAs(output_filename)
 
 
+def do_plot_N_graph(entries, bin_names, output_filename, which,
+                    title="", xtitle="", other_elements=None,
+                    logx=False, logy=False,):
+    # dict of methodname : y-axis label
+    opts = {'GetN': "N", "GetEffectiveEntries": "N_{effective}", "Integral": "Integral"}
+    if which not in opts:
+        raise RuntimeError("`which` arg of `do_plot_N_graph` must be one of %s" % list(opts.keys()))
+
+    # use a tuple so can be used as dict keys
+    bin_edges = [tuple([int(x) for x in re.search(r'([0-9.]+)to([0-9.]+)', bn).groups()]) for bn in bin_names]
+    x = [(i[0]+i[1])*0.5 for i in sorted(bin_edges)]
+    
+    if len(entries) != len(bin_names):
+        raise RuntimeError ("Collections need to be same length)")
+    
+    # entries come in unsorted. this will help us sort them based on x value
+    matched_entries = {(i[0]+i[1])*0.5: ent for i, ent in zip(bin_edges, entries)}
+
+    # for each x bin, store dict of {flav: N}
+    # key is midpoint of pt bin to get ordering
+    all_entries = {}
+    for x_value in sorted(matched_entries.keys()):
+        values = {}
+        for entry in matched_entries[x_value]:
+            num = getattr(entry['hist'], which)()
+            values[entry['label']] = num
+        all_entries[x_value] = values
+
+    delta = 0.12
+    middle = 0.77
+    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetNColumns(2)
+    leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
+    
+    # flavs = all_entries.values()[0].keys()  # screws up ordering
+    flavs = [e['label'] for e in entries[0] ]
+    mg = ROOT.TMultiGraph()
+    mg.SetTitle(";".join(["", xtitle, opts[which]]))
+    graphs = []
+    y_max, y_min = 0, 99999
+    for flav in flavs:
+        y = [all_entries[mid_val].get(flav, 0) for mid_val in sorted(all_entries.keys())]
+        if max(y) > y_max:
+            y_max = max(y)
+        if min(y) < y_min:
+            y_min = min(y)
+        gr = ROOT.TGraph(len(all_entries), array('d', x), array('d', y))
+        
+        default_colour = ROOT.kBlack
+        this_entry = [e for e in entries[0] if e['label'] == flav][0]
+        gr.SetLineColor(this_entry.get('line_color', default_colour))
+        gr.SetLineStyle(this_entry.get('line_style', 1))
+        gr.SetLineWidth(this_entry.get('line_width', 1))
+
+        gr.SetMarkerColor(this_entry.get('marker_color', default_colour))
+        gr.SetMarkerStyle(this_entry.get('marker_style', 1))
+        gr.SetMarkerSize(this_entry.get('marker_size', 1))
+    
+        graphs.append(gr)
+        mg.Add(gr)
+        leg.AddEntry(gr, flav, "LP")
+
+    canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
+    canv.SetRightMargin(0.03)
+    canv.SetTicks(1, 1)
+    if logx:
+        canv.SetLogx()
+    if logy:
+        canv.SetLogy()
+
+    mg.Draw("ALP")
+    print(y_min, y_max)
+    if logy:
+        mg.GetHistogram().SetMaximum(y_max*30)
+        # need little offset to avoid setting to 0 in log scale
+        if y_min == 0:
+            y_min = 0.1
+        mg.GetHistogram().SetMinimum(y_min / 1.1)
+    else:
+        mg.GetHistogram().SetMaximum(y_max)
+        mg.GetHistogram().SetMinimum(y_min)
+    
+
+    x_max = mg.GetXaxis().GetXmax()
+    mg.GetXaxis().SetLimits(10, x_max)
+    leg.Draw()
+
+    cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
+    cms_text.AddText("CMS Simulation")
+    cms_text.SetTextFont(62)
+    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    cms_text.SetTextSize(FONT_SIZE)
+    cms_text.SetBorderSize(0)
+    cms_text.SetFillStyle(0)
+    cms_text.Draw()
+
+    n = title.count("\n")
+    # HERE BE MAGIC. Seriously though, it appears this works, so dont touch it
+    y1 = 0.79 - (n*0.04)
+    y2 = y1 + ((n+1)*0.04)
+    bin_text = ROOT.TPaveText(0.17, y1, 0.2, y2, "NDC")
+    for i, substr in enumerate(title.split("\n")):
+        bin_text.AddText(substr)
+    bin_text.SetTextFont(42)
+    bin_text.SetTextSize(FONT_SIZE)
+    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    bin_text.SetBorderSize(0)
+    bin_text.SetFillStyle(0)
+    bin_text.Draw()
+
+    if other_elements:
+        for ele in other_elements:
+            ele.Draw()
+
+    canv.SaveAs(output_filename)
+
+
+def do_plot_RMS_graph(entries, bin_names, output_filename,
+                      title="", xtitle="", other_elements=None,
+                      logx=False, logy=False,):
+    # use a tuple so can be used as dict keys
+    bin_edges = [tuple([int(x) for x in re.search(r'([0-9.]+)to([0-9.]+)', bn).groups()]) for bn in bin_names]
+    x = [(i[0]+i[1])*0.5 for i in sorted(bin_edges)]
+    
+    if len(entries) != len(bin_names):
+        raise RuntimeError ("Collections need to be same length)")
+    
+    # entries come in unsorted. this will help us sort them based on x value
+    matched_entries = {(i[0]+i[1])*0.5: ent for i, ent in zip(bin_edges, entries)}
+
+    # for each x bin, store dict of {flav: N}
+    # key is midpoint of pt bin to get ordering
+    all_entries = {}
+    for x_value in sorted(matched_entries.keys()):
+        values = {}
+        for entry in matched_entries[x_value]:
+            values[entry['label']] = entry['hist'].GetRMS()
+        all_entries[x_value] = values
+
+    delta = 0.12
+    middle = 0.77
+    leg = ROOT.TLegend(middle-delta, 0.75, middle+delta, 0.88)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetNColumns(2)
+    leg.SetTextAlign(ROOT.kHAlignCenter + ROOT.kVAlignCenter)
+    
+    # flavs = all_entries.values()[0].keys()  # screws up ordering
+    flavs = [e['label'] for e in entries[0] ]
+    mg = ROOT.TMultiGraph()
+    mg.SetTitle(";".join(["", xtitle, "RMS"]))
+    graphs = []
+    for flav in flavs:
+        y = [all_entries[mid_val].get(flav, 0) for mid_val in sorted(all_entries.keys())]
+        gr = ROOT.TGraph(len(all_entries), array('d', x), array('d', y))
+        
+        default_colour = ROOT.kBlack
+        this_entry = [e for e in entries[0] if e['label'] == flav][0]
+        gr.SetLineColor(this_entry.get('line_color', default_colour))
+        gr.SetLineStyle(this_entry.get('line_style', 1))
+        gr.SetLineWidth(this_entry.get('line_width', 1))
+
+        gr.SetMarkerColor(this_entry.get('marker_color', default_colour))
+        gr.SetMarkerStyle(this_entry.get('marker_style', 1))
+        gr.SetMarkerSize(this_entry.get('marker_size', 1))
+    
+        graphs.append(gr)
+        mg.Add(gr)
+        leg.AddEntry(gr, flav, "LP")
+
+    canv = ROOT.TCanvas(ROOT.TUUID().AsString(), "", 800, 800)
+    canv.SetRightMargin(0.03)
+    canv.SetTicks(1, 1)
+    if logx:
+        canv.SetLogx()
+    if logy:
+        canv.SetLogy()
+
+    mg.Draw("ALP")
+    if logy:
+        mg.GetHistogram().SetMaximum(2)
+        mg.GetHistogram().SetMinimum(0.01)
+    # else:
+    #     mg.GetHistogram().SetMaximum(1.2)
+    #     mg.GetHistogram().SetMinimum(0)
+    x_max = mg.GetXaxis().GetXmax()
+    mg.GetXaxis().SetLimits(10, x_max)
+    leg.Draw()
+
+    cms_text = ROOT.TPaveText(0.17, 0.84, 0.2, 0.85, "NDC")
+    cms_text.AddText("CMS Simulation")
+    cms_text.SetTextFont(62)
+    cms_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    cms_text.SetTextSize(FONT_SIZE)
+    cms_text.SetBorderSize(0)
+    cms_text.SetFillStyle(0)
+    cms_text.Draw()
+
+    n = title.count("\n")
+    # HERE BE MAGIC. Seriously though, it appears this works, so dont touch it
+    y1 = 0.79 - (n*0.04)
+    y2 = y1 + ((n+1)*0.04)
+    bin_text = ROOT.TPaveText(0.17, y1, 0.2, y2, "NDC")
+    for i, substr in enumerate(title.split("\n")):
+        bin_text.AddText(substr)
+    bin_text.SetTextFont(42)
+    bin_text.SetTextSize(FONT_SIZE)
+    bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
+    bin_text.SetBorderSize(0)
+    bin_text.SetFillStyle(0)
+    bin_text.Draw()
+
+    if other_elements:
+        for ele in other_elements:
+            ele.Draw()
+
+    canv.SaveAs(output_filename)
+
+
 def main(in_args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", help="Input ROOT file with response & resolution hists (from jet_response_fitter_x)", required=True)
     parser.add_argument("--outputDir", help="Output directory for plots", default=os.getcwd())
     parser.add_argument("--title", help="Title string for plots", default="")
     parser.add_argument("--sampleName", help="Sample name string for plots", default="")
+    parser.add_argument("--plotN", help="Plot grpah of N vs pT that goes into the median", action='store_true')
+    parser.add_argument("--plotRMS", help="Plot graph of raw RMS vs pT that goes into memdian", action='store_true')
     args = parser.parse_args(in_args)
 
     cu.check_dir_exists_create(args.outputDir)
@@ -346,7 +570,8 @@ def main(in_args):
     ]
 
     # Loop through all different ak4pfchs, etc
-    dirs = cu.get_list_of_element_names(cu.open_root_file(args.input))
+    input_tfile = cu.open_root_file(args.input)
+    dirs = cu.get_list_of_element_names(input_tfile)
     for mydir in dirs[:1]:
         jec_text = ROOT.TPaveText(0.14, 0.91, 0.2, 0.92, "NDC")
         jec_text.AddText(args.title)
@@ -394,10 +619,13 @@ def main(in_args):
             all_pt_entries = []
             for pt_bin in common_pt_bins:
                 entries = []
+                if not cu.exists_in_file(input_tfile, "%s/%s_%s_%s" % (mydir, entry_dicts[0]['flav'], eta_bin, pt_bin)):
+                    continue
                 for fdict in entry_dicts:
                     entry = deepcopy(fdict)
-                    entry["hist"] = cu.grab_obj_from_file(args.input, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
-                    entry["hist"].Rebin(int(entry["hist"].GetNbinsX()/100))
+                    # entry["hist"] = cu.grab_obj_from_file(args.input, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
+                    entry["hist"] = cu.get_from_tfile(input_tfile, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
+                    entry["hist"].Rebin(int(entry["hist"].GetNbinsX()/50))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
@@ -411,7 +639,7 @@ def main(in_args):
                                    other_elements=other_elements, normalise=False,
                                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
                 
-                # all_pt_entries.append(deepcopy(entries))
+                all_pt_entries.append(deepcopy(entries))
                 # do_comparison_hist(norm_entries, bin_title=bin_title,
                 #                    xlimits=(0, 2), xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
                 #                    other_elements=other_elements, normalise=True, draw_fits=False,
@@ -426,6 +654,22 @@ def main(in_args):
                                       other_elements=[jec_text, this_dir_text, sample_text], 
                                       add_unknown=False, logx=True, logy=True,
                                       output_filename=os.path.join(plot_dir, "flav_frac_vs_pt_%s.pdf" % (eta_bin)))
+
+            if args.plotN:
+                do_plot_N_graph(all_pt_entries, common_pt_bins, title=bin_title,
+                                which="GetEffectiveEntries",
+                                xtitle="p^{Gen}_{T} [GeV]",
+                                other_elements=[jec_text, this_dir_text, sample_text], 
+                                logx=True, logy=True,
+                                output_filename=os.path.join(plot_dir, "Neff_vs_pt_%s.pdf" % (eta_bin)))
+
+            if args.plotRMS:
+                do_plot_RMS_graph(all_pt_entries, common_pt_bins, title=bin_title,
+                                  xtitle="p^{Gen}_{T} [GeV]",
+                                  other_elements=[jec_text, this_dir_text, sample_text], 
+                                  logx=True, logy=True,
+                                  output_filename=os.path.join(plot_dir, "RMS_vs_pt_%s.pdf" % (eta_bin)))
+
 
     return 0
 
