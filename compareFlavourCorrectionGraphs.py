@@ -635,7 +635,6 @@ def main(in_args):
                                 fit_chi2entries[fdict['label']][label].append(chi2 / ndof)
 
                     output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_funcGraphRatio.pdf" % (eta_bin, fdict['label'])))
-                    outputs.append(output_filename)
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                         xlimits=(X_MIN, X_MAX),
@@ -648,6 +647,7 @@ def main(in_args):
                                         do_fit_graph_ratio=True)
 
                     output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_pyHerwigRatio.pdf" % (eta_bin, fdict['label'])))
+                    outputs.append(output_filename)
                     do_comparison_graph(entries, title=title,
                                         xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                         xlimits=(X_MIN, X_MAX),
@@ -668,7 +668,7 @@ def main(in_args):
                 # Do a plot with all flavours
                 entries = []
                 ud_entries, g_entries = [], []
-                for fdict in entry_dicts:
+                for fdict in entry_dicts[:]:
                     for ind, (input_filename, label) in enumerate(zip(args.input, args.label)):
                         entry = deepcopy(fdict)
                         entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
@@ -705,14 +705,31 @@ def main(in_args):
                                     vertical_line=args.vertLine,
                                     do_fit_graph_ratio=True)
 
+                output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_pyHerwigRatio.pdf" % (eta_bin)))
                 do_comparison_graph(entries, title=title,
                                     xtitle="p_{T}^{Reco} [GeV]", ytitle="Correction", logx=True,
                                     xlimits=(X_MIN, X_MAX),
                                     y_limit_protection=(Y_MIN, Y_MAX), ylimits=ylimits,
                                     other_elements=other_elements,
-                                    output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_pyHerwigRatio.pdf" % (eta_bin)),
+                                    output_filename=output_filename,
                                     vertical_line=args.vertLine,
                                     do_ratio_plots=True, ratio_title="H++ / Py8")
+                outputs.insert(0, output_filename)
+                # make 1 slide with all flavours for this eta bin
+                if do_slides:
+                    plots = ",\n".join(['            ["{{{fname}}}{ext}", "{title}"]'.format(
+                                            fname=os.path.splitext(fname)[0],
+                                            ext=os.path.splitext(fname)[1],
+                                            title="")
+                                        for fname in outputs])
+                    text = """    {{
+        "title": "${thistitle}$",
+        "plots": [
+{plots}
+        ]
+    }}""".format(thistitle=title.replace("#", r"\\"), plots=plots)
+                    slides_contents.append(text)
+
 
             if args.chi2:
                 # for each flav, do a plot of chi2 of total fit vs eta for all files
