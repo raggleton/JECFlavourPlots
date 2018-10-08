@@ -246,7 +246,7 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
                 diff_graph = construct_graph_func_ratio_graph(graph, func)
                 diff_graph.SetLineColor(entry.get('line_color', default_colour))
                 diff_graph.SetLineStyle(entry.get('line_style', 1))
-                diff_graph.SetLineWidth(entry.get('line_width', 1))
+                diff_graph.SetLineWidth(entry.get('line_width', 1)+1)  # +1 as subplot scaling makes it look thin
                 diff_graph.SetMarkerColor(entry.get('marker_color', default_colour))
                 diff_graph.SetMarkerStyle(entry.get('marker_style', 1))
                 diff_graph.SetMarkerSize(entry.get('marker_size', 1))
@@ -259,17 +259,17 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
                     ratio_graph = construct_graph_ratio(graph, ref_graph)
                     ratio_graph.SetLineColor(entry.get('line_color', default_colour))
                     ratio_graph.SetLineStyle(entry.get('line_style', 1))
-                    ratio_graph.SetLineWidth(entry.get('line_width', 1))
+                    ratio_graph.SetLineWidth(entry.get('line_width', 2)+1)  # +1 as subplot scaling makes it look thin
                     ratio_graph.SetMarkerColor(entry.get('marker_color', default_colour))
                     ratio_graph.SetMarkerStyle(entry.get('marker_style', 1))
                     ratio_graph.SetMarkerSize(entry.get('marker_size', 1))
-                    
+
                     if ref_graph.GetListOfFunctions().GetSize() > 0:
                         ref_func = ref_graph.GetListOfFunctions().Last()
                         ratio_func = construct_func_ratio(func, ref_func)
                         ratio_func.SetLineColor(entry.get('line_color', default_colour))
                         ratio_func.SetLineStyle(entry.get('line_style', 1))
-                        ratio_func.SetLineWidth(entry.get('line_width', 2))
+                        ratio_func.SetLineWidth(entry.get('line_width', 2)+1)  # +1 as subplot scaling makes it look thin
                         ratio_graph.GetListOfFunctions().AddLast(ratio_func)
                     ratio_entry = deepcopy(entry)
                     ratio_entry['graph'] = ratio_graph
