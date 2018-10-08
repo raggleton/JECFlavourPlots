@@ -640,10 +640,10 @@ def main(in_args):
                                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s.pdf" % (pt_bin)))
                 
                 all_pt_entries.append(deepcopy(entries))
-                # do_comparison_hist(norm_entries, bin_title=bin_title,
-                #                    xlimits=(0, 2), xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
-                #                    other_elements=other_elements, normalise=True, draw_fits=False,
-                #                    output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
+                do_comparison_hist(norm_entries, bin_title=bin_title,
+                                   xlimits=(0, 2), xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", ytitle="p.d.f",
+                                   other_elements=other_elements, normalise=True, draw_fits=False,
+                                   output_filename=os.path.join(this_plot_dir, "rsp_vs_pt_%s_normed.pdf" % (pt_bin)))
 
             this_dir_text = dir_text.Clone()
             this_dir_text.SetY1(0.76)
