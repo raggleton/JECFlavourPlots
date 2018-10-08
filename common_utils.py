@@ -221,9 +221,9 @@ def th1_to_arr(hist):
     return np.array([hist.GetBinContent(i) for i in range(1, hist.GetNbinsX()+1)])
 
 
-def tryint(s):
+def tryfloat(s):
     try:
-        return int(s)
+        return float(s)
     except:
         return s
      
@@ -232,7 +232,7 @@ def alphanum_key(s):
     """ Turn a string into a list of string and number chunks.
         "z23a" -> ["z", 23, "a"]
     """
-    return [ tryint(c) for c in re.split('([0-9]+)', s) ]
+    return [ tryfloat(c) for c in re.split('([0-9.-]+)', s) ]
 
 
 def sort_human(l):
