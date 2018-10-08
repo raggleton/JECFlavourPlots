@@ -37,7 +37,7 @@ def extract_response_hists(input_filename, output_filename):
         for hname in hists:
             # print(hname)
             h = tdir.Get(hname)
-            if h.GetEntries() > 0:
+            if h.GetEntries() > -1:
                 h.Write()
                 counter += 1
         print("Copying", counter, "histograms")
