@@ -625,7 +625,7 @@ def main(in_args):
                     entry = deepcopy(fdict)
                     # entry["hist"] = cu.grab_obj_from_file(args.input, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
                     entry["hist"] = cu.get_from_tfile(input_tfile, "%s/%s_%s_%s" % (mydir, fdict['flav'], eta_bin, pt_bin))
-                    entry["hist"].Rebin(int(entry["hist"].GetNbinsX()/50))
+                    entry["hist"].Rebin(int(entry["hist"].GetNbinsX()/200))
                     entry["line_color"] = fdict['colour']
                     entry["marker_color"] = fdict['colour']
                     entries.append(entry)
