@@ -477,19 +477,6 @@ def do_comparison_graph(entries, output_filename, title="", xtitle="", ytitle=""
     canv.SaveAs(output_filename)
 
 
-def get_open_marker(marker):
-    opposites = {
-        20: 24,
-        21: 25,
-        22: 26,
-        23: 32,
-        33: 27,
-        29: 30,
-        34: 28,
-    }
-    return opposites[marker]
-
-
 def get_eta_mid(s):
     # find numbers
     parts = cu.alphanum_key(s)
@@ -613,13 +600,13 @@ def main(in_args):
                     entry["fill_alpha"] = 0.7
                     entry["ratio"] = None
                     if ind == 1:
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                         entry["line_style"] += 1
                     if ind == 2:
                         entry["line_style"] += 1
                     if ind == 3:
                         entry["line_style"] += 1
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                     entries.append(entry)
                     if ind != 0:
                         entries[-1]['ratio'] = entries[0]['graph']
@@ -681,13 +668,13 @@ def main(in_args):
                     entry["fill_alpha"] = 0.8
                     entry['ratio'] = None
                     if ind == 1:
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                         entry["line_style"] += 1
                     if ind == 2:
                         entry["line_style"] += 1
                     if ind == 3:
                         entry["line_style"] += 1
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                     entries.append(entry)
                     if fdict['label'] == "ud":
                         ud_entries.append(entry)
@@ -756,13 +743,13 @@ def main(in_args):
                     entry["fill_style"] = 1001
                     entry["fill_alpha"] = 0.8
                     if ind == 1:
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                         entry["line_style"] += 1
                     if ind == 2:
                         entry["line_style"] += 1
                     if ind == 3:
                         entry["line_style"] += 1
-                        entry["marker_style"] = get_open_marker(entry['marker_style'])
+                        entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                     entries.append(entry)
                 all_ymax = max(all_ymax, ymax)
                 ylimits = (0, ymax*1.3)
@@ -813,12 +800,12 @@ def main(in_args):
         #             entry["line_color"] = fdict['colour']
         #             entry["marker_color"] = fdict['colour']
         #             if ind == 1:
-        #                 entry["marker_style"] = get_open_marker(entry['marker_style'])
+        #                 entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
         #             if ind == 2:
         #                 entry["line_style"] += 1
         #             if ind == 3:
         #                 entry["line_style"] += 1
-        #                 entry["marker_style"] = get_open_marker(entry['marker_style'])
+        #                 entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
         #             entries.append(entry)
         #             if args.chi2:
         #                 chi2entry = deepcopy(entry)
@@ -848,12 +835,12 @@ def main(in_args):
         #             entry["line_color"] = fdict['colour']
         #             entry["marker_color"] = fdict['colour']
         #             if ind == 1:
-        #                 entry["marker_style"] = get_open_marker(entry['marker_style'])
+        #                 entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
         #             if ind == 2:
         #                 entry["line_style"] += 1
         #             if ind == 3:
         #                 entry["line_style"] += 1
-        #                 entry["marker_style"] = get_open_marker(entry['marker_style'])
+        #                 entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
         #             entries.append(entry)
         #     title = pt_bin.replace("to", " < p_{T} < ").replace("RefPt", "")
         #     do_comparison_graph(entries, title=title + " GeV",
