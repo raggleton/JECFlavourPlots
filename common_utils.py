@@ -439,7 +439,7 @@ def do_comparison_graph(entries,
     output_filename : str
         Name of output plot file
     title : str
-        Overall plot title, goes top left
+        Overall plot title, goes inside main axes in top left
     sample_title : str, optional
         Text to put with "13 TeV", e.g. QCD MC, goes top right
     xtitle : str
@@ -670,8 +670,14 @@ def do_comparison_graph(entries,
     cms_text.Draw()
 
     if title:
-        bin_text = ROOT.TPaveText(0.17, 0.82, 0.2, 0.83, "NDC")
-        bin_text.AddText(title)
+        n = title.count("\n")
+        # HERE BE MAGIC. Seriously though, it appears this works, so dont touch it
+        gap = 0.055 / (1-subplot_pad_height)
+        y1 = 0.79 - (n*gap)
+        y2 = y1 + ((n+1)*gap)
+        bin_text = ROOT.TPaveText(0.17, y1, 0.2, y2, "NDC")
+        for i, substr in enumerate(title.split("\n")):
+            bin_text.AddText(substr)
         bin_text.SetTextFont(42)
         bin_text.SetTextSize(FONT_SIZE)
         bin_text.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
