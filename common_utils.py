@@ -282,6 +282,27 @@ def get_open_marker(marker):
     return opposites[marker]
 
 
+def get_alternate_colour(colour, modifier):
+    """Get alternate colour, but keeps white and black invariant.
+    
+    Parameters
+    ----------
+    colour : int
+        Original colour
+    modifier : int
+        Int to modify colour by
+    
+    Returns
+    -------
+    int
+        New colour
+    """
+    if colour < 2:
+        return colour
+    else:
+        return colour + int(modifier)
+
+
 def construct_difference_graph(graph, other_graph):
     x, y = get_xy(graph)
     x_other, y_other = get_xy(other_graph)

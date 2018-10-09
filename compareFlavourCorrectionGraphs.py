@@ -146,9 +146,10 @@ def main(in_args):
                     entry = deepcopy(fdict)
                     entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                     entry['label'] += " [%s]" % label
-                    entry["line_color"] = fdict['colour']+ind
-                    entry["marker_color"] = fdict['colour']+ind
-                    entry["fill_color"] = fdict['colour']+ind
+                    new_colour = cu.get_alternate_colour(fdict['colour'], ind)
+                    entry["line_color"] = new_colour
+                    entry["marker_color"] = new_colour
+                    entry["fill_color"] = new_colour
                     entry["fill_style"] = 1001
                     entry["fill_alpha"] = 0.7
                     entry["ratio"] = None
@@ -218,9 +219,10 @@ def main(in_args):
                     entry = deepcopy(fdict)
                     entry["graph"] = cu.grab_obj_from_file(input_filename, "%s/%s_%s" % (mydir, fdict['flav'], eta_bin))
                     entry['label'] += " [%s]" % label
-                    entry["line_color"] = fdict['colour']+ind
-                    entry["marker_color"] = fdict['colour']+ind
-                    entry["fill_color"] = fdict['colour']+ind
+                    new_colour = cu.get_alternate_colour(fdict['colour'], ind)
+                    entry["line_color"] = new_colour
+                    entry["marker_color"] = new_colour
+                    entry["fill_color"] = new_colour
                     entry["fill_style"] = 1001
                     entry["fill_alpha"] = 0.8
                     entry['ratio'] = None
@@ -298,9 +300,10 @@ def main(in_args):
                     entry = deepcopy(fdict)
                     entry["graph"] = gr
                     entry['label'] = "%s [%s]" % (fdict['label'], flabel)
-                    entry["line_color"] = fdict['colour']+ind
-                    entry["marker_color"] = fdict['colour']+ind
-                    entry["fill_color"] = fdict['colour']+ind
+                    new_colour = cu.get_alternate_colour(fdict['colour'], ind)
+                    entry["line_color"] = new_colour
+                    entry["marker_color"] = new_colour
+                    entry["fill_color"] = new_colour
                     entry["fill_style"] = 1001
                     entry["fill_alpha"] = 0.8
                     if ind == 1:
