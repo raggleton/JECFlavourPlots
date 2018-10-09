@@ -284,14 +284,14 @@ def get_open_marker(marker):
 
 def get_alternate_colour(colour, modifier):
     """Get alternate colour, but keeps white and black invariant.
-    
+
     Parameters
     ----------
     colour : int
         Original colour
     modifier : int
         Int to modify colour by
-    
+
     Returns
     -------
     int
@@ -410,14 +410,14 @@ def rescale_plot_labels(container, factor):
     # container.GetYaxis().SetTickLength(0.03/factor)
 
 
-def do_comparison_graph(entries, 
+def do_comparison_graph(entries,
                         output_filename,
-                        title="", 
+                        title="",
                         sample_title="",
-                        xtitle="", 
+                        xtitle="",
                         ytitle="",
                         other_elements=None,
-                        logx=False, 
+                        logx=False,
                         logy=False,
                         xlimits=(None, None),
                         ylimits=(None, None),
@@ -488,9 +488,15 @@ def do_comparison_graph(entries,
 
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
-    delta = 0.21
+    xdelta = 0.2
     xmiddle = 0.75
-    leg = ROOT.TLegend(xmiddle-delta, 0.65, xmiddle+delta, 0.86)
+    ydelta = 0.105
+    ymiddle = 0.755
+    if len(entries) > 4:
+        xdelta *= 1.1
+        ymiddle -= 0.02
+        ydelta *= 1.3
+    leg = ROOT.TLegend(xmiddle-xdelta, 0.65, xmiddle+xdelta, 0.86)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     if len(entries) > 4:
