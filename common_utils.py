@@ -519,7 +519,7 @@ def do_comparison_graph(entries,
 
         graph.SetMarkerColor(entry.get('marker_color', default_colour))
         graph.SetMarkerStyle(entry.get('marker_style', 1))
-        graph.SetMarkerSize(entry.get('marker_size', 1)*0.5)
+        graph.SetMarkerSize(entry.get('marker_size', 1))
 
         graph.SetFillColorAlpha(entry.get('fill_color', default_colour), entry.get('fill_alpha', 1))
         graph.SetFillStyle(entry.get('fill_style', 1001))
@@ -541,7 +541,7 @@ def do_comparison_graph(entries,
                 diff_graph = construct_graph_func_ratio_graph(graph, func)
                 diff_graph.SetLineColor(entry.get('line_color', default_colour))
                 diff_graph.SetLineStyle(entry.get('line_style', 1))
-                diff_graph.SetLineWidth(entry.get('line_width', 1)+1)  # +1 as subplot scaling makes it look thin
+                diff_graph.SetLineWidth(entry.get('line_width', 1))
                 diff_graph.SetMarkerColor(entry.get('marker_color', default_colour))
                 diff_graph.SetMarkerStyle(entry.get('marker_style', 1))
                 diff_graph.SetMarkerSize(entry.get('marker_size', 1))
