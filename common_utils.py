@@ -428,7 +428,9 @@ def do_comparison_graph(entries,
                         draw_opt="AP",
                         do_fit_graph_ratio=False,
                         do_ratio_plots=False,
-                        ratio_title=""):
+                        ratio_limits=(None, None),
+                        ratio_title="",
+                        ratio_draw_opt=None):
     """Draw several graphs on one canvas and save to file
 
     Parameters
@@ -735,10 +737,14 @@ def do_comparison_graph(entries,
         ROOT.SetOwnership(mg_sub, False)
         for entry in subplot_entries:
             mg_sub.Add(entry['graph'])
-        if do_fit_graph_ratio:
-            mg_sub.Draw("ALP")
+
+        if ratio_draw_opt:
+            mg_sub.Draw(ratio_draw_opt)
         else:
-            mg_sub.Draw("AP")
+            if do_fit_graph_ratio:
+                mg_sub.Draw("ALP")
+            else:
+                mg_sub.Draw("AP")
 
         # Set x axis range
         mg_sub.GetXaxis().SetLimits(mg.GetXaxis().GetXmin(), mg.GetXaxis().GetXmax())
@@ -750,6 +756,10 @@ def do_comparison_graph(entries,
         else:
             mg_sub.GetHistogram().SetMaximum(1.04)
             mg_sub.GetHistogram().SetMinimum(0.96)
+
+        if ratio_limits:
+            mg_sub.GetHistogram().SetMaximum(ratio_limits[1])
+            mg_sub.GetHistogram().SetMinimum(ratio_limits[0])
 
         # Make it look sensible
         mg_sub.GetXaxis().SetTitleOffset(mg_sub.GetXaxis().GetTitleOffset()*2.8)
