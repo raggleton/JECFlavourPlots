@@ -548,27 +548,27 @@ def do_comparison_graph(entries,
                 diff_entry = deepcopy(entry)
                 diff_entry['graph'] = diff_graph
                 subplot_entries.append(diff_entry)
-            elif do_ratio_plots:
-                ref_graph = entry.get('ratio', None)
-                if ref_graph:
-                    ratio_graph = construct_graph_ratio(graph, ref_graph)
-                    ratio_graph.SetLineColor(entry.get('line_color', default_colour))
-                    ratio_graph.SetLineStyle(entry.get('line_style', 1))
-                    ratio_graph.SetLineWidth(entry.get('line_width', 2)+1)  # +1 as subplot scaling makes it look thin
-                    ratio_graph.SetMarkerColor(entry.get('marker_color', default_colour))
-                    ratio_graph.SetMarkerStyle(entry.get('marker_style', 1))
-                    ratio_graph.SetMarkerSize(entry.get('marker_size', 1))
-
-                    if ref_graph.GetListOfFunctions().GetSize() > 0:
-                        ref_func = ref_graph.GetListOfFunctions().Last()
-                        ratio_func = construct_func_ratio(func, ref_func)
-                        ratio_func.SetLineColor(entry.get('line_color', default_colour))
-                        ratio_func.SetLineStyle(entry.get('line_style', 1))
-                        ratio_func.SetLineWidth(entry.get('line_width', 2)+1)  # +1 as subplot scaling makes it look thin
-                        ratio_graph.GetListOfFunctions().AddLast(ratio_func)
-                    ratio_entry = deepcopy(entry)
-                    ratio_entry['graph'] = ratio_graph
-                    subplot_entries.append(ratio_entry)
+        
+        if do_ratio_plots:
+            ref_graph = entry.get('ratio', None)
+            if ref_graph:
+                ratio_graph = construct_graph_ratio(graph, ref_graph)
+                ratio_graph.SetLineColor(entry.get('line_color', default_colour))
+                ratio_graph.SetLineStyle(entry.get('line_style', 1))
+                ratio_graph.SetLineWidth(entry.get('line_width', 1))
+                ratio_graph.SetMarkerColor(entry.get('marker_color', default_colour))
+                ratio_graph.SetMarkerStyle(entry.get('marker_style', 1))
+                ratio_graph.SetMarkerSize(entry.get('marker_size', 1))
+                if ref_graph.GetListOfFunctions().GetSize() > 0:
+                    ref_func = ref_graph.GetListOfFunctions().Last()
+                    ratio_func = construct_func_ratio(func, ref_func)
+                    ratio_func.SetLineColor(entry.get('line_color', default_colour))
+                    ratio_func.SetLineStyle(entry.get('line_style', 1))
+                    ratio_func.SetLineWidth(entry.get('line_width', 1))
+                    ratio_graph.GetListOfFunctions().AddLast(ratio_func)
+                ratio_entry = deepcopy(entry)
+                ratio_entry['graph'] = ratio_graph
+                subplot_entries.append(ratio_entry)
 
         mg.Add(graph)
         leg.AddEntry(graph, entry.get('label', graph.GetName()), "LP")
