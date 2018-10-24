@@ -107,7 +107,7 @@ def get_from_tfile(tfile, obj_name, info=False):
     """Get some object from ROOT TFile with checks."""
     if info:
         print("Getting %s" % obj_name)
-    obj = tfile.Get(obj_name) 
+    obj = tfile.Get(obj_name)
     if obj == None:
         raise IOError("No object named %s in %s" % (obj_name, tfile.GetName()))
     else:
@@ -448,7 +448,7 @@ def do_comparison_graph(entries,
                         ratio_title="",
                         ratio_draw_opt=None):
     """Draw several graphs on one canvas and save to file
-    
+
     Parameters
     ----------
     entries : [dict]
@@ -476,12 +476,12 @@ def do_comparison_graph(entries,
     ylimits : (min, max), optional
         Set hard y limits. Specifying either upper or lower limit as None lets
         the code make a sensible guess
-    do_horizontal_line : bool, optional
-        Do horizontal line at 1
     y_limit_protection : (y_min, y_max), optional
         Set minimum and maximum y values in the event of a huge stat error or weird point
     draw_fits : bool, optional
         Draw fitted functions or not
+    do_horizontal_line : bool, optional
+        Do horizontal line at 1
     vertical_line : int, optional
         Draw a vertical dashed line at this x value
     draw_opt : str, optional
@@ -492,8 +492,12 @@ def do_comparison_graph(entries,
         Draw subplot of ratio of graph (& its fit) to some reference object
         that should be defined in each entry of `entries` under `ratio` key
         Cannot use do_fit_graph_ratio and do_ratio_plots simultaneously
+    ratio_limits : None, optional
+        Description
     ratio_title : str, optional
         Y axis title for ratio subplot. Only used if do_ratio_plots is True
+    ratio_draw_opt : None, optional
+        Description
 
     Raises
     ------
@@ -564,7 +568,7 @@ def do_comparison_graph(entries,
             diff_entry = deepcopy(entry)
             diff_entry['graph'] = diff_graph
             subplot_entries.append(diff_entry)
-        
+
         elif do_ratio_plots:
             ref_graph = entry.get('ratio', None)
             if ref_graph:
