@@ -10,7 +10,7 @@ import numpy as np
 import argparse
 from array import array
 import re
-from math import fabs, log10, frexp, sqrt
+from math import fabs, log10, frexp, hypot
 from copy import deepcopy
 
 
@@ -341,11 +341,14 @@ def construct_graph_func_diff_graph(graph, func):
 def construct_graph_func_ratio_graph(graph, func):
     """Construct a graph of function / graph for each (x, y) point in graph"""
     x, y = get_xy(graph)
+    ex, ey = get_exey(graph)
     n = len(x)
-    diff = array('d', [func.Eval(this_x) / this_y for this_x, this_y in zip(x, y)])
-    ex = array('d', [0] * n)
-    ey = array('d', [0] * n)
-    gr = ROOT.TGraphErrors(n, x, diff, ex, ey)
+    ratio = array('d', [func.Eval(this_x) / this_y for this_x, this_y in zip(x, y)])
+    if len(ratio) != n:
+        raise IndexError("Length of ratio not correct")
+    # ey = array('d', [0] * n)
+    new_ey = array('d', [f*e for f, e in zip(ratio, ey)])
+    gr = ROOT.TGraphErrors(n, x, ratio, ex, new_ey)
     return gr
 
 
@@ -379,10 +382,22 @@ def construct_graph_ratio(graph, ref_graph):
         # raise RuntimeError("x values different")
     # Interpolate
     y = [graph.Eval(xi) for xi in x_ref]
-    ratio_y = [y1/y2 for y1, y2 in zip(y, y_ref)]
-    ex = [0]*n
-    ey = [(iy/iy_ref)*sqrt(pow(iey/iy, 2) + pow(iey_ref/iy_ref, 2)) for iy, iey, iy_ref, iey_ref in zip(y, ey, y_ref, ey_ref)]
-    gr = ROOT.TGraphErrors(n, array('d', x_ref), array('d', ratio_y), array('d', ex), array('d', ey))
+    ratio_y = []
+    for y1, y2 in zip(y, y_ref):
+        if y2 == 0:
+            ratio_y.append(0)
+        else:
+            ratio_y.append(y1/y2)
+    # ex = [0]*n
+    # ey = [0]*n
+    ratio_ey = []
+    for iy, iey, iy_ref, iey_ref in zip(y, ey, y_ref, ey_ref):
+        if iy_ref == 0 or iy == 0:
+            err = 0
+        else:
+            err = (iy/iy_ref)*hypot(iey/iy, iey_ref/iy_ref)
+        ratio_ey.append(err)
+    gr = ROOT.TGraphErrors(n, array('d', x_ref), array('d', ratio_y), array('d', ex), array('d', ratio_ey))
     return gr
 
 
