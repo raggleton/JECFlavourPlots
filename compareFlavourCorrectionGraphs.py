@@ -124,6 +124,9 @@ def main(in_args):
         # For limit protection:
         Y_MIN, Y_MAX = 0.8, 1.6
 
+        py_herwig_ratio_title = "Parton / Hadron"
+        py_herwig_ratio_title = "H++ / Py8"
+
         # Store chi2 for fits over pT
         # Each entry is for a flavour,
         # and is a dict of file label : chi2/dof values
@@ -178,7 +181,7 @@ def main(in_args):
 
                 output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_funcGraphRatio.pdf" % (eta_bin, fdict['label'])))
                 cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
-                                       xtitle="p_{T}^{Reco} [GeV]", 
+                                       xtitle="p_{T}^{Reco} [GeV]",
                                        ytitle="Correction",
                                        logx=True,
                                        xlimits=(X_MIN, X_MAX),
@@ -193,7 +196,7 @@ def main(in_args):
                 output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_pyHerwigRatio.pdf" % (eta_bin, fdict['label'])))
                 outputs.append(output_filename)
                 cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
-                                       xtitle="p_{T}^{Reco} [GeV]", 
+                                       xtitle="p_{T}^{Reco} [GeV]",
                                        ytitle="Correction",
                                        logx=True,
                                        xlimits=(X_MIN, X_MAX),
@@ -203,7 +206,9 @@ def main(in_args):
                                        other_elements=other_elements,
                                        output_filename=output_filename,
                                        vertical_line=args.vertLine,
-                                       do_ratio_plots=True, ratio_title="H++ / Py8")
+                                       draw_fits=True,
+                                       do_ratio_plots=True,
+                                       ratio_title=py_herwig_ratio_title)
                 # if args.chi2:
                 #     cu.do_comparison_graph(chi2entries, title=title, sample_title=sample_str,
                 #                         xtitle="p_{T}^{Reco} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
@@ -264,7 +269,8 @@ def main(in_args):
                                    other_elements=other_elements,
                                    output_filename=output_filename,
                                    vertical_line=args.vertLine,
-                                   do_ratio_plots=True, ratio_title="H++ / Py8")
+                                   draw_fits=True,
+                                   do_ratio_plots=True, ratio_title=py_herwig_ratio_title)
             outputs.insert(0, output_filename)
             # make 1 slide with all flavours for this eta bin
             if do_slides:
