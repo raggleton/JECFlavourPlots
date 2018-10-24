@@ -553,19 +553,19 @@ def do_comparison_graph(entries,
                 # Broken for now
                 graph.GetListOfFunctions().Remove(func)
 
-            if do_fit_graph_ratio:
-                diff_graph = construct_graph_func_ratio_graph(graph, func)
-                diff_graph.SetLineColor(entry.get('line_color', default_colour))
-                diff_graph.SetLineStyle(entry.get('line_style', 1))
-                diff_graph.SetLineWidth(entry.get('line_width', 1))
-                diff_graph.SetMarkerColor(entry.get('marker_color', default_colour))
-                diff_graph.SetMarkerStyle(entry.get('marker_style', 1))
-                diff_graph.SetMarkerSize(entry.get('marker_size', 1))
-                diff_entry = deepcopy(entry)
-                diff_entry['graph'] = diff_graph
-                subplot_entries.append(diff_entry)
+        if do_fit_graph_ratio and graph.GetListOfFunctions().GetSize() > 0:
+            diff_graph = construct_graph_func_ratio_graph(graph, func)
+            diff_graph.SetLineColor(entry.get('line_color', default_colour))
+            diff_graph.SetLineStyle(entry.get('line_style', 1))
+            diff_graph.SetLineWidth(entry.get('line_width', 1))
+            diff_graph.SetMarkerColor(entry.get('marker_color', default_colour))
+            diff_graph.SetMarkerStyle(entry.get('marker_style', 1))
+            diff_graph.SetMarkerSize(entry.get('marker_size', 1))
+            diff_entry = deepcopy(entry)
+            diff_entry['graph'] = diff_graph
+            subplot_entries.append(diff_entry)
         
-        if do_ratio_plots:
+        elif do_ratio_plots:
             ref_graph = entry.get('ratio', None)
             if ref_graph:
                 ratio_graph = construct_graph_ratio(graph, ref_graph)
