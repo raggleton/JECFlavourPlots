@@ -435,8 +435,8 @@ def do_comparison_graph(entries,
                         other_elements=None,
                         logx=False,
                         logy=False,
-                        xlimits=(None, None),
-                        ylimits=(None, None),
+                        xlimits=None,
+                        ylimits=None,
                         y_limit_protection=None,
                         draw_fits=True,
                         do_horizontal_line=False,
@@ -444,11 +444,11 @@ def do_comparison_graph(entries,
                         draw_opt="AP",
                         do_fit_graph_ratio=False,
                         do_ratio_plots=False,
-                        ratio_limits=(None, None),
+                        ratio_limits=None,
                         ratio_title="",
                         ratio_draw_opt=None):
     """Draw several graphs on one canvas and save to file
-
+    
     Parameters
     ----------
     entries : [dict]
@@ -773,9 +773,11 @@ def do_comparison_graph(entries,
             mg_sub.GetHistogram().SetMaximum(1.04)
             mg_sub.GetHistogram().SetMinimum(0.96)
 
-        if ratio_limits:
-            mg_sub.GetHistogram().SetMaximum(ratio_limits[1])
-            mg_sub.GetHistogram().SetMinimum(ratio_limits[0])
+        if ratio_limits and len(ratio_limits) == 2:
+            if ratio_limits[1] is not None:
+                mg_sub.GetHistogram().SetMaximum(ratio_limits[1])
+            if ratio_limits[0] is not None:
+                mg_sub.GetHistogram().SetMinimum(ratio_limits[0])
 
         # Make it look sensible
         mg_sub.GetXaxis().SetTitleOffset(mg_sub.GetXaxis().GetTitleOffset()*2.8)
