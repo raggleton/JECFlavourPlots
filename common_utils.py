@@ -346,9 +346,23 @@ def construct_graph_func_ratio_graph(graph, func):
     ratio = array('d', [func.Eval(this_x) / this_y for this_x, this_y in zip(x, y)])
     if len(ratio) != n:
         raise IndexError("Length of ratio not correct")
-    # ey = array('d', [0] * n)
+    # new_ey = array('d', [0] * n)
     new_ey = array('d', [f*e for f, e in zip(ratio, ey)])
     gr = ROOT.TGraphErrors(n, x, ratio, ex, new_ey)
+    return gr
+
+
+def construct_graph_func_pull_graph(graph, func):
+    """Construct a pull graph of (function - graph) / error for each (x, y) point in graph"""
+    x, y = get_xy(graph)
+    ex, ey = get_exey(graph)
+    n = len(x)
+    pull = array('d', [(func.Eval(this_x) - this_y) / this_ey for this_x, this_y, this_ey in zip(x, y, ey)])
+    if len(pull) != n:
+        raise IndexError("Length of pull not correct")
+    new_ey = array('d', [0] * n)
+    # new_ey = array('d', [f*e for f, e in zip(pull, ey)])
+    gr = ROOT.TGraphErrors(n, x, pull, ex, new_ey)
     return gr
 
 
@@ -443,12 +457,13 @@ def do_comparison_graph(entries,
                         vertical_line=None,
                         draw_opt="AP",
                         do_fit_graph_ratio=False,
+                        do_fit_graph_pull=False,
                         do_ratio_plots=False,
                         ratio_limits=None,
                         ratio_title="",
                         ratio_draw_opt=None):
     """Draw several graphs on one canvas and save to file
-
+    
     Parameters
     ----------
     entries : [dict]
@@ -488,25 +503,29 @@ def do_comparison_graph(entries,
         Option to give to TMultiGraph.Draw()
     do_fit_graph_ratio : bool, optional
         Draw subplot of fit to graph ratio for each entry
+    do_fit_graph_pull : bool, optional
+        Draw subplot of pull (fit - graph / error)
     do_ratio_plots : bool, optional
         Draw subplot of ratio of graph (& its fit) to some reference object
         that should be defined in each entry of `entries` under `ratio` key
         Cannot use do_fit_graph_ratio and do_ratio_plots simultaneously
     ratio_limits : None, optional
-        Description
+        Set y limits on ratio plot
     ratio_title : str, optional
         Y axis title for ratio subplot. Only used if do_ratio_plots is True
     ratio_draw_opt : None, optional
-        Description
-
+        Drawing option for ratio plot
+    
     Raises
     ------
     RuntimeError
-        If you specify both do_fit_graph_ratio and do_ratio_plots to be True
-
+        If you specify more than one subplot type
+    
     """
-    if do_fit_graph_ratio and do_ratio_plots:
-        raise RuntimeError("Cannot use both do_fit_graph_ratio and do_ratio_plots - choose only one")
+    if sum([do_fit_graph_ratio, do_fit_graph_pull, do_ratio_plots]) > 1:
+        raise RuntimeError("Cannot use more than one of do_fit_graph_ratio, do_fit_graph_pull, and do_ratio_plots - choose only one")
+
+    do_subplot = any([do_fit_graph_ratio, do_fit_graph_pull, do_ratio_plots])
 
     mg = ROOT.TMultiGraph()
     mg.SetTitle(";".join(["", xtitle, ytitle]))
@@ -568,6 +587,18 @@ def do_comparison_graph(entries,
             diff_entry = deepcopy(entry)
             diff_entry['graph'] = diff_graph
             subplot_entries.append(diff_entry)
+        
+        elif do_fit_graph_pull and graph.GetListOfFunctions().GetSize() > 0:
+            pull_graph = construct_graph_func_pull_graph(graph, func)
+            pull_graph.SetLineColor(entry.get('line_color', default_colour))
+            pull_graph.SetLineStyle(entry.get('line_style', 1))
+            pull_graph.SetLineWidth(entry.get('line_width', 1))
+            pull_graph.SetMarkerColor(entry.get('marker_color', default_colour))
+            pull_graph.SetMarkerStyle(entry.get('marker_style', 1))
+            pull_graph.SetMarkerSize(entry.get('marker_size', 1))
+            pull_entry = deepcopy(entry)
+            pull_entry['graph'] = pull_graph
+            subplot_entries.append(pull_entry)
 
         elif do_ratio_plots:
             ref_graph = entry.get('ratio', None)
@@ -599,7 +630,7 @@ def do_comparison_graph(entries,
     subplot_pad_height = 0.32
     subplot_pad_fudge = 0.01
     main_pad, subplot_pad = None, None
-    if do_fit_graph_ratio or do_ratio_plots:
+    if do_subplot:
         main_pad = ROOT.TPad("main_pad", "", 0, subplot_pad_height+subplot_pad_fudge, 1, 1)
         ROOT.SetOwnership(main_pad, False)
         main_pad.SetTicks(1, 1)
@@ -636,7 +667,7 @@ def do_comparison_graph(entries,
 
     mg.Draw(draw_opt)
 
-    if do_fit_graph_ratio or do_ratio_plots:
+    if do_subplot:
         rescale_plot_labels(mg, 1-subplot_pad_height)
         # global FONT_SIZE
         # FONT_SIZE = FONT_SIZE / 1-subplot_pad_height
@@ -738,7 +769,7 @@ def do_comparison_graph(entries,
         for ele in other_elements:
             ele.Draw()
 
-    if do_fit_graph_ratio or do_ratio_plots:
+    if do_subplot:
         # Remove x axis labels & title
         mg.GetHistogram().GetXaxis().SetLabelSize(0)
         mg.GetXaxis().SetLabelSize(0)
@@ -752,6 +783,8 @@ def do_comparison_graph(entries,
         mg_sub = ROOT.TMultiGraph()
         if do_fit_graph_ratio:
             mg_sub.SetTitle(";".join(["", xtitle, "Fit / graph"]))
+        elif do_fit_graph_pull:
+            mg_sub.SetTitle(";".join(["", xtitle, "Pull #left[#frac{Fit-graph}{#sigma}#right]"]))  # don't use () as it renders badly
         elif do_ratio_plots:
             mg_sub.SetTitle(";".join(["", xtitle, ratio_title]))
         ROOT.SetOwnership(mg_sub, False)
@@ -761,7 +794,7 @@ def do_comparison_graph(entries,
         if ratio_draw_opt:
             mg_sub.Draw(ratio_draw_opt)
         else:
-            if do_fit_graph_ratio:
+            if do_fit_graph_ratio or do_fit_graph_pull:
                 mg_sub.Draw("ALP")
             else:
                 mg_sub.Draw("AP")
@@ -773,6 +806,9 @@ def do_comparison_graph(entries,
         if do_fit_graph_ratio:
             mg_sub.GetHistogram().SetMaximum(1.02)
             mg_sub.GetHistogram().SetMinimum(0.98)
+        elif do_fit_graph_pull:
+            mg_sub.GetHistogram().SetMaximum(3)
+            mg_sub.GetHistogram().SetMinimum(-3)
         else:
             mg_sub.GetHistogram().SetMaximum(1.04)
             mg_sub.GetHistogram().SetMinimum(0.96)
@@ -790,12 +826,20 @@ def do_comparison_graph(entries,
 
         # Draw a line at 1
         y_min, y_max = mg_sub.GetYaxis().GetXmin(), mg_sub.GetYaxis().GetXmax()
+        # if do_ratio_plots or do_fit_graph_ratio:
+
         if y_min < 1 and y_max > 1:
             x_min, x_max = mg_sub.GetXaxis().GetXmin(), mg_sub.GetXaxis().GetXmax()
             line = ROOT.TLine(x_min, 1, x_max, 1)
             line.SetLineStyle(2)
             line.SetLineColor(ROOT.kGray+2)
             line.Draw()
+
+            if do_fit_graph_pull:
+                line2 = line.Clone()
+                line2.SetY1(-1)                
+                line2.SetY2(-1)
+                line2.Draw()
 
         if vertical_line:
             y_min, y_max = mg_sub.GetHistogram().GetMinimum(), mg_sub.GetHistogram().GetMaximum()
