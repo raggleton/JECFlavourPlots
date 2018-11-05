@@ -71,13 +71,13 @@ def main(in_args):
 
     lw = 1
     entry_dicts = [
-        {"flav": "AbsCorVsJetPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.4},
-        {"flav": "ud_AbsCorVsJetPt", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 1.4},
-        {"flav": "g_AbsCorVsJetPt", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 2.},
-        {"flav": "s_AbsCorVsJetPt", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.6},
-        {"flav": "c_AbsCorVsJetPt", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.6},
-        {"flav": "b_AbsCorVsJetPt", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.8},
-    ][1:]
+        # {"flav": "AbsCorVsJetPt", "label": "All", "colour": ROOT.kBlack, "marker_style": ROOT.kFullCircle, "line_style": 2, "line_width": lw, "marker_size": 1.2},
+        {"flav": "ud_AbsCorVsJetPt", "label": "ud", "colour": ROOT.kRed, "marker_style": ROOT.kFullSquare, "line_style": 1, "line_width": lw, "marker_size": 0.8},
+        {"flav": "g_AbsCorVsJetPt", "label": "g", "colour": ROOT.kAzure+1, "marker_style": 29, "line_style": 1, "line_width": lw, "marker_size": 1.},
+        {"flav": "s_AbsCorVsJetPt", "label": "s", "colour": ROOT.kBlue, "marker_style": ROOT.kFullTriangleUp, "line_style": 1, "line_width": lw, "marker_size": 1.},
+        {"flav": "c_AbsCorVsJetPt", "label": "c", "colour": ROOT.kGreen+2, "marker_style": ROOT.kFullTriangleDown, "line_style": 1, "line_width": lw, "marker_size": 1.},
+        {"flav": "b_AbsCorVsJetPt", "label": "b", "colour": ROOT.kOrange-3, "marker_style": ROOT.kFullDiamond, "line_style": 1, "line_width": lw, "marker_size": 1.2},
+    ][:]
 
     sample_str = "QCD MC"
 
@@ -175,6 +175,7 @@ def main(in_args):
                         # chi2entries.append(chi2entry)
                         if entry['graph'].GetListOfFunctions().GetSize() > 0:
                             fit = entry['graph'].GetListOfFunctions().Last()
+                            # chi2 = entry['graph'].Chisquare(fit)  # can't do this as we don't want to use the plateau in chi2
                             chi2 = fit.GetChisquare()
                             ndof = fit.GetNDF()
                             fit_chi2entries[fdict['label']][label].append(chi2 / ndof)
@@ -192,9 +193,9 @@ def main(in_args):
                                        output_filename=output_filename,
                                        vertical_line=args.vertLine,
                                        do_fit_graph_ratio=True)
+                outputs.append(output_filename)
 
                 output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_pyHerwigRatio.pdf" % (eta_bin, fdict['label'])))
-                outputs.append(output_filename)
                 cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
                                        xtitle="p_{T}^{Reco} [GeV]",
                                        ytitle="Correction",
@@ -262,6 +263,7 @@ def main(in_args):
                         entries[-1]['ratio'] = entries[-2]['graph']
 
             title = eta_bin.replace("to", " < #eta < ").replace("JetEta", "")
+            output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_funcGraphRatio.pdf" % (eta_bin)))
             cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
                                    xtitle="p_{T}^{Reco} [GeV]",
                                    ytitle="Correction",
@@ -269,9 +271,10 @@ def main(in_args):
                                    xlimits=(X_MIN, X_MAX),
                                    y_limit_protection=(Y_MIN, Y_MAX), ylimits=ylimits,
                                    other_elements=other_elements,
-                                   output_filename=os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_funcGraphRatio.pdf" % (eta_bin)),
+                                   output_filename=output_filename,
                                    vertical_line=args.vertLine,
                                    do_fit_graph_ratio=True)
+            outputs.insert(0, output_filename)
 
             output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_allFlavs_pyHerwigRatio.pdf" % (eta_bin)))
             cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
@@ -284,8 +287,9 @@ def main(in_args):
                                    output_filename=output_filename,
                                    vertical_line=args.vertLine,
                                    draw_fits=True,
-                                   do_ratio_plots=True, ratio_title=py_herwig_ratio_title)
-            outputs.insert(0, output_filename)
+                                   do_ratio_plots=True, 
+                                   ratio_title=py_herwig_ratio_title)
+            
             # make 1 slide with all flavours for this eta bin
             if do_slides:
                 plots = ",\n".join(['            ["{{{fname}}}{ext}", "{title}"]'.format(
@@ -297,8 +301,9 @@ def main(in_args):
     "title": "${thistitle}$",
     "plots": [
 {plots}
-    ]
-}}""".format(thistitle=title.replace("#", r"\\"), plots=plots)
+        ]
+    }}""".format(thistitle=title.replace("#", r"\\"), plots=plots)
+                
                 slides_contents.append(text)
 
 
@@ -336,7 +341,9 @@ def main(in_args):
                         entry["marker_style"] = cu.get_open_marker(entry['marker_style'])
                     entries.append(entry)
                 all_ymax = max(all_ymax, ymax)
-                ylimits = (0, ymax*1.3)
+                ylimits = [0, ymax*1.3]
+                # if ylimits[1] > 20:
+                #     ylimits[1] = 20
                 output_filename = os.path.abspath(os.path.join(plot_dir, "compare_chi2_vs_eta_%s.pdf" % (fdict['label'])))
                 cu.do_comparison_graph(entries, title="", sample_title=sample_str,
                                        xtitle="#eta^{Reco}", ytitle="#chi^{2} / N_{dof}",
@@ -347,7 +354,9 @@ def main(in_args):
                 all_entries.extend(entries)
 
             # do a single plot with all flavs
-            ylimits = (0, all_ymax*1.3)
+            ylimits = [0, all_ymax*1.3]
+            if ylimits[1] > 20:
+                ylimits[1] = 20
             output_filename = os.path.abspath(os.path.join(plot_dir, "compare_chi2_vs_eta_allFlavs.pdf"))
             cu.do_comparison_graph(all_entries, title="", sample_title=sample_str,
                                    xtitle="#eta^{Reco}", ytitle="#chi^{2} / N_{dof}",
