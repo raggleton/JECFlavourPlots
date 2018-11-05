@@ -209,6 +209,20 @@ def main(in_args):
                                        draw_fits=True,
                                        do_ratio_plots=True,
                                        ratio_title=py_herwig_ratio_title)
+ 
+                output_filename = os.path.abspath(os.path.join(plot_dir, "compare_corr_vs_pt_%s_%s_pull.pdf" % (eta_bin, fdict['label'])))
+                cu.do_comparison_graph(entries, title=title, sample_title=sample_str,
+                                       xtitle="p_{T}^{Reco} [GeV]",
+                                       ytitle="Correction",
+                                       logx=True,
+                                       xlimits=(X_MIN, X_MAX),
+                                       # xlimits=None,
+                                       y_limit_protection=(Y_MIN, Y_MAX),
+                                       ylimits=ylimits,
+                                       other_elements=other_elements,
+                                       output_filename=output_filename,
+                                       vertical_line=args.vertLine,
+                                       do_fit_graph_pull=True)
                 # if args.chi2:
                 #     cu.do_comparison_graph(chi2entries, title=title, sample_title=sample_str,
                 #                         xtitle="p_{T}^{Reco} [GeV]", ytitle="#chi^{2}/N_{DoF}", logx=True,
