@@ -12,6 +12,7 @@ from array import array
 import re
 from math import fabs, log10, frexp, hypot
 from copy import deepcopy
+import bisect
 
 
 from MyStyle import My_Style
@@ -852,3 +853,23 @@ def do_comparison_graph(entries,
         rescale_plot_labels(mg_sub, subplot_pad_height)
 
     canv.SaveAs(output_filename)
+
+
+
+def get_projection_plot(h2d, start_val, end_val, cut_axis='y'):
+    cut_axis = cut_axis.lower()
+    if cut_axis == "y":
+        axis = h2d.GetYaxis()
+    elif cut_axis == "x":
+        axis = h2d.GetXaxis()
+    else:
+        raise RuntimeError("cut_axis must be x or y")
+    bin_edges = [axis.GetBinLowEdge(i) for i in range(1, axis.GetNbins()+2)]
+    bin_start = bisect.bisect_right(bin_edges, start_val)
+    bin_end = bisect.bisect_right(bin_edges, end_val)
+    if cut_axis == "y":
+        hproj = h2d.ProjectionX(ROOT.TUUID().AsString(), bin_start, bin_end, "eo")
+        return hproj
+    elif cut_axis == "x":
+        hproj = h2d.ProjectionY(ROOT.TUUID().AsString(), bin_start, bin_end, "eo")
+        return hproj
