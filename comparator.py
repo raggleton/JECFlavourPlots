@@ -146,7 +146,7 @@ class Contribution(object):
         self.obj.SetMarkerStyle(self.marker_style)
 
         # Match fit to hist styles
-        if self.obj.GetListOfFunctions().GetSize() == 1:
+        if not isinstance(self.obj, ROOT.TF1) and self.obj.GetListOfFunctions().GetSize() == 1:
             func = self.obj.GetListOfFunctions().At(0)
             func.SetLineStyle(line_style)
             func.SetLineWidth(line_width)
@@ -247,9 +247,9 @@ class Plot(object):
             self.container = ROOT.THStack(ROOT.TUUID().AsString(), "")
             self.subplot_container = ROOT.THStack(ROOT.TUUID().AsString(), "")
 
-        if self.container:
+        if self.container and not isinstance(self.container, MultiFunc):
             ROOT.SetOwnership(self.container, False)
-        if self.subplot_container:
+        if self.subplot_container and not isinstance(self.container, MultiFunc):
             ROOT.SetOwnership(self.subplot_container, False)
 
 
@@ -387,7 +387,7 @@ class Plot(object):
         self.legend.SetFillStyle(0)
 
     def _rescale_plot_labels(self, container, factor):
-        # What a pile of wank, why does ROOT scale all these sizes?
+        # Urgh, why does ROOT scale all these sizes?
         container.GetXaxis().SetLabelSize(container.GetXaxis().GetLabelSize()/factor)
         container.GetXaxis().SetTitleSize(container.GetXaxis().GetTitleSize()/factor)
         container.GetXaxis().SetTitleOffset(container.GetXaxis().GetTitleOffset()*factor)  # doesn't seem to work?
