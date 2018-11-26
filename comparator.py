@@ -196,6 +196,7 @@ class Plot(object):
         subplot : object, None
             If not None, draws a plot below the main hist with
             all plots compared to the object provided as the argument here.
+            If you want the subplot for each contrib, this must be None.
         subplot_type : str
             The method of comparison in the subplot: ratio, difference, or ddelta/dlambda
         subplot_limits : (float, float), optional
@@ -293,6 +294,7 @@ class Plot(object):
             # Add contributions for the subplot
             if self.subplot_type:
                 if self.subplot:
+                    print(self.subplot)
                     # Use one reference object for all entries
                     subplot_obj = self.subplot.obj.Clone()
                     if contrib != self.subplot:
@@ -413,7 +415,7 @@ class Plot(object):
             else:
                 self.canvas = ROOT.TCanvas(ROOT.TUUID().AsString(), "", *self.default_canvas_size)
                 self.canvas.SetTicks(1, 1)
-                right_margin = 0.03
+                # right_margin = 0.03
                 top_margin = 0.1
                 if self.subplot_type:
                     self.main_pad = ROOT.TPad("main_pad", "", 0, self.subplot_pad_height+self.subplot_pad_fudge, 1, 1)
@@ -421,7 +423,7 @@ class Plot(object):
                     self.main_pad.SetTicks(1, 1)
                     self.main_pad.SetBottomMargin(2*self.subplot_pad_fudge)
                     self.main_pad.SetTopMargin(top_margin / (1-self.subplot_pad_height))
-                    self.main_pad.SetRightMargin(right_margin / (1-self.subplot_pad_height))
+                    # self.main_pad.SetRightMargin(right_margin / (1-self.subplot_pad_height))
                     self.canvas.cd()
                     self.main_pad.Draw()
                     self.subplot_pad = ROOT.TPad("subplot_pad", "", 0, 0, 1, self.subplot_pad_height-self.subplot_pad_fudge)
@@ -567,12 +569,14 @@ class Plot(object):
                 else:
                     # Make sure that the upper limit is the largest bin of the contributions,
                     # so long as it is within 1.5 and some upper limit
-                    harrays = [cu.th1_to_arr(h)[0] for h in self.subplot_contributions]
+                    harrays = [cu.th1_to_arr(h) for h in self.subplot_contributions]
                     try:
                         bin_maxs = [np.max(arr[np.nonzero(arr)]) for arr in harrays]
                     except ValueError:
                         bin_maxs = [0]
-                    self.subplot_container.SetMaximum(min(2.5, max(1.5, 1.*max(bin_maxs))))
+                    except IndexError:
+                        bin_maxs = [0]
+                    self.subplot_container.SetMaximum(min(3, max(1.5, 1.2*max(bin_maxs))))
 
                     # Make sure the lower limit is the smallest bin of the contributions,
                     # so long as it is within 0 and 0.5
@@ -580,7 +584,9 @@ class Plot(object):
                         bin_mins = [np.min(arr[np.nonzero(arr)]) for arr in harrays]
                     except ValueError:
                         bin_mins = [0]
-                    self.subplot_container.SetMinimum(min(0.5, min(bin_mins)))
+                    except IndexError:
+                        bin_mins = [1]
+                    self.subplot_container.SetMinimum(min(0.5, 0.9*min(bin_mins)))
 
                 xax = modifier.GetXaxis()
                 self.subplot_line = ROOT.TLine(xax.GetXmin(), 1., xax.GetXmax(), 1.)
