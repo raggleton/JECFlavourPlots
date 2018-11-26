@@ -873,3 +873,6 @@ def get_projection_plot(h2d, start_val, end_val, cut_axis='y'):
     elif cut_axis == "x":
         hproj = h2d.ProjectionY(ROOT.TUUID().AsString(), bin_start, bin_end, "eo")
         return hproj
+
+def get_unique_str():
+    return ROOT.TUUID().AsString()
