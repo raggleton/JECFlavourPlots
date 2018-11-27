@@ -38,63 +38,65 @@ PDGID_STR = {
     14: "#nu_{#mu}",
     15: "#tau",
     16: "#nu_{#tau}",
-21: "g",
-22: "#gamma",
-111: "#pi^{0}",
-113: "#rho^{0}",
-213: "#rho^{+}",
-221: "#eta",
-223: "#omega",
-310: "K^{0}_{S}",
-311: "K^{0}",
-313: "K^{*0}",
-323: "K^{*+}",
-331: "#eta^{'}",
-411: "D^{+}",
-413: "D^{*+}",
-415: "D_{2}^{*+}",
-421: "D^{0}",
-423: "D^{*0}",
-425: "D_{2}^{*0}",
-431: "D_{s}^{+}",
-433: "D_{s}^{*+}",
-435: "D_{s2}^{*+}",
-441: "#eta_{C}",
-443: "J/#psi",
-445: "#chi_{c2}",
-2212: "p",
-3212: "#Sigma^{0}",
-4112: "#Sigma_{c}^{0}",
-4114: "#Sigma_{c}^{*0}",
-4122: "#Lambda_{c}^{+}",
-4124: "4124",
-4132: "#Xi_{c}^{0}",
-4212: "#Sigma_{c}^{+}",
-4214: "#Sigma_{c}^{*+}",
-4222: "#Sigma_{c}^{++}",
-4224: "#Sigma_{c}^{*++}",
-4232: "#Xi_{c}^{+}",
-4312: "#Xi_{c}^{'0}",
-4314: "#Xi_{c}^{*0}",
-4322: "#Xi_{c}^{'+}",
-4324: "#Xi_{c}^{*0}",
-4332: "#Xi_{c}^{*+}",
-4334: "#Omega_{c}^{*0}",
-511: "B^{0}",
-521: "B^{+}",
-531: "B_{s}^{0}",
-541: "B_{c}^{+}",
-551: "#eta_{b}",
-553: "#Upsilon",
-555: "#chi_{b2}",
-5122: "#Lambda_{b}^{0}",
-5132: "#Xi_{b}^{-}",
-5232: "#Xi_{b}^{0}",
-5332: "#Omega_{b}^{-}",
+    21: "g",
+    22: "#gamma",
+    111: "#pi^{0}",
+    113: "#rho^{0}",
+    213: "#rho^{+}",
+    221: "#eta",
+    223: "#omega",
+    310: "K^{0}_{S}",
+    311: "K^{0}",
+    313: "K^{*0}",
+    323: "K^{*+}",
+    331: "#eta^{'}",
+    333: "#phi",
+    411: "D^{+}",
+    413: "D^{*+}",
+    415: "D_{2}^{*+}",
+    421: "D^{0}",
+    423: "D^{*0}",
+    425: "D_{2}^{*0}",
+    431: "D_{s}^{+}",
+    433: "D_{s}^{*+}",
+    435: "D_{s2}^{*+}",
+    441: "#eta_{C}",
+    443: "J/#psi",
+    445: "#chi_{c2}",
+    2212: "p",
+    2214: "#Delta^{+}",
+    3212: "#Sigma^{0}",
+    4112: "#Sigma_{c}^{0}",
+    4114: "#Sigma_{c}^{*0}",
+    4122: "#Lambda_{c}^{+}",
+    4124: "4124",
+    4132: "#Xi_{c}^{0}",
+    4212: "#Sigma_{c}^{+}",
+    4214: "#Sigma_{c}^{*+}",
+    4222: "#Sigma_{c}^{++}",
+    4224: "#Sigma_{c}^{*++}",
+    4232: "#Xi_{c}^{+}",
+    4312: "#Xi_{c}^{'0}",
+    4314: "#Xi_{c}^{*0}",
+    4322: "#Xi_{c}^{'+}",
+    4324: "#Xi_{c}^{*0}",
+    4332: "#Xi_{c}^{*+}",
+    4334: "#Omega_{c}^{*0}",
+    511: "B^{0}",
+    521: "B^{+}",
+    531: "B_{s}^{0}",
+    541: "B_{c}^{+}",
+    551: "#eta_{b}",
+    553: "#Upsilon",
+    555: "#chi_{b2}",
+    5122: "#Lambda_{b}^{0}",
+    5132: "#Xi_{b}^{-}",
+    5232: "#Xi_{b}^{0}",
+    5332: "#Omega_{b}^{-}",
 }
 
 
-def make_plot(entries, output_filename, pt_bin, plot_kwargs, is_pdgid_plot=False):
+def make_plot(entries, output_filename, pt_bin, plot_kwargs, is_pdgid_plot=False, logy=False):
     start_val, end_val = 750, 1000
     pt_bin = pt_bin.lower()
     if pt_bin == "low":
@@ -160,6 +162,8 @@ def make_plot(entries, output_filename, pt_bin, plot_kwargs, is_pdgid_plot=False
             conts[ind].subplot = conts[ent['subplot_ind']].obj
 
     plot = Plot(conts, what="hist", ytitle="p.d.f.", has_data=False, **plot_kwargs)
+    if is_pdgid_plot and conts[0].obj.GetNbinsX() > 10:
+        plot.default_canvas_size = (800, 800)
     plot.legend.SetX1(0.5)
     plot.legend.SetX2(0.97)
     if len(entries) > 4:
@@ -168,7 +172,9 @@ def make_plot(entries, output_filename, pt_bin, plot_kwargs, is_pdgid_plot=False
     else:
         plot.legend.SetY1(0.75)
     plot.legend.SetY2(0.9)
-    plot.plot("HIST NOSTACK")
+    plot.plot("HISTE NOSTACK")
+    if logy:
+        plot.set_logy()
     plot.save(output_filename)
 
 
@@ -178,6 +184,8 @@ if __name__ == "__main__":
     pythia_lowpt_file = cu.open_root_file("BHadron_ak4pfchsl1_pythia_miniaod_lowPt.root")
     herwig_highpt_file = cu.open_root_file("BHadron_ak4pfchsl1_herwig_miniaod_all_highPt.root")
     herwig_lowpt_file = cu.open_root_file("BHadron_ak4pfchsl1_herwig_miniaod_all_lowPt.root")
+    herwig_highpt_file = cu.open_root_file("BHadron_ak4pfchsl1_herwig_miniaod_ext1234_highPt.root")
+    herwig_lowpt_file = cu.open_root_file("BHadron_ak4pfchsl1_herwig_miniaod_ext1234_lowPt.root")
 
     hist_dicts = [
         {
@@ -194,31 +202,45 @@ if __name__ == "__main__":
         },
         {
             "histname": "JtcefVsRefPt", 
-            "title": "CEF"
+            "title": "Electron EF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JtchfVsRefPt", 
-            "title": "CHF"
+            "title": "Charged Hadron EF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JthfefVsRefPt", 
-            "title": "HFEF"
+            "title": "HFEF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JthfhfVsRefPt", 
-            "title": "HFHF"
+            "title": "HFHF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JtmufVsRefPt", 
-            "title": "MUEF"
+            "title": "Muon EF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JtnefVsRefPt", 
-            "title": "NEF"
+            "title": "Photon EF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "JtnhfVsRefPt", 
-            "title": "NHEF"
+            "title": "Neutral Hadron EF",
+            "rebin": 5,
+            "logy": True,
         },
         {
             "histname": "RefHadronDecayPdgidVsRefPt_FirstHadron", 
@@ -259,47 +281,47 @@ if __name__ == "__main__":
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_FirstHadron", 
             "title": "Hadron decay p_{T}/p_{T}^{B} [1st B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_FirstHadron_Lepton", 
-            "title": "Hadron decay p_{T}^{#ell}/p_{T}^{B} [1st B]",
-            "rebin": 3,
+            "title": "Hadron decay p_{T}^{l}/p_{T}^{B} [1st B]",
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_FirstHadron_Neutrino", 
             "title": "Hadron decay p_{T}^{#nu}/p_{T}^{B} [1st B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SecondHadron", 
             "title": "Hadron decay p_{T}/p_{T}^{B} [2nd B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SecondHadron_Lepton", 
-            "title": "Hadron decay p_{T}^{#ell}/p_{T}^{B} [2nd B]",
-            "rebin": 3,
+            "title": "Hadron decay p_{T}^{l}/p_{T}^{B} [2nd B]",
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SecondHadron_Neutrino", 
             "title": "Hadron decay p_{T}^{#nu}/p_{T}^{B} [2nd B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SingleHadron", 
             "title": "Hadron decay p_{T}/p_{T}^{B} [single B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SingleHadron_Lepton", 
-            "title": "Hadron decay p_{T}^{#ell}/p_{T}^{B} [single B]",
-            "rebin": 3,
+            "title": "Hadron decay p_{T}^{l}/p_{T}^{B} [single B]",
+            "rebin": 5,
         },
         {
             "histname": "RefHadronDecayPtRatioVsRefPt_SingleHadron_Neutrino", 
             "title": "Hadron decay p_{T}^{#nu}/p_{T}^{B} [single B]",
-            "rebin": 3,
+            "rebin": 5,
         },
         {
             "histname": "RefHadronNdecayVsRefPt_FirstHadron", 
@@ -389,11 +411,30 @@ if __name__ == "__main__":
         },
     ]
     
+    hist_dicts = [
+        {
+            "histname": "RefHadronDecayPtRatioJetVsRefPt_SingleHadron", 
+            "title": "Hadron decay p_{T}/p_{T}^{GenJet} [single B]",
+            "rebin": 5,
+        },
+        {
+            "histname": "RefHadronDecayPtRatioJetVsRefPt_SingleHadron_Lepton", 
+            "title": "Hadron decay p_{T}^{l}/p_{T}^{GenJet} [single B]",
+            "rebin": 5,
+        },
+        {
+            "histname": "RefHadronDecayPtRatioJetVsRefPt_SingleHadron_Neutrino", 
+            "title": "Hadron decay p_{T}^{#nu}/p_{T}^{GenJet} [single B]",
+            "rebin": 5,
+        },
+    ]
+
     high_pt_setup = [pythia_highpt_file, herwig_highpt_file, True]
     low_pt_setup = [pythia_lowpt_file, herwig_lowpt_file, False]
     
     for hdict in hist_dicts:
-
+        # if 'pdgid' not in hdict['histname'].lower():
+        #     continue
         for pythia_file, herwig_file, is_highPt in [high_pt_setup, low_pt_setup]:
 
             pt_bin_str = "high" if is_highPt else "low"
@@ -424,5 +465,5 @@ if __name__ == "__main__":
             )
             make_plot(entries_dicts, is_pdgid_plot="pdgid" in hdict['histname'].lower(),
                       output_filename=hdict['histname']+"_%sPt.pdf" % pt_bin_str, 
-                      pt_bin=pt_bin_str, plot_kwargs=plot_kwargs)
+                      pt_bin=pt_bin_str, logy=hdict.get('logy', False), plot_kwargs=plot_kwargs)
 
