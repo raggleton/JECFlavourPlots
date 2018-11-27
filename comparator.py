@@ -598,7 +598,12 @@ class Plot(object):
                 self.subplot_line.Draw()
 
             self._rescale_plot_labels(self.subplot_container, self.subplot_pad_height)
-            self.subplot_container.GetXaxis().SetTitleOffset(self.subplot_container.GetXaxis().GetTitleOffset()*3)
+            xax = self.subplot_container.GetXaxis()
+            xax.SetTitleOffset(self.subplot_container.GetXaxis().GetTitleOffset()*3)
+            if xax.IsAlphanumeric():
+                if xax.GetNbins() > 10:
+                    xax.LabelsOption("v")
+                    xax.SetLabelSize(0.08)
             self.subplot_container.GetYaxis().SetNdivisions(505)
 
             self.subplot_pad.Update()
