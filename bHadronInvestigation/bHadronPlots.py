@@ -128,8 +128,8 @@ PDGID_STR = {
 COLOURS_RED = [ROOT.kRed, ROOT.kRed+2, ROOT.kRed-9, ROOT.kOrange, ROOT.kOrange-3, ROOT.kOrange-6, ROOT.kOrange+7, ROOT.kOrange-4, ROOT.kPink, ROOT.kPink+6]
 COLOURS_BLUE = [ROOT.kBlue, ROOT.kBlue-9, ROOT.kTeal-3, ROOT.kAzure-3, ROOT.kAzure+6, ROOT.kTeal-3, ROOT.kTeal-6, ROOT.kTeal-8, ROOT.kGreen+1, ROOT.kGreen+3]
 
-def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=None, is_pdgid_plot=False, logy=False):
-    """Make a plot from entries
+def make_plot(entries, output_filename, plot_kwargs, projection_axis='x', start_val=None, end_val=None, is_pdgid_plot=False, logy=False):
+    """Make a plot from entries. Each one is a projection of a 2D plot.
     
     Parameters
     ----------
@@ -139,6 +139,8 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
         Filename for output plot
     plot_kwargs : dict
         kwargs for Plot constructor
+    projection_axis : str, optional
+        Axis to use for projection. If None, must be specified in entry.
     start_val : None, optional
         If set, use this to make 1D projection plot. Cuts on X axis. 
         Otherwise should be set per entry.
@@ -149,6 +151,11 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
         True if for PDGIDs (sets special size & binning)
     logy : bool, optional
         Description
+    
+    Raises
+    ------
+    RuntimeError
+        Description
     """
     conts = []
     if not is_pdgid_plot:
@@ -156,9 +163,9 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
             h2d = cu.get_from_tfile(ent['file'], "ak4pfchsl1/"+ent['histname']+"_JetEta0to0.783")
             start_val = ent.get('start_val', start_val)
             end_val = ent.get('end_val', end_val)
-            if not start_val or not end_val:
+            if start_val is None or end_val is None:
                 raise RuntimeError("Expected start_val and end_val")
-            hist = cu.get_projection_plot(h2d, start_val, end_val, 'x')
+            hist = cu.get_projection_plot(h2d, start_val, end_val, ent.get('projection_axis', projection_axis))
             if hist.GetEntries() == 0:
                 ent['used'] = False
                 continue
@@ -170,6 +177,8 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
             ent['used'] = True
 
     else:
+        # For PDGID plots, we want a different canvas aspect ratio, and only to include bins
+        # with non-0 contents. We also relabel bins.
         custom_bins = []
         for ent in entries:
             h2d = cu.get_from_tfile(ent['file'], "ak4pfchsl1/"+ent['histname']+"_JetEta0to0.783")
@@ -177,7 +186,7 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
             end_val = ent.get('end_val', end_val)
             if not start_val or not end_val:
                 raise RuntimeError("Expected start_val and end_val")
-            hist = cu.get_projection_plot(h2d, start_val, end_val, 'x')
+            hist = cu.get_projection_plot(h2d, start_val, end_val, ent.get('projection_axis', projection_axis))
             ax = hist.GetXaxis()
             bins = dict()
             for i in range(1, hist.GetNbinsX()+1):
@@ -226,6 +235,8 @@ def make_plot(entries, output_filename, plot_kwargs, start_val=None, end_val=Non
     plot = Plot(conts, what="hist", ytitle="p.d.f.", has_data=False, **plot_kwargs)
     if is_pdgid_plot and conts[0].obj.GetNbinsX() > 10:
         plot.default_canvas_size = (800, 800)
+    else:
+        plot.default_canvas_size = (450, 600)
     plot.legend.SetX1(0.5)
     plot.legend.SetX2(0.97)
     if len(entries) > 4:
@@ -256,6 +267,13 @@ if __name__ == "__main__":
     herwig_highpt_file_aod = cu.open_root_file("BHadron_ak4pfchsl1_herwig_aod_all_highPt_%s.root" % (FLAV))
     herwig_lowpt_file_aod = cu.open_root_file("BHadron_ak4pfchsl1_herwig_aod_all_lowPt_%s.root" % (FLAV))
 
+
+    pythia_highpt_noL1_file = cu.open_root_file("BHadron_ak4pfchs_pythia_miniaod_highPt_noL1_%s.root" % (FLAV))
+    pythia_lowpt_noL1_file = cu.open_root_file("BHadron_ak4pfchs_pythia_miniaod_lowPt_noL1_%s.root" % (FLAV))
+    herwig_highpt_noL1_file = cu.open_root_file("BHadron_ak4pfchs_herwig_miniaod_all_highPt_noL1_%s.root" % (FLAV))
+    herwig_lowpt_noL1_file = cu.open_root_file("BHadron_ak4pfchs_herwig_miniaod_all_lowPt_noL1_%s_0.root" % (FLAV))
+
+
     hist_dicts = [
         {
             "histname": "NHadronsVsRefPt",
@@ -278,18 +296,6 @@ if __name__ == "__main__":
         {
             "histname": "JtchfVsRefPt",
             "title": "Charged Hadron EF",
-            "rebin": 4,
-            "logy": True,
-        },
-        {
-            "histname": "JthfefVsRefPt",
-            "title": "HFEF",
-            "rebin": 4,
-            "logy": True,
-        },
-        {
-            "histname": "JthfhfVsRefPt",
-            "title": "HFHF",
             "rebin": 4,
             "logy": True,
         },
@@ -320,6 +326,48 @@ if __name__ == "__main__":
         {
             "histname": "JtnmultVsRefPt",
             "title": "Neutral particle multiplicity",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefcefVsRefPt",
+            "title": "GenJet Electron EF",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefchfVsRefPt",
+            "title": "GenJet Charged Hadron EF",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefmufVsRefPt",
+            "title": "Muon GenJet EF",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefnefVsRefPt",
+            "title": "GenJet Photon EF",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefnhfVsRefPt",
+            "title": "GenJet Neutral Hadron EF",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefchmultVsRefPt",
+            "title": "GenJet Charged particle multiplicity",
+            "rebin": 4,
+            "logy": True,
+        },
+        {
+            "histname": "RefnmultVsRefPt",
+            "title": "GenJet Neutral particle multiplicity",
             "rebin": 4,
             "logy": True,
         },
@@ -457,37 +505,37 @@ if __name__ == "__main__":
         },
         {
             "histname": "RelRspVsRefPt_AtLeast2Hadron_HadDecay",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [2+ B hadrons, hadronic decay]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [2+ B hadrons, hadronic decay]",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt_AtLeast2Hadron",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [2+ B hadrons]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [2+ B hadrons]",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt_AtLeast2Hadron_SLDecay",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [2+ B hadrons, semileptonic decay]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [2+ B hadrons, semileptonic decay]",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt",
-            "title": "p_{T}^{reco}/p_{T}^{Gen}",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen}",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt_SingleHadron_HadDecay",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [1 B hadron, hadronic decay]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron, hadronic decay]",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt_SingleHadron",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [1 B hadron]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron]",
             "rebin": 5,
         },
         {
             "histname": "RelRspVsRefPt_SingleHadron_SLDecay",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [1 B hadron, semileptonic decay]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron, semileptonic decay]",
             "rebin": 5,
         },
         {
@@ -507,23 +555,35 @@ if __name__ == "__main__":
         },
         {
             "histname": "RelRspVsRefHadronPdgid_SingleHadron",
-            "title": "p_{T}^{reco}/p_{T}^{Gen} [1 B hadron]",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron]",
             "rebin": 5
         },
-    ][-1:]
+        {
+            "histname": "RelRspVsBJetRefInd_SingleHadron",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron]",
+            "rebin": 5
+        },
+        {
+            "histname": "RelRspVsRefHadronNDecay_SingleHadron",
+            "title": "p_{T}^{Reco}/p_{T}^{Gen} [1 B hadron]",
+            "rebin": 5
+        },
+    ][:]
 
 
 
-    is_miniaod = False
+    is_miniaod = True
     if is_miniaod:
         high_pt_setup = [pythia_highpt_file, herwig_highpt_file, True]
         low_pt_setup = [pythia_lowpt_file, herwig_lowpt_file, False]
+        # high_pt_setup = [pythia_highpt_noL1_file, herwig_highpt_noL1_file, True]
+        # low_pt_setup = [pythia_lowpt_noL1_file, herwig_lowpt_noL1_file, False]
     else:
         high_pt_setup = [pythia_highpt_file_aod, herwig_highpt_file_aod, True]
         low_pt_setup = [pythia_lowpt_file_aod, herwig_lowpt_file_aod, False]
 
     odir = "miniaod" if is_miniaod else "aod"
-
+    # odir = "miniaod_noL1"
 
     for hdict in hist_dicts:
         # if 'pdgid' not in hdict['histname'].lower():
@@ -605,6 +665,106 @@ if __name__ == "__main__":
                                     'rebin': hdict.get('rebin', None),
                                     'start_val': pdgid,
                                     'end_val': pdgid+1
+                                }
+                            ]
+                            entries_dicts.extend(this_entries_dicts)
+
+                        plot_kwargs = dict(
+                            title=None, xtitle=hdict['title'],
+                            xlim=(0.5, 1.5), ylim=None,
+                            subplot_type="ratio",
+                            subplot_title="Herwig++/Pythia8", subplot_limits=None
+                        )
+
+                        make_plot(entries_dicts, is_pdgid_plot=False,
+                                  output_filename=os.path.join(odir, hdict['histname']+"_%d_%sPt_%s.pdf" % (bind, pt_bin_str, FLAV)),
+                                  logy=hdict.get('logy', False), plot_kwargs=plot_kwargs)
+            
+            elif "RelRspVsBJetRefInd" in hdict['histname']:
+                # do separate high/low pt plots
+                for pythia_file, herwig_file, is_highPt in [high_pt_setup, low_pt_setup]:
+                    pt_bin_str = "high" if is_highPt else "low"
+
+                    # only do 2 pdgids per plot otherwise afwul
+                    all_ref_inds = [[0, 1], [2, 3]]
+                    for bind, ref_inds in enumerate(all_ref_inds):
+                        entries_dicts = []
+                        for ind, ref_ind in enumerate(ref_inds):
+                            this_entries_dicts = [
+                                {
+                                    "file": pythia_file,
+                                    "histname": hdict['histname'],
+                                    "label": "PYTHIA8 [genjet %d, %s p_{T}]" % (ref_ind, pt_bin_str),
+                                    # "colour": ROOT.kBlue+ind,
+                                    "colour": COLOURS_BLUE[2*bind + ind],
+                                    "line_style": 1,
+                                    'rebin': hdict.get('rebin', None),
+                                    'start_val': ref_ind,
+                                    'end_val': ref_ind+1
+                                },
+                                {
+                                    "file": herwig_file,
+                                    "histname": hdict['histname'],
+                                    "label": "HERWIG++ [genjet %d, %s p_{T}]" % (ref_ind, pt_bin_str),
+                                    # "colour": ROOT.kRed+ind,
+                                    "colour": COLOURS_RED[2*bind + ind],
+                                    "line_style": 1,
+                                    "line_width": 0,
+                                    'marker_style': 20+ind,
+                                    "subplot_ind": 2*ind,
+                                    'rebin': hdict.get('rebin', None),
+                                    'start_val': ref_ind,
+                                    'end_val': ref_ind+1
+                                }
+                            ]
+                            entries_dicts.extend(this_entries_dicts)
+
+                        plot_kwargs = dict(
+                            title=None, xtitle=hdict['title'],
+                            xlim=(0.5, 1.5), ylim=None,
+                            subplot_type="ratio",
+                            subplot_title="Herwig++/Pythia8", subplot_limits=None
+                        )
+
+                        make_plot(entries_dicts, is_pdgid_plot=False,
+                                  output_filename=os.path.join(odir, hdict['histname']+"_%d_%sPt_%s.pdf" % (bind, pt_bin_str, FLAV)),
+                                  logy=hdict.get('logy', False), plot_kwargs=plot_kwargs)
+            
+            elif "RelRspVsRefHadronNDecay" in hdict['histname']:
+                # do separate high/low pt plots
+                for pythia_file, herwig_file, is_highPt in [high_pt_setup, low_pt_setup]:
+                    pt_bin_str = "high" if is_highPt else "low"
+
+                    # only do 2 bins per plot otherwise awful
+                    all_ndecay_bins = [[1, 2], [3, 4]] if is_miniaod else [[2, 3], [4, 5]]
+                    for bind, ndecay_bins in enumerate(all_ndecay_bins):
+                        entries_dicts = []
+                        for ind, ndecay in enumerate(ndecay_bins):
+                            this_entries_dicts = [
+                                {
+                                    "file": pythia_file,
+                                    "histname": hdict['histname'],
+                                    "label": "PYTHIA8 [%d decay obj, %s p_{T}]" % (ndecay, pt_bin_str),
+                                    # "colour": ROOT.kBlue+ind,
+                                    "colour": COLOURS_BLUE[2*bind + ind],
+                                    "line_style": 1,
+                                    'rebin': hdict.get('rebin', None),
+                                    'start_val': ndecay,
+                                    'end_val': ndecay+1
+                                },
+                                {
+                                    "file": herwig_file,
+                                    "histname": hdict['histname'],
+                                    "label": "HERWIG++ [%d decay obj, %s p_{T}]" % (ndecay, pt_bin_str),
+                                    # "colour": ROOT.kRed+ind,
+                                    "colour": COLOURS_RED[2*bind + ind],
+                                    "line_style": 1,
+                                    "line_width": 0,
+                                    'marker_style': 20+ind,
+                                    "subplot_ind": 2*ind,
+                                    'rebin': hdict.get('rebin', None),
+                                    'start_val': ndecay,
+                                    'end_val': ndecay+1
                                 }
                             ]
                             entries_dicts.extend(this_entries_dicts)
