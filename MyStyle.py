@@ -60,11 +60,11 @@ My_Style.SetTitleBorderSize(0)
 # For the axis titles:
 My_Style.SetTitleColor(1, "XYZ")
 My_Style.SetTitleFont(42, "XYZ")
-My_Style.SetTitleSize(0.04, "XYZ")
+My_Style.SetTitleSize(0.03, "XYZ")
 # My_Style.SetTitleXSize(Float_t size = 0.02) # Another way to set the size?
 # My_Style.SetTitleYSize(Float_t size = 0.02)
-My_Style.SetTitleXOffset(1.25)
-My_Style.SetTitleYOffset(1.45)
+My_Style.SetTitleXOffset(1.35)
+My_Style.SetTitleYOffset(1.65)
 
 # For the statistics box:
 My_Style.SetOptFile(0)
