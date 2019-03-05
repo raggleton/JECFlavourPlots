@@ -353,12 +353,12 @@ class Plot(object):
             self.subplot_pad.SetLogx(int(state))
         if self.container:
             ax = self.container.GetXaxis()
-            if ax:
-                ax.SetMoreLogLabels()
+            # if ax:
+            #     ax.SetMoreLogLabels()
         if self.subplot_container:
             ax = self.subplot_container.GetXaxis()
-            if ax:
-                ax.SetMoreLogLabels()
+            # if ax:
+            #     ax.SetMoreLogLabels()
 
     def set_logy(self, state=True):
         self.main_pad.SetLogy(int(state))
@@ -366,8 +366,8 @@ class Plot(object):
         #     self.subplot_pad.SetLogy(int(state))
         if self.container:
             ax = self.container.GetYaxis()
-            if ax:
-                ax.SetMoreLogLabels()
+            # if ax:
+            #     ax.SetMoreLogLabels()
         # if self.subplot_container:
         #     ax = self.subplot_container.GetYaxis()
         #     if ax:
@@ -536,6 +536,7 @@ class Plot(object):
         text_latex.SetTextSize(0.03)
         start_y = 0.87
         diff_y = 0.07
+        diff_y = 0.03
         for ind, line in enumerate(self.title.split('\n')):
             text_latex.DrawLatex(0.18, start_y - (ind*diff_y), line)
 
