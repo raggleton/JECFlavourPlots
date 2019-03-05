@@ -513,10 +513,14 @@ class Plot(object):
             if self.has_data:
                 cms_latex.DrawLatex(0.14, latex_height, "#font[62]{CMS}#font[52]{ Preliminary}")
             else:
+                # cms_latex.DrawLatex(0.14, latex_height, "#font[62]{CMS}#font[52]{ Simulation}")
                 cms_latex.DrawLatex(0.14, latex_height, "#font[62]{CMS}#font[52]{ Preliminary Simulation}")
         # cms_latex.DrawLatex(0.14, latex_height, "#font[62]{CMS}")
         cms_latex.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)
-        cms_latex.DrawLatex(0.97, latex_height, " 35.9 fb^{-1} (13 TeV)")
+        if self.has_data:
+            cms_latex.DrawLatex(0.97, latex_height, " xxx fb^{-1} (13 TeV)")
+        else:
+            cms_latex.DrawLatex(0.97, latex_height, " (13 TeV)")
 
         # lumi_latex = ROOT.TLatex()
         # lumi_latex.SetTextAlign(ROOT.kHAlignRight + ROOT.kVAlignBottom)
