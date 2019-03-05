@@ -73,13 +73,13 @@ def do_1d_plot(entries, histname, output_filename, plot_kwargs, logx=False, logy
     # else:
     plot.default_canvas_size = (450, 600)
     plot.legend.SetX1(0.45)
-    plot.legend.SetX2(0.97)
+    plot.legend.SetX2(0.99)
     if len(entries) > 4:
         plot.legend.SetY1(0.7)
         plot.legend.SetNColumns(2)
     else:
         plot.legend.SetY1(0.75)
-    plot.legend.SetY2(0.87)
+    plot.legend.SetY2(0.88)
     plot.plot("HISTE NOSTACK")
     if logx:
         plot.set_logx()
@@ -121,8 +121,8 @@ def make_projection_plot(entries, output_filename, plot_kwargs, projection_axis=
     conts = []
     if not is_pdgid_plot:
         for ent in entries:
-            # h2d = cu.get_from_tfile(ent['file'], "ak4pfchs/"+ent.get('histname', histname)+"_JetEta0to0.783")
-            h2d = cu.get_from_tfile(ent['file'], "ak4pfchs/"+ent.get('histname', histname)+"_JetEta2.5to2.964")
+            h2d = cu.get_from_tfile(ent['file'], "ak4pfchs/"+ent.get('histname', histname))
+            # h2d = cu.get_from_tfile(ent['file'], "ak4pfchs/"+ent.get('histname', histname)+"_JetEta2.5to2.964")
             start_val = ent.get('start_val', start_val)
             end_val = ent.get('end_val', end_val)
             if start_val is None or end_val is None:
@@ -199,8 +199,8 @@ def make_projection_plot(entries, output_filename, plot_kwargs, projection_axis=
         plot.default_canvas_size = (800, 800)
     else:
         plot.default_canvas_size = (450, 600)
-    plot.legend.SetX1(0.5)
-    plot.legend.SetX2(0.97)
+    plot.legend.SetX1(0.45)
+    plot.legend.SetX2(0.99)
     if len(entries) > 4:
         plot.legend.SetX1(0.35)
         plot.legend.SetY1(0.75)
@@ -208,30 +208,33 @@ def make_projection_plot(entries, output_filename, plot_kwargs, projection_axis=
     else:
         plot.legend.SetY1(0.75)
     plot.legend.SetY2(0.9)
-    plot.plot("HISTE NOSTACK")
-    if logy:
-        plot.set_logy()
-    plot.save(output_filename)
+    try:
+        plot.plot("HISTE NOSTACK")
+        if logy:
+            plot.set_logy()
+        plot.save(output_filename)
+    except UnboundLocalError as e:
+        print(e)
 
 
 if __name__ == "__main__":
 
     # P8M1 2016 PYTHIA
-    PYTHIA_16_L1_DIR = "QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJet"
-    pythia_16_all_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    pythia_16_ud_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    pythia_16_g_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    pythia_16_s_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    pythia_16_c_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    pythia_16_b_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    # PYTHIA_16_L1_DIR = "QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJet"
+    # pythia_16_all_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
+    # pythia_16_ud_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
+    # pythia_16_g_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
+    # pythia_16_s_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
+    # pythia_16_c_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
+    # pythia_16_b_L1 = cu.open_root_file(os.path.join(PYTHIA_16_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
     
     PYTHIA_16_L1L2L3_DIR = "QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJetL2L3"
-    pythia_16_all_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    pythia_16_ud_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    pythia_16_g_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    pythia_16_s_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    pythia_16_c_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    pythia_16_b_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    pythia_16_all_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all.root"))
+    pythia_16_ud_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud.root"))
+    pythia_16_g_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g.root"))
+    pythia_16_s_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s.root"))
+    pythia_16_c_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c.root"))
+    pythia_16_b_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_16_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_P8M1_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b.root"))
 
     # pythia_16_all_NoPU = cu.open_root_file("QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJetL2L3/Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root")
     # pythia_16_ud_NoPU = cu.open_root_file("QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJetL2L3/Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root")
@@ -241,72 +244,72 @@ if __name__ == "__main__":
     # pythia_16_b_NoPU = cu.open_root_file("QCD_Pt_16_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJetL2L3/Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root")
 
     # CP5 2018 PYTHIA8
-    PYTHIA_18_L1_DIR = "QCD_Pt_18_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJet"
-    pythia_18_all_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    pythia_18_ud_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    pythia_18_g_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    pythia_18_s_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    pythia_18_c_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    pythia_18_b_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    # PYTHIA_18_L1_DIR = "QCD_Pt_18_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJet"
+    # pythia_18_all_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
+    # pythia_18_ud_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
+    # pythia_18_g_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
+    # pythia_18_s_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
+    # pythia_18_c_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
+    # pythia_18_b_L1 = cu.open_root_file(os.path.join(PYTHIA_18_L1_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
     
-    PYTHIA_18_L1L2L3_DIR = "QCD_Pt_18_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJetL2L3"
-    pythia_18_all_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    pythia_18_ud_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    pythia_18_g_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    pythia_18_s_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    pythia_18_c_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    pythia_18_b_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15toInf_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    PYTHIA_18_L1L2L3_DIR = "QCD_Pt_18_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V3_MC_L1FastJetL2L3"
+    pythia_18_all_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all.root"))
+    pythia_18_ud_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud.root"))
+    pythia_18_g_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g.root"))
+    pythia_18_s_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s.root"))
+    pythia_18_c_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c.root"))
+    pythia_18_b_L1L2L3 = cu.open_root_file(os.path.join(PYTHIA_18_L1L2L3_DIR, "Closure_ak4pfchs_QCD_Pt_15toInf_Py8_CP5_NoJEC_newFlav__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b.root"))
 
     # HERWIG++ 2016
-    HPP_L1_DIR = "QCD_Pt_Herwigpp_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJet"
-    herwigpp_all_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwigpp_ud_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwigpp_g_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwigpp_s_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwigpp_c_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwigpp_b_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    # HPP_L1_DIR = "QCD_Pt_Herwigpp_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJet"
+    # herwigpp_all_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
+    # herwigpp_ud_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
+    # herwigpp_g_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
+    # herwigpp_s_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
+    # herwigpp_c_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
+    # herwigpp_b_L1 = cu.open_root_file(os.path.join(HPP_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
 
     HPP_L1L2L3_DIR = "QCD_Pt_Herwigpp_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Summer16_07Aug2017_V20_MC_L1FastJetL2L3"
-    herwigpp_all_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwigpp_ud_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwigpp_g_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwigpp_s_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwigpp_c_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwigpp_b_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    herwigpp_all_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all_0.root"))
+    herwigpp_ud_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud_0.root"))
+    herwigpp_g_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g_0.root"))
+    herwigpp_s_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s_0.root"))
+    herwigpp_c_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c_0.root"))
+    herwigpp_b_L1L2L3 = cu.open_root_file(os.path.join(HPP_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_ext_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b_0.root"))
 
-    HPP_NoPU_DIR = "QCD_Pt_Herwigpp_NoJEC_NoPU_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k"
-    herwigpp_all_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwigpp_ud_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwigpp_g_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwigpp_s_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwigpp_c_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwigpp_b_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    HPP_NoPU_DIR = "QCD_Pt_Herwigpp_NoJEC_NoPU_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V3_MC_L1FastJetL2L3"
+    herwigpp_all_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all_0.root"))
+    herwigpp_ud_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud_0.root"))
+    herwigpp_g_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g_0.root"))
+    herwigpp_s_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s_0.root"))
+    herwigpp_c_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c_0.root"))
+    herwigpp_b_NoPU = cu.open_root_file(os.path.join(HPP_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwigpp_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b_0.root"))
 
 
     # 2018 HERWIG7
-    H7_L1_DIR = "QCD_Pt_Herwig7_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJet"
-    herwig7_all_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwig7_ud_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwig7_g_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwig7_s_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwig7_c_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwig7_b_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    # H7_L1_DIR = "QCD_Pt_Herwig7_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJet"
+    # herwig7_all_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
+    # herwig7_ud_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
+    # herwig7_g_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
+    # herwig7_s_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
+    # herwig7_c_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
+    # herwig7_b_L1 = cu.open_root_file(os.path.join(H7_L1_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
 
-    H7_L1L2L3_DIR = "QCD_Pt_Herwig7_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V1_MC_L1FastJetL2L3"
-    herwig7_all_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwig7_ud_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwig7_g_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwig7_s_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwig7_c_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwig7_b_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    H7_L1L2L3_DIR = "QCD_Pt_Herwig7_NoJEC_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V3_MC_L1FastJetL2L3"
+    herwig7_all_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all_0.root"))
+    herwig7_ud_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud_0.root"))
+    herwig7_g_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g_0.root"))
+    herwig7_s_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s_0.root"))
+    herwig7_c_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c_0.root"))
+    herwig7_b_L1L2L3 = cu.open_root_file(os.path.join(H7_L1L2L3_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b_0.root"))
 
-    H7_NoPU_DIR = "QCD_Pt_Herwig7_NoJEC_NoPU_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k"
-    herwig7_all_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_all.root"))
-    herwig7_ud_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_ud.root"))
-    herwig7_g_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_g.root"))
-    herwig7_s_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_s.root"))
-    herwig7_c_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_c.root"))
-    herwig7_b_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin10_nrefmax0_drmin0p8_ptGenOverlap10_b.root"))
+    H7_NoPU_DIR = "QCD_Pt_Herwig7_NoJEC_NoPU_relPtHatCut2p5_jtptmin4_HadronParton_nbinsrelrsp_10k_Autumn18_V3_MC_L1FastJetL2L3"
+    herwig7_all_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_all_0.root"))
+    herwig7_ud_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_ud_0.root"))
+    herwig7_g_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_g_0.root"))
+    herwig7_s_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_s_0.root"))
+    herwig7_c_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_c_0.root"))
+    herwig7_b_NoPU = cu.open_root_file(os.path.join(H7_NoPU_DIR, "Closure_ak4pfchsQCD_Pt_15to7000_Herwig7_NoJEC_NoPU_miniaod__relRspMax2_relPtHatMax2p5_ptGenMin30_nrefmax2_b_0.root"))
 
     OUTPUT_DIR = "h7_hpp_py8_studies"
     cu.check_dir_exists_create(OUTPUT_DIR)
@@ -316,6 +319,11 @@ if __name__ == "__main__":
     PY_16_COL = ROOT.kViolet-2
     PY_18_COL = ROOT.kMagenta+3
 
+    subplot_lim = [0, 2]
+
+    ######################
+    # PU & RHO
+    ######################
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1L2L3, 
     #                  "label": label("hpp", "all", "L1L2L3"),
@@ -334,7 +342,7 @@ if __name__ == "__main__":
     #             histname='nPV',
     #             output_filename=os.path.join(OUTPUT_DIR, "nPV_16vs18.pdf"),
     #             plot_kwargs=dict(xtitle="# PV", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1L2L3, 
@@ -354,7 +362,7 @@ if __name__ == "__main__":
     #             histname='nPU',
     #             output_filename=os.path.join(OUTPUT_DIR, "nPU_16vs18.pdf"),
     #             plot_kwargs=dict(xtitle="# Interactions", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1L2L3, 
@@ -374,7 +382,7 @@ if __name__ == "__main__":
     #             histname='nTrueInt',
     #             output_filename=os.path.join(OUTPUT_DIR, "nTrueInt_16vs18.pdf"),
     #             plot_kwargs=dict(xtitle="# True Interactions", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -395,7 +403,7 @@ if __name__ == "__main__":
     #             histname='rho',
     #             output_filename=os.path.join(OUTPUT_DIR, "rho_herwig_16vs18.pdf"),
     #             plot_kwargs=dict(xtitle="rho", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
     # do_1d_plot(entries=[
     #                 {"file": pythia_18_all_L1L2L3, 
@@ -415,31 +423,34 @@ if __name__ == "__main__":
     #             histname='rho',
     #             output_filename=os.path.join(OUTPUT_DIR, "rho_pyvsherwig_18.pdf"),
     #             plot_kwargs=dict(xtitle="rho", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7/PY8", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7/PY8", subplot_limits=subplot_lim)
     # )
 
-    pt_ylim = [1.E-13, 5.]
-
-    # do_1d_plot(entries=[
-    #                 {"file": herwigpp_all_L1L2L3, 
-    #                  "label": label("hpp", "all", "L1L2L3"),
-    #                  "colour": HPP_COL,
-    #                  'line_style': 1,
-    #                  'line_width': lw,
-    #                  }, 
-    #                 {"file": herwig7_all_L1, 
-    #                  "label": label("h7", "all", "L1L2L3"),
-    #                  "colour": H7_COL,
-    #                  'line_style': 1,
-    #                  'line_width': lw,
-    #                  "subplot_ind": 0,
-    #                  }
-    #             ],
-    #             histname='pThat', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "pthat_herwig_16vs18_L1L2L3.pdf"),
-    #             plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
-    # )
+    pt_ylim = [1.E-13, 10.]
+    
+    ######################
+    # pTHat
+    ######################
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, 
+                     "label": label("hpp", "all", "L1L2L3"),
+                     "colour": HPP_COL,
+                     'line_style': 1,
+                     'line_width': lw,
+                     }, 
+                    {"file": herwig7_all_L1L2L3, 
+                     "label": label("h7", "all", "L1L2L3"),
+                     "colour": H7_COL,
+                     'line_style': 1,
+                     'line_width': lw,
+                     "subplot_ind": 0,
+                     }
+                ],
+                histname='pThat', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "pthat_herwig_16vs18_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1, 
     #                  "label": label("hpp", "all", "L1"),
@@ -458,7 +469,7 @@ if __name__ == "__main__":
     #             histname='pThat', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "pthat_herwig_16vs18_L1.pdf"),
     #             plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_NoPU, 
@@ -478,28 +489,28 @@ if __name__ == "__main__":
     #             histname='pThat', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "pthat_herwig_16vs18_NoPU.pdf"),
     #             plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
-    # do_1d_plot(entries=[
-    #                 {"file": pythia_16_all_L1L2L3, 
-    #                  "label": label("py16", "all", "L1L2L3"),
-    #                  "colour": PY_16_COL,
-    #                  'line_style': 1,
-    #                  'line_width': lw,
-    #                  }, 
-    #                 {"file": pythia_18_all_L1L2L3, 
-    #                  "label": label("py18", "all", "L1L2L3"),
-    #                  "colour": PY_18_COL,
-    #                  'line_style': 1,
-    #                  'line_width': lw,
-    #                  "subplot_ind": 0,
-    #                  }
-    #             ],
-    #             histname='pThat', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "pthat_pythia_16vs18_L1L2L3.pdf"),
-    #             plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="CP5 / CUETP8M1", subplot_limits=None)
-    # )
+    do_1d_plot(entries=[
+                    {"file": pythia_16_all_L1L2L3, 
+                     "label": label("py16", "all", "L1L2L3"),
+                     "colour": PY_16_COL,
+                     'line_style': 1,
+                     'line_width': lw,
+                     }, 
+                    {"file": pythia_18_all_L1L2L3, 
+                     "label": label("py18", "all", "L1L2L3"),
+                     "colour": PY_18_COL,
+                     'line_style': 1,
+                     'line_width': lw,
+                     "subplot_ind": 0,
+                     }
+                ],
+                histname='pThat', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "pthat_pythia_16vs18_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="CP5 / CUETP8M1", subplot_limits=subplot_lim)
+    )
     # do_1d_plot(entries=[
     #                 {"file": pythia_16_all_L1, 
     #                  "label": label("py16", "all", "L1"),
@@ -518,32 +529,35 @@ if __name__ == "__main__":
     #             histname='pThat', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "pthat_pythia_16vs18_L1.pdf"),
     #             plot_kwargs=dict(xtitle="#hat{p}_{T} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="CP5 / CUETP8M1", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="CP5 / CUETP8M1", subplot_limits=subplot_lim)
     # )
 
-    # do_1d_plot(entries=[
-    #                 {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 0, },
-    #                 {"file": pythia_16_all_L1L2L3, "label": label("py16", "all", "L1L2L3"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": pythia_18_all_L1L2L3, "label": label("py18", "all", "L1L2L3"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 2, }
-    #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_16vs18_L1L2L3.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=None)
-    # )
+    ######################
+    # REF pT
+    ######################
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 0, },
+                    {"file": pythia_16_all_L1L2L3, "label": label("py16", "all", "L1L2L3"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": pythia_18_all_L1L2L3, "label": label("py18", "all", "L1L2L3"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 2, }
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_16vs18_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+    )
 
-    # do_1d_plot(entries=[
-    #                 {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": pythia_16_all_L1L2L3, "label": label("py16", "all", "L1L2L3"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
-    #                 {"file": pythia_18_all_L1L2L3, "label": label("py18", "all", "L1L2L3"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 1, }
-    #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_L1L2L3.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="Pythia / Herwig", subplot_limits=None)
-    # )
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": pythia_16_all_L1L2L3, "label": label("py16", "all", "L1L2L3"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                    {"file": pythia_18_all_L1L2L3, "label": label("py18", "all", "L1L2L3"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 1, }
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="Pythia / Herwig", subplot_limits=subplot_lim)
+    )
 
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1, "label": label("hpp", "all", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
@@ -554,7 +568,7 @@ if __name__ == "__main__":
     #             histname='refPtAll', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_16vs18_L1.pdf"),
     #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -566,7 +580,7 @@ if __name__ == "__main__":
     #             histname='refPtAll', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_PYvsHERWIG_L1.pdf"),
     #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="Pythia / Herwig", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="Pythia / Herwig", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -576,17 +590,17 @@ if __name__ == "__main__":
     #             histname='refPtAll', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_NoPU.pdf"),
     #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
-    # do_1d_plot(entries=[
-    #                 {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
-    #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1L2L3.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
-    # )
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_all_L1, "label": label("hpp", "all", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
     #                 {"file": herwig7_all_L1, "label": label("h7", "all", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
@@ -594,28 +608,93 @@ if __name__ == "__main__":
     #             histname='refPtAll', logx=True, logy=True,
     #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1.pdf"),
     #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
 
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1L2L3_ud.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1L2L3_g.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0},
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
+                ],
+                histname='refPtAll', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_L1L2L3_udVSg.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refPtLeading', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_L1L2L3_ud.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refPtLeading', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_L1L2L3_g.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0},
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
+                ],
+                histname='refPtLeading', logx=True, logy=True,
+                output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_L1L2L3_udVSg.pdf"),
+                plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+                                 subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+    )
+    
+    
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
     #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
     #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_NoPU_ud.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #             histname='refPtLeading', logx=True, logy=True,
+    #             output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_NoPU_ud.pdf"),
+    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
-    #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+    #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, },
+    #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0 },
     #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_NoPU_g.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #             histname='refPtLeading', logx=True, logy=True,
+    #             output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_NoPU_g.pdf"),
+    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -624,32 +703,77 @@ if __name__ == "__main__":
     #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  },
     #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
     #             ],
-    #             histname='refPtAll', logx=True, logy=True,
-    #             output_filename=os.path.join(OUTPUT_DIR, "refPtAll_HERWIG_NoPU_udVSg.pdf"),
-    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
-    #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=None)
+    #             histname='refPtLeading', logx=True, logy=True,
+    #             output_filename=os.path.join(OUTPUT_DIR, "refPtLeading_HERWIG_NoPU_udVSg.pdf"),
+    #             plot_kwargs=dict(xtitle="p_{T}^{GenJet 1} [GeV]", ytitle="p.d.f", title=None, ylim=pt_ylim,
+    #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
     # )
     
+    
+    ######################
+    # REF ETA
+    ######################
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refEtaLeading',
+                output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
 
-    # do_1d_plot(entries=[
-    #                 {"file": herwigpp_all_L1, "label": label("hpp", "all", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": herwig7_all_L1, "label": label("h7", "all", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
-    #             ],
-    #             histname='refEtaLeading',
-    #             output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_L1.pdf"),
-    #             plot_kwargs=dict(xtitle="#eta^{Leading GenJet}", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
-    # )
 
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refEtaLeading',
+                output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_L1L2L3_ud.pdf"),
+                plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
 
+    do_1d_plot(entries=[
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0 },
+                ],
+                histname='refEtaLeading',
+                output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_L1L2L3_g.pdf"),
+                plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0},
+                    {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  },
+                    {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
+                ],
+                histname='refEtaLeading',
+                output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_L1L2L3_udVSg.pdf"),
+                plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+    )
+
+    do_1d_plot(entries=[
+                    {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, "subplot_ind": 0, }
+                ],
+                histname='nRef',
+                output_filename=os.path.join(OUTPUT_DIR, "nRef_16vs18_L1L2L3.pdf"),
+                plot_kwargs=dict(xtitle="# GenJets (p_{T}^{Gen} > 30 GeV)", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+    )
+  
     # do_1d_plot(entries=[
     #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, },
     #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0 },
     #             ],
     #             histname='refEtaLeading',
     #             output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_NoPU_ud.pdf"),
-    #             plot_kwargs=dict(xtitle="#eta^{Leading GenJet}", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #             plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -658,8 +782,8 @@ if __name__ == "__main__":
     #             ],
     #             histname='refEtaLeading',
     #             output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_NoPU_g.pdf"),
-    #             plot_kwargs=dict(xtitle="#eta^{Leading GenJet}", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #             plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -670,8 +794,8 @@ if __name__ == "__main__":
     #             ],
     #             histname='refEtaLeading',
     #             output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_HERWIG_NoPU_udVSg.pdf"),
-    #             plot_kwargs=dict(xtitle="#eta^{Leading GenJet}", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=None)
+    #             plot_kwargs=dict(xtitle="#eta^{GenJet 1}", ytitle="p.d.f", title=None,
+    #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
     # )
 
     # do_1d_plot(entries=[
@@ -681,110 +805,255 @@ if __name__ == "__main__":
     #             histname='nRef',
     #             output_filename=os.path.join(OUTPUT_DIR, "nRef_16vs18_NoPU.pdf"),
     #             plot_kwargs=dict(xtitle="# GenJets (p_{T}^{Gen} > 10 GeV)", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=None)
+    #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
     # )
-    # 
   
-    # do_1d_plot(entries=[
-    #                 {"file": pythia_16_ud_L1L2L3, "label": label("py16", "ud", ""), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, },
-    #                 {"file": pythia_16_g_L1L2L3, "label": label("py16", "g", ""), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0},
-    #                 {"file": pythia_18_ud_L1L2L3, "label": label("py18", "ud", ""), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  },
-    #                 {"file": pythia_18_g_L1L2L3, "label": label("py18", "g", ""), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
-    #             ],
-    #             histname='refEtaLeading',
-    #             output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_Pythia_L1L2L3_udVSg.pdf"),
-    #             plot_kwargs=dict(xtitle="#eta^{Leading GenJet} [GeV]", ytitle="p.d.f", title=None,
-    #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=None)
-    # )
+    do_1d_plot(entries=[
+                    {"file": pythia_16_ud_L1L2L3, "label": label("py16", "ud", ""), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, },
+                    {"file": pythia_16_g_L1L2L3, "label": label("py16", "g", ""), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0},
+                    {"file": pythia_18_ud_L1L2L3, "label": label("py18", "ud", ""), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  },
+                    {"file": pythia_18_g_L1L2L3, "label": label("py18", "g", ""), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2 },
+                ],
+                histname='refEtaLeading',
+                output_filename=os.path.join(OUTPUT_DIR, "refEtaLeading_Pythia_L1L2L3_udVSg.pdf"),
+                plot_kwargs=dict(xtitle="#eta^{GenJet 1} [GeV]", ytitle="p.d.f", title=None,
+                                 subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+    )
+
+
+
     
-    for start, end in [(30, 35), (120, 150), (400, 550), (1000, 1500)]:
-        rebin = 4
-        if start > 200:
-            rebin=2
-        # make_projection_plot(entries=[
-        #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-        #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
-        #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
-        #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
-        #             ],
-        #             histname='RelRspVsRefPt', start_val=start, end_val=end,
-        #             output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_Herwig_gVSud_NoPU.pdf" % (start, end)),
-        #             plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, end),
-        #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=[0, 2])
-        # )
-        # make_projection_plot(entries=[
-        #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-        #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
-        #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
-        #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 1, 'rebin': rebin},
-        #             ],
-        #             histname='RelRspVsRefPt', start_val=start, end_val=end,
-        #             output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_Herwig_16vs18_NoPU.pdf" % (start, end)),
-        #             plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, end),
-        #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=[0, 2])
-        # )
+    ######################
+    # PT-BINNED THINGS
+    ######################
+    for pt_start, pt_end in [(30, 35), (45, 57), (120, 150), (400, 550), (1000, 1500)]:
+    
+
+
+        ######################
+        # PT RATIO
+        ######################
+        rebin=2
+        # splitting these by flavour makes no sense unless you do gg, gq, qg, qq
+        make_projection_plot(entries=[
+                        {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                        {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
+                    ],
+                    histname='RefPtRatioVsRefPtAve', start_val=pt_start, end_val=pt_end,
+                    output_filename=os.path.join(OUTPUT_DIR, "RefPtRatio_Pt%gto%g_Herwig_16vs18_L1L2L3.pdf" % (pt_start, pt_end)),
+                    plot_kwargs=dict(xtitle="p_{T}^{GenJet 2} / p_{T}^{GenJet 1}", xlim=(0, 1), title="%g < #LT p_{T}^{GenJet 1,2} #GT < %g GeV" % (pt_start, pt_end),
+                                     subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+        )
+        make_projection_plot(entries=[
+                        {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                        {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
+                    ],
+                    histname='RefPtAsymVsRefPtAve', start_val=pt_start, end_val=pt_end,
+                    output_filename=os.path.join(OUTPUT_DIR, "RefPtAsym_Pt%gto%g_Herwig_16vs18_L1L2L3.pdf" % (pt_start, pt_end)),
+                    plot_kwargs=dict(xtitle="#Delta p_{T}^{GenJet 1, 2} / #sum p_{T}^{GenJet 1,2}", xlim=(0, 1), title="%g < #LT p_{T}^{GenJet 1,2} #GT < %g GeV" % (pt_start, pt_end),
+                                     subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+        )
 
         make_projection_plot(entries=[
-                        {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                        {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
-                        {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
-                        {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
-                        {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                        {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 4, 'rebin': rebin},
-                        {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
-                        {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 6, 'rebin': rebin},
+                        {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                        {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
                     ],
-                    histname='RelRspVsRefPt', start_val=start, end_val=end,
-                    output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_gVSud_L1_eta2p5to2p964.pdf" % (start, end)),
-                    plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, end),
-                                     subplot_type='ratio', subplot_title="g / ud", subplot_limits=[0, 2])
+                    histname='RefDEtaVsRefPtAve', start_val=pt_start, end_val=pt_end,
+                    output_filename=os.path.join(OUTPUT_DIR, "RefDEta_Pt%gto%g_Herwig_16vs18_L1L2L3.pdf" % (pt_start, pt_end)),
+                    plot_kwargs=dict(xtitle="#Delta #eta^{GenJet 1, 2}", xlim=(0, 5), title="%g < #LT p_{T}^{GenJet 1,2} #GT < %g GeV" % (pt_start, pt_end),
+                                     subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
         )
+
         make_projection_plot(entries=[
-                        {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
-                        {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
-                        {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
-                        {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind':2},
+                        {"file": herwigpp_all_L1L2L3, "label": label("hpp", "all", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                        {"file": herwig7_all_L1L2L3, "label": label("h7", "all", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
                     ],
-                    histname='RelRspVsRefPt', start_val=start, end_val=end,
-                    output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_16vs18_g_L1_eta2p5to2p964.pdf" % (start, end)),
-                    plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, end),
-                                     subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=[0, 2])
+                    histname='RefDPhiVsRefPtAve', start_val=pt_start, end_val=pt_end,
+                    output_filename=os.path.join(OUTPUT_DIR, "RefDPhi_Pt%gto%g_Herwig_16vs18_L1L2L3.pdf" % (pt_start, pt_end)),
+                    plot_kwargs=dict(xtitle="#Delta #phi^{GenJet 1, 2}", xlim=(0, 5), title="%g < #LT p_{T}^{GenJet 1,2} #GT < %g GeV" % (pt_start, pt_end),
+                                     subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
         )
-        make_projection_plot(entries=[
-                        {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                        {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
-                        {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                        {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin, 'subplot_ind': 2},
-                    ],
-                    histname='RelRspVsRefPt', start_val=start, end_val=end,
-                    output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_16vs18_ud_L1_eta2p5to2p964.pdf" % (start, end)),
-                    plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, end),
-                                     subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=[0, 2])
-        )
-        for ecf in ["chf", "nhf", "cef", "nef"]: #, "chmult", "nmult"]:
-            xlim = None
-            if "mult" in ecf:
-                rebin = 2
-                xlim = [0, 80]
+        continue
+
+        rebin = 4
+        if pt_start > 200:
+            rebin=2
+
+        for eta_start, eta_end in [(0, 0.783), (2.5, 2.964), (3.139, 3.489)]:
+            eta_dir = "eta%gto%g" % (eta_start, eta_end)
+
+
+                
+            
+            ######################
+            # RESPONSE
+            ######################
+            # make_projection_plot(entries=[
+            #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+            #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
+            #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
+            #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
+            #             ],
+            #             histname='RelRspVsRefPt', start_val=pt_start, end_val=pt_end,
+            #             output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_Herwig_gVSud_NoPU_eta%gto%g.pdf" % (pt_start, pt_end, eta_start, eta_end)),
+            #             plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (pt_start, pt_end),
+            #                              subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+            # )
+            # make_projection_plot(entries=[
+            #                 {"file": herwigpp_ud_NoPU, "label": label("hpp", "ud", ""), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+            #                 {"file": herwigpp_g_NoPU, "label": label("hpp", "g", ""), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+            #                 {"file": herwig7_ud_NoPU, "label": label("h7", "ud", ""), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+            #                 {"file": herwig7_g_NoPU, "label": label("h7", "g", ""), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 1, 'rebin': rebin},
+            #             ],
+            #             histname='RelRspVsRefPt', start_val=pt_start, end_val=pt_end,
+            #             output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_Herwig_16vs18_NoPU_eta%gto%g.pdf" % (pt_start, pt_end, eta_start, eta_end)),
+            #             plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (pt_start, pt_end),
+            #                              subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
+            # )
+
             make_projection_plot(entries=[
-                            {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
-                            {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
-                            {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
-                            {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind':2},
+                            {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                            {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
+                            {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
+                            {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
                         ],
-                        histname='Ref%sVsRefPt' % ecf, start_val=start, end_val=end,
-                        output_filename=os.path.join(OUTPUT_DIR, "Ref%s_Pt%gto%g_PythiaHerwig_16vs18_g_L1_eta2p5to2p964.pdf" % (ecf, start, end)),
-                        plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < p_{T}^{Gen} < %g GeV" % (start, end), xlim=xlim,
-                                         subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=[0, 2])
+                        histname='RelRspVsRefPt_JetEta%gto%g' % (eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                        output_filename=os.path.join(OUTPUT_DIR, eta_dir, "RelRsp_Pt%gto%g_Herwig_gVSud_L1L2L3.pdf" % (pt_start, pt_end)),
+                        plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end),
+                                         subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
             )
             make_projection_plot(entries=[
-                            {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                            {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
-                            {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
-                            {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin, 'subplot_ind': 2},
+                            {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                            {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                            {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                            {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 1, 'rebin': rebin},
                         ],
-                        histname='Ref%sVsRefPt' % ecf, start_val=start, end_val=end,
-                        output_filename=os.path.join(OUTPUT_DIR, "Rel%s_Pt%gto%g_PythiaHerwig_16vs18_ud_L1_eta2p5to2p964.pdf" % (ecf, start, end)),
-                        plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < p_{T}^{Gen} < %g GeV" % (start, end), xlim=xlim,
-                                         subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=[0, 2])
+                        histname='RelRspVsRefPt_JetEta%gto%g' % (eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                        output_filename=os.path.join(OUTPUT_DIR, eta_dir, "RelRsp_Pt%gto%g_Herwig_16vs18_L1L2L3.pdf" % (pt_start, pt_end)),
+                        plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end),
+                                         subplot_type='ratio', subplot_title="H7 / H++", subplot_limits=subplot_lim)
             )
+
+        #     make_projection_plot(entries=[
+        #                     {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 0, 'rebin': rebin},
+        #                     {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
+        #                     {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
+        #                     {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 4, 'rebin': rebin},
+        #                     {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin},
+        #                     {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 6, 'rebin': rebin},
+        #                 ],
+        #                 histname='RelRspVsRefPt_JetEta%gto%g' % (eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+        #                 output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_gVSud_L1_eta%gto%g.pdf" % (pt_start, pt_end, eta_start, eta_end)),
+        #                 plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, pt_end),
+        #                                  subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+        #     )
+        #     make_projection_plot(entries=[
+        #                     {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+        #                     {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind':2},
+        #                 ],
+        #                 histname='RelRspVsRefPt_JetEta%gto%g' % (eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+        #                 output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_16vs18_g_L1_eta%gto%g.pdf" % (pt_start, pt_end, eta_start, eta_end)),
+        #                 plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, pt_end),
+        #                                  subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+        #     )
+        #     make_projection_plot(entries=[
+        #                     {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+        #                     {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+        #                     {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin, 'subplot_ind': 2},
+        #                 ],
+        #                 histname='RelRspVsRefPt_JetEta%gto%g' % (eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+        #                 output_filename=os.path.join(OUTPUT_DIR, "RelRsp_Pt%gto%g_PythiaHerwig_16vs18_ud_L1_eta%gto%g.pdf" % (pt_start, pt_end, eta_start, eta_end)),
+        #                 plot_kwargs=dict(xtitle="Response (p_{T}^{Reco} / p_{T}^{Gen})", xlim=(0.5, 1.5), title="%g < p_{T}^{Gen} < %g GeV" % (start, pt_end),
+        #                                  subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+        #     )
+
+            ######################
+            # ENERGY FRACTIONS
+            ######################
+
+            for ecf in ["chf", "nhf", "cef", "nef", "chmult", "nmult"]:
+                xlim = None
+                if "mult" in ecf:
+                    rebin = 2
+                    xlim = [0, 80]
+                
+                make_projection_plot(entries=[
+                                {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                                {"file": pythia_16_g_L1L2L3, "label": label("py16", "g", "L1L2L3"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                                {"file": pythia_18_g_L1L2L3, "label": label("py18", "g", "L1L2L3"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind':2},
+                            ],
+                            histname='Ref%sVsRefPt_JetEta%gto%g' % (ecf, eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                            output_filename=os.path.join(OUTPUT_DIR, eta_dir, "Ref%s_Pt%gto%g_PythiaHerwig_16vs18_g_L1L2L3.pdf" % (ecf, pt_start, pt_end)),
+                            plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end), xlim=xlim,
+                                             subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                )
+                make_projection_plot(entries=[
+                                {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                                {"file": pythia_16_ud_L1L2L3, "label": label("py16", "ud", "L1L2L3"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                                {"file": pythia_18_ud_L1L2L3, "label": label("py18", "ud", "L1L2L3"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin, 'subplot_ind': 2},
+                            ],
+                            histname='Ref%sVsRefPt_JetEta%gto%g' % (ecf, eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                            output_filename=os.path.join(OUTPUT_DIR, eta_dir, "Ref%s_Pt%gto%g_PythiaHerwig_16vs18_ud_L1L2L3.pdf" % (ecf, pt_start, pt_end)),
+                            plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end), xlim=xlim,
+                                             subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                )
+                make_projection_plot(entries=[
+                                {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                            ],
+                            histname='Ref%sVsRefPt_JetEta%gto%g' % (ecf, eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                            output_filename=os.path.join(OUTPUT_DIR, eta_dir, "Ref%s_Pt%gto%g_Herwig_16vs18_g_L1L2L3.pdf" % (ecf, pt_start, pt_end)),
+                            plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end), xlim=xlim,
+                                             subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                )
+                make_projection_plot(entries=[
+                                {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                            ],
+                            histname='Ref%sVsRefPt_JetEta%gto%g' % (ecf, eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                            output_filename=os.path.join(OUTPUT_DIR, eta_dir, "Ref%s_Pt%gto%g_Herwig_16vs18_ud_L1L2L3.pdf" % (ecf, pt_start, pt_end)),
+                            plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end), xlim=xlim,
+                                             subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                )
+
+                make_projection_plot(entries=[
+                                {"file": herwigpp_ud_L1L2L3, "label": label("hpp", "ud", "L1L2L3"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwigpp_g_L1L2L3, "label": label("hpp", "g", "L1L2L3"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin,'subplot_ind': 0},
+                                {"file": herwig7_ud_L1L2L3, "label": label("h7", "ud", "L1L2L3"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                                {"file": herwig7_g_L1L2L3, "label": label("h7", "g", "L1L2L3"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'subplot_ind': 2, 'rebin': rebin},
+                            ],
+                            histname='Ref%sVsRefPt_JetEta%gto%g' % (ecf, eta_start, eta_end), start_val=pt_start, end_val=pt_end,
+                            output_filename=os.path.join(OUTPUT_DIR, eta_dir, "Ref%s_Pt%gto%g_Herwig_gVsud_L1L2L3.pdf" % (ecf, pt_start, pt_end)),
+                            plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < |#eta| < %g\n%g < p_{T}^{Gen} < %g GeV" % (eta_start, eta_end, pt_start, pt_end), xlim=xlim,
+                                             subplot_type='ratio', subplot_title="g / ud", subplot_limits=subplot_lim)
+                )
+
+                # make_projection_plot(entries=[
+                #                 {"file": herwigpp_g_L1, "label": label("hpp", "g", "L1"), "colour": HPP_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                #                 {"file": herwig7_g_L1, "label": label("h7", "g", "L1"), "colour": H7_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                #                 {"file": pythia_16_g_L1, "label": label("py16", "g", "L1"), "colour": PY_16_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin},
+                #                 {"file": pythia_18_g_L1, "label": label("py18", "g", "L1"), "colour": PY_18_COL, 'line_style': 2, 'line_width': lw, 'rebin': rebin, 'subplot_ind':2},
+                #             ],
+                #             histname='Ref%sVsRefPt' % ecf, start_val=pt_start, end_val=pt_end,
+                #             output_filename=os.path.join(OUTPUT_DIR, "Ref%s_Pt%gto%g_PythiaHerwig_16vs18_g_L1_eta%gto%g.pdf" % (ecf, pt_start, pt_end, eta_start, eta_end)),
+                #             plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < p_{T}^{Gen} < %g GeV" % (pt_start, pt_end), xlim=xlim,
+                #                              subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                # )
+                # make_projection_plot(entries=[
+                #                 {"file": herwigpp_ud_L1, "label": label("hpp", "ud", "L1"), "colour": HPP_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                #                 {"file": herwig7_ud_L1, "label": label("h7", "ud", "L1"), "colour": H7_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin, 'subplot_ind': 0},
+                #                 {"file": pythia_16_ud_L1, "label": label("py16", "ud", "L1"), "colour": PY_16_COL, 'line_style': 1, 'line_width': lw, 'rebin': rebin},
+                #                 {"file": pythia_18_ud_L1, "label": label("py18", "ud", "L1"), "colour": PY_18_COL, 'line_style': 1, 'line_width': lw,  'rebin': rebin, 'subplot_ind': 2},
+                #             ],
+                #             histname='Ref%sVsRefPt' % ecf, start_val=pt_start, end_val=pt_end,
+                #             output_filename=os.path.join(OUTPUT_DIR, "Rel%s_Pt%gto%g_PythiaHerwig_16vs18_ud_L1_eta%gto%g.pdf" % (ecf, pt_start, pt_end, eta_start, eta_end)),
+                #             plot_kwargs=dict(xtitle="%s" % ecf.upper(), title="%g < p_{T}^{Gen} < %g GeV" % (pt_start, pt_end), xlim=xlim,
+                #                              subplot_type='ratio', subplot_title="2018 / 2016", subplot_limits=subplot_lim)
+                # )
