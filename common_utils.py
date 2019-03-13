@@ -13,6 +13,7 @@ import re
 from math import fabs, log10, frexp, hypot
 from copy import deepcopy
 import bisect
+from comparator import Plot, Contribution
 
 
 from MyStyle import My_Style
@@ -874,5 +875,104 @@ def get_projection_plot(h2d, start_val, end_val, cut_axis='y'):
         hproj = h2d.ProjectionY(ROOT.TUUID().AsString(), bin_start, bin_end, "eo")
         return hproj
 
+
 def get_unique_str():
     return ROOT.TUUID().AsString()
+
+
+def make_comparison_plot_ingredients(entries, rebin=1, normalise_hist=True, mean_rel_error=1.0, **plot_kwargs):
+    """Make the Plot object for a comparison plot.
+
+    User can then add other elements to the plot.
+
+    Parameters
+    ----------
+    entries : list[(object, dict)]
+        List of ROOT object & it's configuration dict, where the dict is a set of kwargs passed to the Contribution object
+    rebin : int, optional
+        Rebin factor
+    normalise_hist : bool, optional
+        Normalise each histogram's integral to unity
+    mean_rel_error : float, optional
+        Remove contributions that have a mean realtive error more than this value
+        mean realtive error = mean of all the error/bin contents
+    **plot_kwargs
+        Any other kwargs to be passed to the Plot object contructor
+
+    Returns
+    -------
+    Plot
+        Plot object to be modified, plotted, etc
+
+    Raises
+    ------
+    RuntimeError
+        If there are 0 contributions
+    """
+    conts = [Contribution(ent[0], normalise_hist=normalise_hist, rebin_hist=rebin, **ent[1])
+             for ent in entries]
+             # if get_hist_mean_rel_error(ent[0]) < mean_rel_error and ent[0].Integral() > 0]
+    do_legend = len(conts) > 1
+    if len(conts) == 0:
+        raise RuntimeError("0 contributions for this plot")
+    do_subplot = any(c.subplot for c in conts)
+    if (len(conts) == 1 or not do_subplot) and "subplot_type" in plot_kwargs:
+        plot_kwargs['subplot_type'] = None
+    p = Plot(conts, what="hist", ytitle="p.d.f", legend=do_legend, **plot_kwargs)
+    if do_legend:
+        p.legend.SetX1(0.5)
+        p.legend.SetX2(0.95)
+        if len(entries) > 4:
+            p.legend.SetY1(0.67)
+        else:
+            p.legend.SetY1(0.78)
+        p.legend.SetY2(0.95)
+    return p
+
+
+def do_comparison_plot(entries, output_filename, rebin=1, **plot_kwargs):
+    """Plot several different objects on a single plot
+
+    entries : list of 2-tuples, with (object, dict), where the dict is a set of kwargs passed to the Contribution object
+    plot_kwargs : any other kwargs to be passed to the Plot object ctor
+    """
+    try:
+        p = make_comparison_plot_ingredients(entries, rebin=rebin, mean_rel_error=0.4, **plot_kwargs)
+        draw_opt = "NOSTACK HISTE"
+        p.plot(draw_opt)
+        # p.container.SetMaximum(min(5, p.container.GetMaximum()))
+        dirname = os.path.dirname(os.path.abspath(output_filename))
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
+        p.save(output_filename)
+    except RuntimeError as e:
+        print("Skipping")
+        print(e)
+
+
+def get_hist_mean_rel_error(hist):
+    """Get average relative error from histogram bins (i.e. error / contents)
+
+    Parameters
+    ----------
+    hist : ROOT.TH1 (or descendents)
+        Description
+
+    Returns
+    -------
+    float
+        average relative error
+    """
+    nbins = hist.GetNbinsX()
+    contents = np.array([hist.GetBinContent(i) for i in range(1, nbins+1)])
+    errors = np.array([hist.GetBinError(i) for i in range(1, nbins+1)])
+    # only care about bins with something in them
+    mask = contents > 0
+    # if no bins have any contents, just return 0
+    if not mask.any():
+        return 0.
+    rel_err = np.divide(errors[mask], contents[mask])
+    rel_err[np.isinf(rel_err)] = 0.
+    rel_err[np.isnan(rel_err)] = 0.
+    return np.average(rel_err)
+
