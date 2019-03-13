@@ -94,7 +94,7 @@ class Contribution(object):
                  line_width=1, line_color=ROOT.kRed, line_style=1,
                  fill_color=ROOT.kRed, fill_style=0,
                  marker_size=1, marker_color=ROOT.kRed, marker_style=1,
-                 normalise_hist=False, rebin_hist=None, subplot=None):
+                 normalise_hist=False, rebin_hist=None, subplot=None, subplot2=None):
         """
         obj : TH1, TGraph, ...
             Object to be plotted
@@ -134,6 +134,7 @@ class Contribution(object):
         self.marker_color = marker_color
         self.marker_style = marker_style
         self.subplot = subplot
+        self.subplot2 = subplot2
 
         self.obj.SetLineWidth(self.line_width)
         self.obj.SetLineColor(self.line_color)
@@ -173,6 +174,7 @@ class Plot(object):
                  title=None, xtitle=None, ytitle=None, xlim=None, ylim=None,
                  legend=True, extend=False,
                  subplot=None, subplot_type=None, subplot_title=None, subplot_limits=None,
+                 subplot2=None, subplot_type2=None, subplot_title2=None, subplot_limits2=None,
                  has_data=True):
         """
         contributions: list
@@ -215,12 +217,12 @@ class Plot(object):
         self.xlim = xlim
         self.ylim = ylim
         self.do_legend = legend
-        self.legend = ROOT.TLegend(0.65, 0.6, 0.94, 0.85) if legend else None
+        self.legend = ROOT.TLegend(0.65, 0.67, 0.94, 0.92) if legend else None
         self.do_extend = extend
         self.container = None
         self.canvas = None
-        self.default_canvas_size = (600, 800)
-        # self.default_canvas_size = (800, 600)
+        # self.default_canvas_size = (600, 800)
+        self.default_canvas_size = (800, 600)
         self.main_pad = None
         self.subplot = subplot
         if subplot_type and subplot_type not in ['ratio', 'diff', "ddelta"]:
@@ -236,6 +238,25 @@ class Plot(object):
         self.subplot_pad_fudge = 0.01  # to get non-overlapping subplot axis
         self.subplot_line = None  # need this to remain visible...
         self.subplot_title = subplot_title
+
+        self.subplot2 = subplot
+        if subplot_type2 and subplot_type2 not in ['ratio', 'diff', "ddelta"]:
+            raise RuntimeError("subplot_type must be one of None, ratio, diff, or ddelta")
+        self.subplot_type2 = subplot_type2
+        if not self.subplot_type2:
+            self.subplot2 = None
+        self.subplot_container2 = None
+        self.subplot_contributions2 = []
+        self.subplot_pad2 = None
+        self.subplot_limits2 = subplot_limits2
+        self.subplot_pad_height2 = 0.32
+        self.subplot_pad_fudge2 = 0.01  # to get non-overlapping subplot axis
+        self.subplot_line2 = None  # need this to remain visible...
+        self.subplot_title2 = subplot_title2
+        if self.subplot_type2 and self.subplot_type:
+            self.subplot_pad_height = 0.12
+            self.subplot_pad_height2 = 0.20
+        
         self.is_preliminary = True
         self.has_data = has_data
 
@@ -248,17 +269,22 @@ class Plot(object):
         if self.plot_what in ["graph", "both"]:
             self.container = ROOT.TMultiGraph(ROOT.TUUID().AsString(), "")
             self.subplot_container = ROOT.TMultiGraph(ROOT.TUUID().AsString(), "")
+            self.subplot_container2 = ROOT.TMultiGraph(ROOT.TUUID().AsString(), "")
         elif self.plot_what == "function":
             self.container = MultiFunc()
             self.subplot_container = MultiFunc()
+            self.subplot_container2 = MultiFunc()
         elif self.plot_what == "hist":
             self.container = ROOT.THStack(ROOT.TUUID().AsString(), "")
             self.subplot_container = ROOT.THStack(ROOT.TUUID().AsString(), "")
+            self.subplot_container2 = ROOT.THStack(ROOT.TUUID().AsString(), "")
 
         if self.container:
             ROOT.SetOwnership(self.container, False)
         if self.subplot_container:
             ROOT.SetOwnership(self.subplot_container, False)
+        if self.subplot_container2:
+            ROOT.SetOwnership(self.subplot_container2, False)
 
 
     def _populate_container_and_legend(self):
@@ -330,6 +356,46 @@ class Plot(object):
                         new_hist.Scale(0.5)
                     self.subplot_container.Add(new_hist)
                     self.subplot_contributions.append(new_hist)
+            
+            # Add contributions for the subplot2
+            if self.subplot_type2:
+                if self.subplot2:
+                    print(self.subplot2)
+                    # Use one reference object for all entries
+                    subplot_obj = self.subplot2.obj.Clone()
+                    if contrib != self.subplot2:
+                        new_hist2 = contrib.obj.Clone()
+                        if (self.subplot_type2 == "ratio"):
+                            new_hist2.Divide(subplot_obj)
+                        elif (self.subplot_type2 == "diff"):
+                            new_hist2.Add(subplot_obj, -1.)
+                        elif (self.subplot_type2 == "ddelta"):
+                            # Do the differntial delta spectrum, see 1704.03878
+                            new_hist2.Add(subplot_obj, -1.)
+                            new_hist2.Multiply(new_hist2)
+                            sum_hist2 = contrib.obj.Clone()
+                            sum_hist2.Add(subplot_obj)
+                            new_hist2.Divide(sum_hist2)
+                            new_hist2.Scale(0.5)
+                        self.subplot_container2.Add(new_hist2)
+                        self.subplot_contributions2.append(new_hist2)
+                elif contrib.subplot2 is not None:
+                    new_hist2 = contrib.obj.Clone()
+                    ref_obj = contrib.subplot2
+                    if (self.subplot_type2 == "ratio"):
+                        new_hist2.Divide(ref_obj)
+                    elif (self.subplot_type2 == "diff"):
+                        new_hist2.Add(ref_obj, -1.)
+                    elif (self.subplot_type2 == "ddelta"):
+                        # Do the differntial delta spectrum, see 1704.03878
+                        new_hist2.Add(ref_obj, -1.)
+                        new_hist2.Multiply(new_hist2)
+                        sum_hist2 = contrib.obj.Clone()
+                        sum_hist2.Add(ref_obj)
+                        new_hist2.Divide(sum_hist2)
+                        new_hist2.Scale(0.5)
+                    self.subplot_container2.Add(new_hist2)
+                    self.subplot_contributions2.append(new_hist2)
 
     def _style_legend(self):
         # self.legend.SetBorderSize(0)
@@ -351,12 +417,16 @@ class Plot(object):
         self.main_pad.SetLogx(int(state))
         if self.subplot_pad:
             self.subplot_pad.SetLogx(int(state))
+        if self.subplot_pad2:
+            self.subplot_pad2.SetLogx(int(state))
         if self.container:
             ax = self.container.GetXaxis()
             # if ax:
             #     ax.SetMoreLogLabels()
         if self.subplot_container:
             ax = self.subplot_container.GetXaxis()
+        if self.subplot_container2:
+            ax = self.subplot_container2.GetXaxis()
             # if ax:
             #     ax.SetMoreLogLabels()
 
@@ -416,27 +486,62 @@ class Plot(object):
                 self.canvas = ROOT.TCanvas(ROOT.TUUID().AsString(), "", *self.default_canvas_size)
                 self.canvas.SetTicks(1, 1)
                 right_margin = 0.03
-                top_margin = 0.1
+                top_margin = 0.05
                 if self.subplot_type:
-                    self.main_pad = ROOT.TPad("main_pad", "", 0, self.subplot_pad_height+self.subplot_pad_fudge, 1, 1)
-                    ROOT.SetOwnership(self.main_pad, False)
-                    self.main_pad.SetTicks(1, 1)
-                    self.main_pad.SetBottomMargin(2*self.subplot_pad_fudge)
-                    self.main_pad.SetTopMargin(top_margin / (1-self.subplot_pad_height))
-                    # self.main_pad.SetRightMargin(right_margin / (1-self.subplot_pad_height))
-                    self.main_pad.SetRightMargin(right_margin)
-                    self.canvas.cd()
-                    self.main_pad.Draw()
-                    self.subplot_pad = ROOT.TPad("subplot_pad", "", 0, 0, 1, self.subplot_pad_height-self.subplot_pad_fudge)
-                    ROOT.SetOwnership(self.subplot_pad, False)
-                    self.subplot_pad.SetTicks(1, 1)
-                    self.subplot_pad.SetFillColor(0)
-                    self.subplot_pad.SetFillStyle(0)
-                    self.subplot_pad.SetTopMargin(4*self.subplot_pad_fudge)
-                    self.subplot_pad.SetRightMargin(right_margin)
-                    self.subplot_pad.SetBottomMargin(0.35)
-                    self.canvas.cd()
-                    self.subplot_pad.Draw()
+                    if not self.subplot_type2:
+                        self.main_pad = ROOT.TPad("main_pad", "", 0, self.subplot_pad_height+self.subplot_pad_fudge, 1, 1)
+                        ROOT.SetOwnership(self.main_pad, False)
+                        self.main_pad.SetTicks(1, 1)
+                        self.main_pad.SetBottomMargin(2*self.subplot_pad_fudge)
+                        self.main_pad.SetTopMargin(top_margin / (1-self.subplot_pad_height))
+                        # self.main_pad.SetRightMargin(right_margin / (1-self.subplot_pad_height))
+                        self.main_pad.SetRightMargin(right_margin)
+                        self.canvas.cd()
+                        self.main_pad.Draw()
+
+                        self.subplot_pad = ROOT.TPad("subplot_pad", "", 0, 0, 1, self.subplot_pad_height-self.subplot_pad_fudge)
+                        ROOT.SetOwnership(self.subplot_pad, False)
+                        self.subplot_pad.SetTicks(1, 1)
+                        self.subplot_pad.SetFillColor(0)
+                        self.subplot_pad.SetFillStyle(0)
+                        self.subplot_pad.SetTopMargin(4*self.subplot_pad_fudge)
+                        self.subplot_pad.SetRightMargin(right_margin)
+                        self.subplot_pad.SetBottomMargin(0.35)
+                        self.canvas.cd()
+                        self.subplot_pad.Draw()
+                    else:
+                        self.main_pad = ROOT.TPad("main_pad", "", 0, self.subplot_pad_height+self.subplot_pad_fudge+self.subplot_pad_height2+self.subplot_pad_fudge2, 1, 1)
+                        ROOT.SetOwnership(self.main_pad, False)
+                        self.main_pad.SetTicks(1, 1)
+                        self.main_pad.SetBottomMargin(2*self.subplot_pad_fudge)
+                        self.main_pad.SetTopMargin(top_margin / (1-self.subplot_pad_height-self.subplot_pad_height2))
+                        # self.main_pad.SetRightMargin(right_margin / (1-self.subplot_pad_height))
+                        self.main_pad.SetRightMargin(right_margin)
+                        self.canvas.cd()
+                        self.main_pad.Draw()
+
+                        # I have no idea how to do this properly, all hacked until looks good
+                        self.subplot_pad = ROOT.TPad("subplot_pad", "", 0, self.subplot_pad_height2, 1, self.subplot_pad_height2+self.subplot_pad_fudge2+self.subplot_pad_height+self.subplot_pad_fudge)
+                        ROOT.SetOwnership(self.subplot_pad, False)
+                        self.subplot_pad.SetTicks(1, 1)
+                        self.subplot_pad.SetFillColor(0)
+                        self.subplot_pad.SetFillStyle(0)
+                        # self.subplot_pad.SetTopMargin(4*self.subplot_pad_fudge)
+                        self.subplot_pad.SetRightMargin(right_margin)
+                        # self.subplot_pad.SetBottomMargin(0.35*0.5)
+                        self.canvas.cd()
+                        self.subplot_pad.Draw()
+
+                        self.subplot_pad2 = ROOT.TPad("subplot_pad2", "", 0, 0, 1, self.subplot_pad_height2+self.subplot_pad_fudge2)
+                        ROOT.SetOwnership(self.subplot_pad2, False)
+                        self.subplot_pad2.SetTicks(1, 1)
+                        self.subplot_pad2.SetFillColor(0)
+                        self.subplot_pad2.SetFillStyle(0)
+                        # self.subplot_pad2.SetTopMargin(3*self.subplot_pad_fudge2)
+                        self.subplot_pad2.SetRightMargin(right_margin)
+                        self.subplot_pad2.SetBottomMargin(0.35*1.2)
+                        self.canvas.cd()
+                        self.subplot_pad2.Draw()
                 else:
                     self.main_pad = ROOT.TPad("main_pad", "", 0, 0, 1, 1)
                     ROOT.SetOwnership(self.main_pad, False)
@@ -507,7 +612,7 @@ class Plot(object):
         cms_latex.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignBottom)
         cms_latex.SetTextFont(42)
         cms_latex.SetTextSize(0.035)
-        latex_height = 0.91
+        latex_height = 0.97
         # cms_latex.DrawLatex(0.14, latex_height, "#font[62]{CMS}#font[52]{ Preliminary}")
         if self.is_preliminary:
             if self.has_data:
@@ -534,14 +639,14 @@ class Plot(object):
         text_latex.SetTextAlign(ROOT.kHAlignLeft + ROOT.kVAlignTop)
         text_latex.SetTextFont(42)
         text_latex.SetTextSize(0.03)
-        start_y = 0.87
+        start_y = 0.92
         diff_y = 0.07
-        diff_y = 0.03
+        diff_y = 0.05
         for ind, line in enumerate(self.title.split('\n')):
             text_latex.DrawLatex(0.18, start_y - (ind*diff_y), line)
 
         # Do subplot
-        if self.subplot_type:
+        if self.subplot_type and not self.subplot_type2:
             self._rescale_plot_labels(modifier, 1-self.subplot_pad_height)
 
             # Get rid of main plot x axis labels
@@ -613,6 +718,144 @@ class Plot(object):
             self.subplot_container.GetYaxis().SetNdivisions(505)
 
             self.subplot_pad.Update()
+            self.canvas.Update()
+
+        elif self.subplot_type and self.subplot_type2:
+            self._rescale_plot_labels(modifier, 1-self.subplot_pad_height-self.subplot_pad_height2)
+
+            # Get rid of main plot x axis labels
+            modifier.GetHistogram().GetXaxis().SetLabelSize(0)
+            modifier.GetXaxis().SetLabelSize(0)
+            modifier.GetHistogram().GetXaxis().SetTitleSize(0)
+            modifier.GetXaxis().SetTitleSize(0)
+
+            self.subplot_pad.cd()
+            self.subplot_container.Draw(draw_opts)
+
+            if self.subplot_title == None:
+                if (self.subplot_type == "ratio"):
+                    self.subplot_title = "#splitline{Ratio vs}{%s}" % (self.subplot.label)
+                elif (self.subplot_type == "diff"):
+                    self.subplot_title = "#splitline{Difference}{vs %s}" % (self.subplot.label)
+                elif (self.subplot_type == "ddelta"):
+                    self.subplot_title = "d#Delta/d#lambda"
+
+            self.subplot_container.SetTitle(";%s;%s" % (self.xtitle, self.subplot_title))
+
+
+            if self.xlim:
+                self.subplot_container.GetXaxis().SetRangeUser(*self.xlim)
+
+            if self.subplot_type == "ratio":
+                self.subplot_container.SetMinimum(0)  # use this, not SetRangeUser()
+                if self.subplot_limits:
+                    self.subplot_container.SetMinimum(self.subplot_limits[0])  # use this, not SetRangeUser()
+                    self.subplot_container.SetMaximum(self.subplot_limits[1])  # use this, not SetRangeUser()
+                else:
+                    # Make sure that the upper limit is the largest bin of the contributions,
+                    # so long as it is within 1.5 and some upper limit
+                    harrays = [cu.th1_to_arr(h) for h in self.subplot_contributions]
+                    try:
+                        bin_maxs = [np.max(arr[np.nonzero(arr)]) for arr in harrays]
+                    except ValueError:
+                        bin_maxs = [0]
+                    except IndexError:
+                        bin_maxs = [0]
+                    self.subplot_container.SetMaximum(min(3, max(1.5, 1.2*max(bin_maxs))))
+
+                    # Make sure the lower limit is the smallest bin of the contributions,
+                    # so long as it is within 0 and 0.5
+                    try:
+                        bin_mins = [np.min(arr[np.nonzero(arr)]) for arr in harrays]
+                    except ValueError:
+                        bin_mins = [0]
+                    except IndexError:
+                        bin_mins = [1]
+                    self.subplot_container.SetMinimum(min(0.5, 0.9*min(bin_mins)))
+
+                xax = modifier.GetXaxis()
+                self.subplot_line = ROOT.TLine(xax.GetXmin(), 1., xax.GetXmax(), 1.)
+                if self.xlim:
+                    self.subplot_line = ROOT.TLine(self.xlim[0], 1., self.xlim[1], 1.)
+                self.subplot_line.SetLineStyle(2)
+                self.subplot_line.SetLineWidth(2)
+                self.subplot_line.SetLineColor(ROOT.kBlack)
+                self.subplot_line.Draw()
+
+            self._rescale_plot_labels(self.subplot_container, self.subplot_pad_height/0.7)
+            xax = self.subplot_container.GetXaxis()
+            xax.SetTitleOffset(9999999999)
+            xax.SetLabelOffset(9999999999)
+            # if xax.IsAlphanumeric():
+            #     if xax.GetNbins() > 10:
+            #         xax.LabelsOption("v")
+            #         xax.SetLabelSize(0.08)
+            self.subplot_container.GetYaxis().SetNdivisions(505)
+            self.subplot_pad.Update()
+
+            self.subplot_pad2.cd()
+            self.subplot_container2.Draw(draw_opts)
+
+            if self.subplot_title2 == None:
+                if (self.subplot_type2 == "ratio"):
+                    self.subplot_title2 = "#splitline{Ratio vs}{%s}" % (self.subplot2.label)
+                elif (self.subplot_type2 == "diff"):
+                    self.subplot_title2 = "#splitline{Difference}{vs %s}" % (self.subplot2.label)
+                elif (self.subplot_type2 == "ddelta"):
+                    self.subplot_title2 = "d#Delta/d#lambda"
+
+            self.subplot_container2.SetTitle(";%s;%s" % (self.xtitle, self.subplot_title2))
+
+
+            if self.xlim:
+                self.subplot_container2.GetXaxis().SetRangeUser(*self.xlim)
+
+            if self.subplot_type2 == "ratio":
+                self.subplot_container2.SetMinimum(0)  # use this, not SetRangeUser()
+                if self.subplot_limits2:
+                    self.subplot_container2.SetMinimum(self.subplot_limits2[0])  # use this, not SetRangeUser()
+                    self.subplot_container2.SetMaximum(self.subplot_limits2[1])  # use this, not SetRangeUser()
+                else:
+                    # Make sure that the upper limit is the largest bin of the contributions,
+                    # so long as it is within 1.5 and some upper limit
+                    harrays = [cu.th1_to_arr(h) for h in self.subplot_contributions2]
+                    try:
+                        bin_maxs = [np.max(arr[np.nonzero(arr)]) for arr in harrays]
+                    except ValueError:
+                        bin_maxs = [0]
+                    except IndexError:
+                        bin_maxs = [0]
+                    self.subplot_container2.SetMaximum(min(3, max(1.5, 1.2*max(bin_maxs))))
+
+                    # Make sure the lower limit is the smallest bin of the contributions,
+                    # so long as it is within 0 and 0.5
+                    try:
+                        bin_mins = [np.min(arr[np.nonzero(arr)]) for arr in harrays]
+                    except ValueError:
+                        bin_mins = [0]
+                    except IndexError:
+                        bin_mins = [1]
+                    self.subplot_container2.SetMinimum(min(0.5, 0.9*min(bin_mins)))
+
+                xax = modifier.GetXaxis()
+                self.subplot_line2 = ROOT.TLine(xax.GetXmin(), 1., xax.GetXmax(), 1.)
+                if self.xlim:
+                    self.subplot_line2 = ROOT.TLine(self.xlim[0], 1., self.xlim[1], 1.)
+                self.subplot_line2.SetLineStyle(2)
+                self.subplot_line2.SetLineWidth(2)
+                self.subplot_line2.SetLineColor(ROOT.kBlack)
+                self.subplot_line2.Draw()
+
+            self._rescale_plot_labels(self.subplot_container2, self.subplot_pad_height2/0.8)
+            xax = self.subplot_container2.GetXaxis()
+            xax.SetTitleOffset(self.subplot_container2.GetXaxis().GetTitleOffset()*4)
+            if xax.IsAlphanumeric():
+                if xax.GetNbins() > 10:
+                    xax.LabelsOption("v")
+                    xax.SetLabelSize(0.08)
+            self.subplot_container2.GetYaxis().SetNdivisions(505)
+
+            self.subplot_pad2.Update()
             self.canvas.Update()
 
 
